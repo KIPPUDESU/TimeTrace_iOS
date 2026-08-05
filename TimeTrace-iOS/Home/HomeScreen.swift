@@ -29,16 +29,9 @@ struct HomeScreen: View {
                     listLayout
                 }
             }
-            .background(TimeTracePalette.background)
-            .navigationTitle("时间轴")
-            .toolbar {
-                // 右上角的加号按钮，是液态玻璃来着，用来新建记录
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: addEvent) {
-                        Image(systemName: "plus")
-                    }
-                    .accessibilityLabel("添加")
-                }
+            .background(TimeTracePalette.background.ignoresSafeArea())
+            .safeAreaInset(edge: .top, spacing: 0) {
+                headerView
             }
             .alert("确认删除", isPresented: deleteAlertBinding, presenting: pendingDelete) { event in
                 Button("删除", role: .destructive) { delete(event) }
@@ -55,6 +48,45 @@ struct HomeScreen: View {
             }
         }
         .sensoryFeedback(.impact(weight: .heavy), trigger: pendingDelete?.id)
+    }
+
+    // 顶部标题栏双行品牌标题，添加按钮和它同一水平线
+    private var headerView: some View {
+        HStack(alignment: .center) {
+            // 小字品牌上，大字标题在下
+            VStack(alignment: .leading, spacing: 0) {
+                Text("TimeTrace")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(TimeTracePalette.secondary)
+                    .offset(x: 1.5)
+                Text("时间轴")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundStyle(TimeTracePalette.onSurface)
+            }
+            Spacer()
+            // 添加按钮，26及以上用官方液态玻璃，老的系统退回普通毛玻璃
+            Button(action: addEvent) {
+                if #available(iOS 26.0, *) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(TimeTracePalette.primary)
+                        .frame(width: 36, height: 36)
+                        .glassEffect(.regular, in: Circle())
+                } else {
+                    Image(systemName: "plus")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(TimeTracePalette.primary)
+                        .frame(width: 36, height: 36)
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+            }
+            .accessibilityLabel("添加")
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 6)
+        .padding(.bottom, 12)
+        .frame(maxWidth: .infinity)
+        .background(TimeTracePalette.background)
     }
 
     // 手机上用的单列列表
