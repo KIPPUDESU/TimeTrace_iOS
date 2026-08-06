@@ -123,16 +123,17 @@ private struct PinnedShortLayout: View {
                     .foregroundStyle(.white.opacity(0.8))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-
-            PinnedDaysBlock(event: event, daysSize: 48)
+            PinnedDaysBlock(event: event, daysSize: 48, showsDate: false)
         }
     }
 }
 
-/// 天数 单位 日期
+// 天数 单位 日期
 private struct PinnedDaysBlock: View {
     let event: DateEvent
     var daysSize: CGFloat
+    // 日期下显不显示
+    var showsDate: Bool = true
 
     var body: some View {
         VStack(alignment: .trailing, spacing: -2) {
@@ -146,9 +147,12 @@ private struct PinnedDaysBlock: View {
                     .foregroundStyle(.white.opacity(0.8))
                     .padding(.bottom, 10)
             }
-            Text(TimeUtils.shortDate(event.targetDate))
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.7))
+            // 判定
+            if showsDate {
+                Text(TimeUtils.shortDate(event.targetDate))
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.7))
+            }
         }
     }
 }
@@ -276,15 +280,13 @@ private struct NormalStandardLayout: View {
     private var prefix: String { event.isFuture ? "还有" : "已经" }
 }
 
-// MARK: - Previews
-
-#Preview("普通卡 · 横排") {
+#Preview("普通卡横排") {
     NormalEventCard(event: MockData.sampleEvents[3])
         .padding()
         .background(TimeTracePalette.background)
 }
 
-#Preview("普通卡 · 堆叠") {
+#Preview("普通卡堆叠") {
     NormalEventCard(event: MockData.sampleEvents[5])
         .padding()
         .background(TimeTracePalette.background)
