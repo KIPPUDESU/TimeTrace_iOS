@@ -1,6 +1,7 @@
 import SwiftUI
 
-// 置顶卡片：16:9 大卡，背景图 + 渐变遮罩 + 置顶标签（对应 `PinnedEventCard.kt`）
+// 置顶卡片：16:9 大卡
+// 背景图渐变遮罩和置顶标签
 struct PinnedEventCard: View {
     let event: DateEvent
     var onClick: () -> Void = {}
@@ -45,7 +46,7 @@ struct PinnedEventCard: View {
     }
 }
 
-/// 按标题视觉宽度选择三档排版（对应 `PinnedEventCard.kt` 的 if/else 分档）
+/// 按标题视觉宽度选择三档排版
 private struct PinnedCardContent: View {
     let event: DateEvent
 
@@ -63,38 +64,41 @@ private struct PinnedCardContent: View {
     }
 }
 
-/// 类型 3：超宽标题，最多 4 行、最后一行强淡出
+// 最多 4 行，最后一行强淡出
 private struct PinnedWideLayout: View {
     let event: DateEvent
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 16) {
-            Text(TimeTextUtils.forceCharacterWrap(event.title))
-                .font(.system(size: 22, weight: .bold))
-                .foregroundStyle(.white)
-                .lineSpacing(6)             // 近似 lineHeight 28sp（22sp 字号）
-                .lineLimit(4)
-                .shadow(color: .black.opacity(0.5), radius: 8)
-                .fadeLastLineEdge(fadeWidth: 48, lastLineHeightFraction: 0.25)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            // 只淡最后一行右侧
+            OverflowFadeTitle(
+                text: TimeTextUtils.forceCharacterWrap(event.title),
+                font: .system(size: 22, weight: .bold),
+                lineLimit: 4,
+                lineSpacing: 6,
+            )
+            .foregroundStyle(.white)
+            .shadow(color: .black.opacity(0.5), radius: 8)
 
             PinnedDaysBlock(event: event, daysSize: 48)
         }
     }
 }
 
-/// 类型 2：标题在天数上方（竖排）
+// 标题在天数上方
 private struct PinnedTallLayout: View {
     let event: DateEvent
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(event.title)
-                .font(.system(size: 32, weight: .bold))
-                .foregroundStyle(.white)
-                .lineLimit(1)
-                .shadow(color: .black.opacity(0.5), radius: 8)
-                .fadeRightEdge(fadeWidth: 48)
+            // 标题一行文字，顶到卡片右边界渐隐
+            OverflowFadeTitle(
+                text: event.title,
+                font: .system(size: 32, weight: .bold),
+                lineLimit: 1,
+            )
+            .foregroundStyle(.white)
+            .shadow(color: .black.opacity(0.5), radius: 8)
 
             PinnedDaysBlock(event: event, daysSize: 48)
         }
@@ -102,7 +106,7 @@ private struct PinnedTallLayout: View {
     }
 }
 
-/// 类型 1：短标题横排（标题 + 日期在左，天数在右）
+// 短标题横排
 private struct PinnedShortLayout: View {
     let event: DateEvent
 
@@ -125,7 +129,7 @@ private struct PinnedShortLayout: View {
     }
 }
 
-/// 天数 + 单位 + 日期（右下角块）
+/// 天数 单位 日期
 private struct PinnedDaysBlock: View {
     let event: DateEvent
     var daysSize: CGFloat
@@ -149,8 +153,8 @@ private struct PinnedDaysBlock: View {
     }
 }
 
-/// 背景图（对应 Android `AsyncImage` / surfaceVariant 兜底）
-/// 有背景图时渲染 bundle 内图片；无背景图时沿用 Android 的 surfaceVariant 兜底。
+// 背景图
+// 有背景图时渲染 bundle 内图片，无背景图时浅灰
 struct EventBackgroundView: View {
     let event: DateEvent
 
@@ -167,9 +171,7 @@ struct EventBackgroundView: View {
     }
 }
 
-// MARK: - 普通卡片
-
-/// 普通卡片：按标题视觉宽度分两种排版（对应 `NormalEventCard.kt`）
+// 普通卡片，按标题视觉宽度分两种排版
 struct NormalEventCard: View {
     let event: DateEvent
     var onClick: () -> Void = {}
@@ -198,18 +200,19 @@ struct NormalEventCard: View {
     }
 }
 
-/// 堆叠排版（长标题）：标题在上，描述左下、天数右下
+/// 标题在上，日期左下、天数右下
 private struct NormalCollapsedLayout: View {
     let event: DateEvent
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            Text(event.title)
-                .font(.title2.weight(.bold))
-                .foregroundStyle(TimeTracePalette.onSurface)
-                .lineLimit(1)
-                .fadeRightEdge(fadeWidth: 48)
-                .frame(maxWidth: .infinity, alignment: .topLeading)
+            // 依旧是渐隐
+            OverflowFadeTitle(
+                text: event.title,
+                font: .title2.weight(.bold),
+                lineLimit: 1,
+            )
+            .foregroundStyle(TimeTracePalette.onSurface)
 
             Text("\(prefix) \(TimeUtils.relativeDescription(targetDate: event.targetDate))")
                 .font(.body)
@@ -236,18 +239,20 @@ private struct NormalCollapsedLayout: View {
     private var prefix: String { event.isFuture ? "还有" : "已经" }
 }
 
-/// 标准横排（短标题）：标题 + 描述在左，天数在右
+/// 标准横排
 private struct NormalStandardLayout: View {
     let event: DateEvent
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(event.title)
-                    .font(.title2.weight(.bold))
-                    .foregroundStyle(TimeTracePalette.onSurface)
-                    .lineLimit(1)
-                    .fadeRightEdge(fadeWidth: 48)
+                // 隐
+                OverflowFadeTitle(
+                    text: event.title,
+                    font: .title2.weight(.bold),
+                    lineLimit: 1,
+                )
+                .foregroundStyle(TimeTracePalette.onSurface)
                 Text("\(prefix) \(TimeUtils.relativeDescription(targetDate: event.targetDate))")
                     .font(.body)
                     .foregroundStyle(TimeTracePalette.secondary)
