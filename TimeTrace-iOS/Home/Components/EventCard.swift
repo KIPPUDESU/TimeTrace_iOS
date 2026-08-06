@@ -100,7 +100,8 @@ private struct PinnedTallLayout: View {
             .foregroundStyle(.white)
             .shadow(color: .black.opacity(0.5), radius: 8)
 
-            PinnedDaysBlock(event: event, daysSize: 48)
+            // 竖排时日期在天数左下，天数块靠左对齐
+            PinnedDaysBlock(event: event, daysSize: 48, alignment: .leading)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -134,9 +135,11 @@ private struct PinnedDaysBlock: View {
     var daysSize: CGFloat
     // 日期下显不显示
     var showsDate: Bool = true
+    // 天数块靠左还是靠右
+    var alignment: HorizontalAlignment = .trailing
 
     var body: some View {
-        VStack(alignment: .trailing, spacing: -2) {
+        VStack(alignment: alignment, spacing: -2) {
             HStack(alignment: .bottom, spacing: 4) {
                 Text("\(TimeUtils.daysBetween(targetDate: event.targetDate))")
                     .font(.system(size: daysSize, weight: .bold))

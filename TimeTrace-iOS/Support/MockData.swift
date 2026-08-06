@@ -16,7 +16,7 @@ enum MockData {
         DateEvent(
             id: 2,
             title: "俺を殺したいらしい",
-            targetDate: date(2023, 3, 1),
+            targetDate: date(2025, 3, 1),
             isFuture: false,
             mode: .accumulate,
             backgroundImageName: "beloved",
