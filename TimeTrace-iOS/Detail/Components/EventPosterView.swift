@@ -36,11 +36,21 @@ struct PosterContent: View {
         let chars = Array(displayTitle)
         let chunks = stride(from: 0, to: chars.count, by: 9)
             .map { String(chars[$0..<min($0 + 9, chars.count)]) }
-        return (Text(chunks.joined(separator: "\n"))
-            + Text(" " + prefix).foregroundStyle(.white.opacity(0.7)))
-            .font(.system(size: 24, weight: .light))
-            .tracking(4)
-            .foregroundStyle(.white)
+
+        // 用富文本拼：标题白色、前缀半透明白，避开已弃用的 Text 加法
+        var base = AttributeContainer()
+        base.font = .system(size: 30, weight: .light)
+        base.kern = 4.0
+
+        var titleAttr = AttributedString(chunks.joined(separator: "\n"))
+        titleAttr.mergeAttributes(base)
+        titleAttr.foregroundColor = .white
+
+        var prefixAttr = AttributedString(" " + prefix)
+        prefixAttr.mergeAttributes(base)
+        prefixAttr.foregroundColor = .white.opacity(0.7)
+
+        return Text(titleAttr + prefixAttr)
             .multilineTextAlignment(.center)
     }
 

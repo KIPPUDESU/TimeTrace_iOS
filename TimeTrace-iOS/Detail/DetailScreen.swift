@@ -59,40 +59,38 @@ struct DetailScreen: View {
                 pager
             }
 
-            // 栏遮罩，不挡滑动
-            if showControls {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-                    .transition(.opacity)
-            }
+            // 栏遮罩，不挡滑动，靠透明度淡入淡出
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+                .opacity(showControls ? 1 : 0)
 
-            // 顶部控制栏
-            if showControls {
-                VStack {
-                    HStack {
-                        Button { dismiss() } label: {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .frame(width: 44, height: 44)
-                        }
-                        .accessibilityLabel("返回")
-                        Spacer()
-                        Button { showActionSheet = true } label: {
-                            Image(systemName: "ellipsis")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .frame(width: 44, height: 44)
-                        }
-                        .accessibilityLabel("更多")
+            // 顶部控制栏，同样用透明度控制显隐
+            VStack {
+                HStack {
+                    Button { dismiss() } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 26, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 56, height: 56)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
+                    .accessibilityLabel("返回")
                     Spacer()
+                    Button { showActionSheet = true } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 26, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 56, height: 56)
+                    }
+                    .accessibilityLabel("更多")
                 }
-                .transition(.opacity)
+                .padding(.horizontal, 20)
+                // 往下挪，避开状态栏和灵动岛
+                .padding(.top, 60)
+                Spacer()
             }
+            .opacity(showControls ? 1 : 0)
+            .allowsHitTesting(showControls)
 
             // 保存成功横幅
             if showSavedBanner {
@@ -132,6 +130,7 @@ struct DetailScreen: View {
         }
         .contentShape(Rectangle())
         .onTapGesture { showControls.toggle() }
+        .animation(.easeInOut(duration: 0.25), value: showControls)
         .animation(.snappy(duration: 0.3), value: showActionSheet)
         .preferredColorScheme(.dark)
         .ignoresSafeArea()
