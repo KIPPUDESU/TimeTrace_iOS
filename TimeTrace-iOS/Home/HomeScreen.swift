@@ -122,7 +122,11 @@ struct HomeScreen: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        // 不要上下滚动时的滚动条
+        .scrollIndicators(.hidden)
         .contentMargins(.bottom, 120, for: .scrollContent)
+        // 整条列表往内缩，让滑出的按钮离屏幕左右边框留白
+        .padding(.horizontal, 8)
     }
 
     @ViewBuilder
@@ -134,7 +138,8 @@ struct HomeScreen: View {
                 NormalEventCard(event: event) { open(event) }
             }
         }
-        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+        // 和 ‘.padding(.horizontal, 8)’ 对冲
+        .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
         .listRowSeparator(.hidden)
         .listRowBackground(Color.clear)
         // 左滑编辑，右滑删除
