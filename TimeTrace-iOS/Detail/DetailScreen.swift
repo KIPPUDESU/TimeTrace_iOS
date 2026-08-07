@@ -8,6 +8,8 @@ struct DetailScreen: View {
     let initialEventId: Int64
 
     @Environment(\.dismiss) private var dismiss
+    // 渲染保存图片用的显示缩放
+    @Environment(\.displayScale) private var displayScale
 
     // 控制栏是否显示
     @State private var showControls = false
@@ -15,6 +17,8 @@ struct DetailScreen: View {
     @State private var pageIndex: Int?
     // 几何算出的当前页
     @State private var currentPage: Int = 0
+    // 屏幕尺寸，保存图片渲染用
+    @State private var screenSize: CGSize = .zero
     // 起始页虚拟页中对应被点事件的页
     private let startPage: Int
     // 底部动作
@@ -107,6 +111,13 @@ struct DetailScreen: View {
         .onTapGesture { showControls.toggle() }
         .preferredColorScheme(.dark)
         .ignoresSafeArea()
+        // 量一下屏幕尺寸，给保存图片渲染用
+        .background(
+            GeometryReader { proxy in
+                Color.clear
+                    .onAppear { screenSize = proxy.size }
+            }
+        )
         .sheet(isPresented: $showActionSheet) {
             DetailActionSheet(
                 onSaveImage: { showActionSheet = false; saveCurrentImage() },
@@ -214,12 +225,12 @@ struct DetailScreen: View {
 
     // 把当前页的没 UI 版本保存成干净图片
     private func saveCurrentImage() {
-        guard let currentEvent else { return }
+        guard let currentEvent, screenSize.width > 0, screenSize.height > 0 else { return }
         let renderer = ImageRenderer(
             content: PosterContent(event: currentEvent, days: TimeUtils.daysBetween(targetDate: currentEvent.targetDate))
-                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                .frame(width: screenSize.width, height: screenSize.height)
         )
-        renderer.scale = UIScreen.main.scale
+        renderer.scale = displayScale
         guard let image = renderer.uiImage else { return }
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
             guard status == .authorized else { return }
