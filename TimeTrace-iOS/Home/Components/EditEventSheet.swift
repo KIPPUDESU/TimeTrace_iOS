@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 // 编辑页面
 struct EditEventSheet: View {
@@ -8,6 +9,7 @@ struct EditEventSheet: View {
 
     @State private var title: String
     @State private var showDatePicker = false
+    @State private var pickerItem: PhotosPickerItem?
 
     init(event: Binding<DateEvent>, onSave: @escaping (DateEvent) -> Void, onCancel: @escaping () -> Void) {
         self._event = event
@@ -87,7 +89,7 @@ struct EditEventSheet: View {
             }
             .buttonStyle(.plain)
 
-            Button { /* 图片选择器落地后接 PhotosPicker */ } label: {
+            PhotosPicker(selection: $pickerItem, matching: .images) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("背景图片")
                         .font(.caption)
@@ -104,7 +106,17 @@ struct EditEventSheet: View {
                 .padding(16)
                 .background(TimeTracePalette.onSurface.opacity(0.03), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
-            .buttonStyle(.plain)
+            .onChange(of: pickerItem) { _, newItem in
+                Task {
+                    guard let data = try? await newItem?.loadTransferable(type: Data.self),
+                          let uiImage = UIImage(data: data) else { return }
+                    let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                        .appendingPathComponent("bg-\(UUID().uuidString).jpg")
+                    guard let jpeg = uiImage.jpegData(compressionQuality: 0.85) else { return }
+                    try? jpeg.write(to: url)
+                    event.backgroundImageName = url.path
+                }
+            }
         }
     }
 
