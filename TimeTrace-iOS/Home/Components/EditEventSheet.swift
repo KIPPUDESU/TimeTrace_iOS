@@ -19,24 +19,25 @@ struct EditEventSheet: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                Text("编辑时痕")
-                    .font(.title2.weight(.bold))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        // 去掉滚动，内容固定在一屏，并顶到容器上方
+        VStack(spacing: 20) {
+            Text("编辑时痕")
+                .font(.title.weight(.bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                // 标题往下留一点，避开顶部的引导线
+                .padding(.top, 24)
 
-                titleField
-                optionCards
-                modeSwitcher
-                pinRow
-                maskRow
-                livePreview
-                actionButtons
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 32)
+            titleField
+            optionCards
+            modeSwitcher
+            pinRow
+            maskRow
+            actionButtons
         }
-        .scrollIndicators(.hidden)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 32)
+        // 禁止滚动后，需要主动顶到容器上方
+        .frame(maxHeight: .infinity, alignment: .top)
         .background(TimeTracePalette.surface)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
@@ -159,28 +160,8 @@ struct EditEventSheet: View {
                 // 和全屏编辑器一致，拖拽条用主色
                 .tint(TimeTracePalette.primary)
         }
-    }
-
-    // 直接预览效果
-    private var livePreview: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("置顶效果")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(TimeTracePalette.secondary)
-            PinnedEventCard(event: previewEvent) {}
-        }
-    }
-
-    private var previewEvent: DateEvent {
-        DateEvent(
-            title: title.isEmpty ? "示例标题" : title,
-            targetDate: event.targetDate,
-            isFuture: event.mode == .countDown,
-            mode: event.mode,
-            backgroundImageName: event.backgroundImageName,
-            isPinned: true,
-            maskOpacity: event.maskOpacity
-        )
+        // 留空
+        .padding(.top, 10)
     }
 
     // 最后的确定操作呢
@@ -209,6 +190,8 @@ struct EditEventSheet: View {
             }
             .buttonStyle(.plain)
         }
+        // 留空
+        .padding(.top, 6)
     }
 
     private func save() {
