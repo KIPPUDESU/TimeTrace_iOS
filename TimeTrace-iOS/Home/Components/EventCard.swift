@@ -17,7 +17,7 @@ struct PinnedEventCard: View {
                         .frame(width: proxy.size.width, height: proxy.size.height)
                         .clipped()
 
-                    // 垂直渐变遮罩：transparent → black·maskOpacity
+                    // 垂直渐变遮罩
                     LinearGradient(
                         colors: [.clear, Color.black.opacity(event.maskOpacity)],
                         startPoint: .top,
@@ -29,11 +29,11 @@ struct PinnedEventCard: View {
 
                     // 置顶标签
                     Text("置顶")
-                        .font(.caption.weight(.medium))
+                        .font(.subheadline.weight(.medium))
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.black.opacity(0.2), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.black.opacity(0.2), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                         .padding(16)
                 }
@@ -73,14 +73,17 @@ private struct PinnedWideLayout: View {
             // 只淡最后一行右侧
             OverflowFadeTitle(
                 text: TimeTextUtils.forceCharacterWrap(event.title),
-                font: .system(size: 22, weight: .bold),
+                font: .system(size: 26, weight: .bold),
                 lineLimit: 4,
                 lineSpacing: 6,
             )
             .foregroundStyle(.white)
             .shadow(color: .black.opacity(0.5), radius: 8)
+            // 标题容器
+            .frame(maxWidth: 134)
+            Spacer(minLength: 0)
 
-            PinnedDaysBlock(event: event, daysSize: 48)
+            PinnedDaysBlock(event: event, daysSize: 50)
         }
     }
 }
@@ -99,9 +102,21 @@ private struct PinnedTallLayout: View {
             )
             .foregroundStyle(.white)
             .shadow(color: .black.opacity(0.5), radius: 8)
+            // 标题上移
+            .offset(y: -4)
 
             // 竖排时日期在天数左下，天数块靠左对齐
-            PinnedDaysBlock(event: event, daysSize: 48, alignment: .leading)
+            PinnedDaysBlock(
+                event: event,
+                daysSize: 54,
+                alignment: .leading,
+                // 天数数字单独上移
+                daysOffset: -8,
+                // 日期
+                dateOffset: -6,
+                // 日期字号调大
+                dateSize: 14
+            )
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -115,16 +130,22 @@ private struct PinnedShortLayout: View {
         HStack(alignment: .bottom, spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(event.title)
-                    .font(.system(size: 32, weight: .bold))
+                    .font(.system(size: 40, weight: .bold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .shadow(color: .black.opacity(0.5), radius: 8)
                 Text(TimeUtils.shortDate(event.targetDate))
-                    .font(.caption2)
+                    .font(.system(size: 14))
                     .foregroundStyle(.white.opacity(0.8))
+                    // 日期和标题左边对齐
+                    .offset(x: 4, y: -6)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            PinnedDaysBlock(event: event, daysSize: 48, showsDate: false)
+            PinnedDaysBlock(
+                event: event,
+                daysSize: 54,
+                showsDate: false
+            )
         }
     }
 }
@@ -137,6 +158,12 @@ private struct PinnedDaysBlock: View {
     var showsDate: Bool = true
     // 天数块靠左还是靠右
     var alignment: HorizontalAlignment = .trailing
+    // 天数数字单独上下调
+    var daysOffset: CGFloat = 0
+    // 日期单独上下调
+    var dateOffset: CGFloat = 0
+    // 日期字号
+    var dateSize: CGFloat = 14
 
     var body: some View {
         VStack(alignment: alignment, spacing: -2) {
@@ -150,11 +177,13 @@ private struct PinnedDaysBlock: View {
                     .foregroundStyle(.white.opacity(0.8))
                     .padding(.bottom, 10)
             }
+            .offset(y: daysOffset)
             // 判定
             if showsDate {
                 Text(TimeUtils.shortDate(event.targetDate))
-                    .font(.caption)
+                    .font(.system(size: dateSize))
                     .foregroundStyle(.white.opacity(0.7))
+                    .offset(y: dateOffset)
             }
         }
     }
