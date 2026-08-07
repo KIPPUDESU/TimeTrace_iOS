@@ -143,7 +143,14 @@ struct HomeScreen: View {
                 .tint(TimeTracePalette.primary)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(role: .destructive) { pendingDelete = event } label: { Label("删除", systemImage: "trash") }
+            Button {
+                // 不用 destructive 角色，第一次点击只弹确认、不播删除动画；等滑动收起后再弹框
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 300_000_000)
+                    pendingDelete = event
+                }
+            } label: { Label("删除", systemImage: "trash") }
+                .tint(.red)
         }
     }
 
