@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 // 全屏编辑
 struct EditorScreen: View {
@@ -11,6 +12,10 @@ struct EditorScreen: View {
     @State private var maskOpacity: Double = 0.4
     @State private var mode: DisplayMode = .countDown
     @State private var showDatePicker = false
+    // 背景图的文件路径，没选就是 nil
+    @State private var backgroundImageName: String?
+    // 照片选择器选中的
+    @State private var pickerItem: PhotosPickerItem?
 
     var body: some View {
         NavigationStack {
@@ -108,8 +113,8 @@ struct EditorScreen: View {
             }
             .buttonStyle(.plain)
 
-            // 背景图：相册选择等数据层落地后再接
-            Button { } label: {
+            // 点开系统相册选一张，压缩存进 Documents 记录好路径w
+            PhotosPicker(selection: $pickerItem, matching: .images) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("背景图片")
                         .font(.caption)
@@ -117,7 +122,7 @@ struct EditorScreen: View {
                     HStack(spacing: 4) {
                         Image(systemName: "photo")
                             .font(.system(size: 14))
-                        Text("点击选择")
+                        Text(backgroundImageName == nil ? "点击选择" : "已选择")
                             .font(.headline)
                     }
                     .foregroundStyle(TimeTracePalette.onSurface)
@@ -126,7 +131,17 @@ struct EditorScreen: View {
                 .padding(16)
                 .background(TimeTracePalette.onSurface.opacity(0.03), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
-            .buttonStyle(.plain)
+            .onChange(of: pickerItem) { _, newItem in
+                Task {
+                    guard let data = try? await newItem?.loadTransferable(type: Data.self),
+                          let uiImage = UIImage(data: data) else { return }
+                    let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                        .appendingPathComponent("bg-\(UUID().uuidString).jpg")
+                    guard let jpeg = uiImage.jpegData(compressionQuality: 0.85) else { return }
+                    try? jpeg.write(to: url)
+                    backgroundImageName = url.path
+                }
+            }
         }
     }
 
@@ -190,6 +205,7 @@ struct EditorScreen: View {
             targetDate: selectedDate,
             isFuture: mode == .countDown,
             mode: mode,
+            backgroundImageName: backgroundImageName,
             isPinned: true,
             maskOpacity: maskOpacity
         )
@@ -202,6 +218,7 @@ struct EditorScreen: View {
             targetDate: selectedDate,
             isFuture: mode == .countDown,
             mode: mode,
+            backgroundImageName: backgroundImageName,
             isPinned: isPinned,
             maskOpacity: maskOpacity
         ))

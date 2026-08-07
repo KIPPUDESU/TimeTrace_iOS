@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // 置顶卡片：16:9 大卡
 // 背景图渐变遮罩和置顶标签
@@ -204,7 +205,12 @@ struct EventBackgroundView: View {
 
     var body: some View {
         Group {
-            if let name = event.backgroundImageName {
+            // 先按文件路径读，读不到再拿预设的
+            if let name = event.backgroundImageName, let uiImage = UIImage(contentsOfFile: name) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+            } else if let name = event.backgroundImageName {
                 Image(name)
                     .resizable()
                     .scaledToFill()
