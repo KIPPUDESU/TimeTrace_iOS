@@ -5,6 +5,8 @@ struct HomeScreen: View {
     @State private var events: [DateEvent]
     @State private var pendingDelete: DateEvent?
     @State private var editingEvent: DateEvent?
+    // 控制全屏编辑器是否弹出
+    @State private var showAddEditor = false
     // 添加按钮弹跳计数
     @State private var addButtonBounce = 0
 
@@ -50,6 +52,16 @@ struct HomeScreen: View {
                     onCancel: { editingEvent = nil }
                 )
             }
+            // 新增记录走全屏编辑器
+            .fullScreenCover(isPresented: $showAddEditor) {
+                EditorScreen(
+                    onDismiss: { showAddEditor = false },
+                    onSave: { event in
+                        update(event)
+                        showAddEditor = false
+                    }
+                )
+            }
         }
         .sensoryFeedback(.impact(weight: .heavy), trigger: pendingDelete?.id)
     }
@@ -71,7 +83,7 @@ struct HomeScreen: View {
             // 添加按钮，26及以上用官方液态玻璃，老的系统退回普通毛玻璃
             Button(action: {
                 addButtonBounce += 1
-                addEvent()
+                showAddEditor = true
             }) {
                 Group {
                     if #available(iOS 26.0, *) {
@@ -191,11 +203,6 @@ struct HomeScreen: View {
     // 点卡片先打开编辑面板，暂时先这样捏
     private func open(_ event: DateEvent) {
         editingEvent = event
-    }
-
-    // 新建记录，编辑器做好之前先用空事件打开编辑面板
-    private func addEvent() {
-        editingEvent = DateEvent(title: "", targetDate: Date(), isFuture: true, mode: .countDown)
     }
 
     // 确认删除

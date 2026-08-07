@@ -1,6 +1,6 @@
 import SwiftUI
 
-// 这个文件是编辑页面
+// 编辑页面
 struct EditEventSheet: View {
     @Binding var event: DateEvent
     var onSave: (DateEvent) -> Void
@@ -108,16 +108,18 @@ struct EditEventSheet: View {
         }
     }
 
-    // 想要的模式 置顶 遮罩
+    // 模式 置顶 遮罩
     private var modeSwitcher: some View {
         Picker("模式", selection: $event.mode) {
             Text("倒数模式").tag(DisplayMode.countDown)
             Text("累计模式").tag(DisplayMode.accumulate)
         }
         .pickerStyle(.segmented)
+        // 和全屏编辑器一致，用大号分段控件
+        .controlSize(.large)
         .sensoryFeedback(.selection, trigger: event.mode)
     }
-
+    // 是否置顶
     private var pinRow: some View {
         HStack {
             Text("在首页置顶展示")
@@ -140,10 +142,12 @@ struct EditEventSheet: View {
                     .foregroundStyle(TimeTracePalette.primary)
             }
             Slider(value: $event.maskOpacity, in: 0.1...0.9)
+                // 和全屏编辑器一致，拖拽条用主色
+                .tint(TimeTracePalette.primary)
         }
     }
 
-    // 直接预览作为置顶卡片和全屏详情的效果
+    // 直接预览效果
     private var livePreview: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("置顶效果")
@@ -201,7 +205,7 @@ struct EditEventSheet: View {
     }
 }
 
-/// 原生日期选择（对应 Android `EditDatePickerDialog`）
+/// 原生日期选择，用我们苹果小子的原生
 struct DatePickerSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var date: Date
