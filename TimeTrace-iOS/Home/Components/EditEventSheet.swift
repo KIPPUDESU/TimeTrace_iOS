@@ -25,7 +25,7 @@ struct EditEventSheet: View {
                 .font(.title.weight(.bold))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 // 标题往下留一点，避开顶部的引导线
-                .padding(.top, 24)
+                .padding(.top, 80)
 
             titleField
             optionCards
@@ -33,13 +33,16 @@ struct EditEventSheet: View {
             pinRow
             maskRow
             actionButtons
+            // 撑满剩余空间，把内容顶到最上面，半屏时标题也不会被挤没
+            Spacer(minLength: 0)
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 32)
         // 禁止滚动后，需要主动顶到容器上方
         .frame(maxHeight: .infinity, alignment: .top)
         .background(TimeTracePalette.surface)
-        .presentationDetents([.large])
+        // 舍弃半屏，固定高 700，不到全屏
+        .presentationDetents([.height(580)])
         .presentationDragIndicator(.visible)
         .sheet(isPresented: $showDatePicker) {
             DatePickerSheet(initialDate: event.targetDate) { newDate in
