@@ -1,7 +1,6 @@
 import SwiftUI
 
-// 这个文件是新增记录用的全屏编辑器
-// 对应安卓的 EditorScreen.kt，纯新增页：顶部栏 X 关闭 / 保存
+// 全屏编辑
 struct EditorScreen: View {
     var onDismiss: () -> Void
     var onSave: (DateEvent) -> Void
@@ -48,14 +47,14 @@ struct EditorScreen: View {
             .sheet(isPresented: $showDatePicker) {
                 DatePickerSheet(initialDate: selectedDate) { newDate in
                     selectedDate = newDate
-                    // 日期变更自动切换模式：未来倒数，过去累计
+                    // 日期变更自动切换模式
                     mode = newDate > Date() ? .countDown : .accumulate
                 }
             }
         }
     }
 
-    // 标题输入框，下面带视觉宽度提示
+    // 标题输入框
     private var titleSection: some View {
         VStack(spacing: 4) {
             ZStack(alignment: .leading) {
@@ -168,13 +167,16 @@ struct EditorScreen: View {
                 // 拖拽条换成黑白灰的主色，浅色模式下就是黑
                 .tint(TimeTracePalette.primary)
         }
+        // 留空
+        .padding(.top, 14)
     }
 
     // 实时预览编辑后的置顶卡片效果
     private var pinnedPreview: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("置顶效果")
-                .font(.caption.weight(.medium))
+                // 中等次要的字号
+                .font(.subheadline.weight(.medium))
                 .foregroundStyle(TimeTracePalette.secondary)
             PinnedEventCard(event: previewEvent) {}
         }
@@ -204,7 +206,7 @@ struct EditorScreen: View {
     }
 }
 
-// 预览用的两种模式
+// 预览用
 #Preview("编辑页浅色模式") {
     EditorScreen(onDismiss: {}, onSave: { _ in })
 }
