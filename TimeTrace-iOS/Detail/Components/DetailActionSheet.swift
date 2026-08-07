@@ -18,7 +18,8 @@ struct DetailActionSheet: View {
             divider
             ActionRow(icon: "calendar", title: "调整日期", subtitle: "修改此事件的目标日期") { onAdjustDate() }
         }
-        .background(TimeTracePalette.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        // 卡片本身用液态玻璃，不再套实色底
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
         .padding(.horizontal, 24)
         .padding(.bottom, 16)
     }

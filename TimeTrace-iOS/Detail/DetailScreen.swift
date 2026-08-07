@@ -106,9 +106,33 @@ struct DetailScreen: View {
                     .padding(.top, 70)
                     .transition(.opacity)
             }
+
+            // 动作面板遮罩，点掉关闭
+            if showActionSheet {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture { showActionSheet = false }
+                    .transition(.opacity)
+            }
+
+            // 底部动作面板，自身就是玻璃卡片，不包 sheet 容器
+            if showActionSheet {
+                VStack {
+                    Spacer()
+                    DetailActionSheet(
+                        onSaveImage: { showActionSheet = false; saveCurrentImage() },
+                        onEditTitle: { showActionSheet = false; beginEditTitle() },
+                        onChangeBackground: { showActionSheet = false; showPhotoPicker = true },
+                        onAdjustDate: { showActionSheet = false; showDatePicker = true }
+                    )
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(3)
+            }
         }
         .contentShape(Rectangle())
         .onTapGesture { showControls.toggle() }
+        .animation(.snappy(duration: 0.3), value: showActionSheet)
         .preferredColorScheme(.dark)
         .ignoresSafeArea()
         // 量一下屏幕尺寸，给保存图片渲染用
@@ -118,16 +142,6 @@ struct DetailScreen: View {
                     .onAppear { screenSize = proxy.size }
             }
         )
-        .sheet(isPresented: $showActionSheet) {
-            DetailActionSheet(
-                onSaveImage: { showActionSheet = false; saveCurrentImage() },
-                onEditTitle: { showActionSheet = false; beginEditTitle() },
-                onChangeBackground: { showActionSheet = false; showPhotoPicker = true },
-                onAdjustDate: { showActionSheet = false; showDatePicker = true }
-            )
-            .presentationDetents([.height(360)])
-            .presentationBackground(.clear)
-        }
         .alert("修改标题", isPresented: $showTitleEdit) {
             TextField("给这一刻起个名字", text: $draftTitle)
             Button("确定") { saveTitle() }
