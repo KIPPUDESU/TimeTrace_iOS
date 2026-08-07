@@ -172,6 +172,7 @@ private struct PinnedDaysBlock: View {
                     .font(.system(size: daysSize, weight: .bold))
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.5), radius: 12)
+                    .contentTransition(.numericText())
                 Text("天")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(.white.opacity(0.8))

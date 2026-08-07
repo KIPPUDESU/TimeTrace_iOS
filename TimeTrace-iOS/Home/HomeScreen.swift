@@ -5,8 +5,12 @@ struct HomeScreen: View {
     @State private var events: [DateEvent]
     @State private var pendingDelete: DateEvent?
     @State private var editingEvent: DateEvent?
+    // 添加按钮弹跳计数
+    @State private var addButtonBounce = 0
 
     @Environment(\.horizontalSizeClass) private var sizeClass
+    // 判断留不留毛玻璃
+    @Environment(\.colorScheme) private var colorScheme
 
     init(events: [DateEvent] = MockData.sampleEvents) {
         self._events = State(initialValue: events)
@@ -65,20 +69,26 @@ struct HomeScreen: View {
             }
             Spacer()
             // 添加按钮，26及以上用官方液态玻璃，老的系统退回普通毛玻璃
-            Button(action: addEvent) {
-                if #available(iOS 26.0, *) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(TimeTracePalette.primary)
-                        .frame(width: 36, height: 36)
-                        .glassEffect(.regular, in: Circle())
-                } else {
-                    Image(systemName: "plus")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(TimeTracePalette.primary)
-                        .frame(width: 36, height: 36)
-                        .background(.ultraThinMaterial, in: Circle())
+            Button(action: {
+                addButtonBounce += 1
+                addEvent()
+            }) {
+                Group {
+                    if #available(iOS 26.0, *) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(TimeTracePalette.primary)
+                            .frame(width: 36, height: 36)
+                            .glassEffect(.regular, in: Circle())
+                    } else {
+                        Image(systemName: "plus")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(TimeTracePalette.primary)
+                            .frame(width: 36, height: 36)
+                            .background(.ultraThinMaterial, in: Circle())
+                    }
                 }
+                .symbolEffect(.bounce, value: addButtonBounce)   // 点击弹跳
             }
             .accessibilityLabel("添加")
         }
@@ -86,7 +96,18 @@ struct HomeScreen: View {
         .padding(.top, 6)
         .padding(.bottom, 12)
         .frame(maxWidth: .infinity)
-        .background(TimeTracePalette.background)
+        .background {
+            // 顶部毛玻璃背景覆盖整个顶部，延伸到状态栏后面
+            Rectangle()
+                .fill(.regularMaterial)
+                .overlay {
+                    // 深色没毛玻璃，浅色模式保留
+                    if colorScheme == .dark {
+                        TimeTracePalette.background.opacity(1.0)
+                    }
+                }
+                .ignoresSafeArea(edges: .top)
+        }
     }
 
     // 手机上用的单列列表
