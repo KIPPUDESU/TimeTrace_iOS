@@ -127,6 +127,8 @@ struct EditEventSheet: View {
             Spacer()
             Toggle("", isOn: $event.isPinned)
                 .labelsHidden()
+                // 开关底色从默认绿换成主色黑
+                .tint(TimeTracePalette.primary)
                 .sensoryFeedback(.impact(weight: .light), trigger: event.isPinned)
         }
     }
@@ -220,6 +222,10 @@ struct DatePickerSheet: View {
         NavigationStack {
             DatePicker("选择日期", selection: $date, displayedComponents: .date)
                 .datePickerStyle(.graphical)
+                // 选中还有今天标记这些指示色从蓝换成主色黑
+                .tint(TimeTracePalette.primary)
+                // 锁死日历高度，sheet 拉伸时日历不再重新排版，杜绝边距缩小 bug
+                .frame(height: 420)
                 .padding()
                 .navigationTitle("选择日期")
                 .navigationBarTitleDisplayMode(.inline)
@@ -232,7 +238,8 @@ struct DatePickerSheet: View {
                     }
                 }
         }
-        .presentationDetents([.medium, .large])
+        // 矮档
+        .presentationDetents([.height(460), .large])
     }
 }
 

@@ -149,6 +149,8 @@ struct EditorScreen: View {
             Spacer()
             Toggle("", isOn: $isPinned)
                 .labelsHidden()
+                // 绿换成主色黑
+                .tint(TimeTracePalette.primary)
                 .sensoryFeedback(.impact(weight: .light), trigger: isPinned)
         }
     }
