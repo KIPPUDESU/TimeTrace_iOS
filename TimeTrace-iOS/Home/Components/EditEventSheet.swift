@@ -226,6 +226,8 @@ struct DatePickerSheet: View {
                 .tint(TimeTracePalette.primary)
                 // 锁死日历高度，sheet 拉伸时日历不再重新排版，杜绝边距缩小 bug
                 .frame(height: 420)
+                // 强制用简体中文，不然日历的月份星期会跟着系统语言走
+                .environment(\.locale, Locale(identifier: "zh_CN"))
                 .padding()
                 .navigationTitle("选择日期")
                 .navigationBarTitleDisplayMode(.inline)

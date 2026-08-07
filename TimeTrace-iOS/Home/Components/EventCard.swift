@@ -52,10 +52,15 @@ private struct PinnedCardContent: View {
 
     var body: some View {
         let width = TimeTextUtils.visualWidth(of: event.title)
+        let days = TimeUtils.daysBetween(targetDate: event.targetDate)
         Group {
             if width > 15 {
                 PinnedWideLayout(event: event)
-            } else if width > 5.5 || (width >= 4 && TimeUtils.daysBetween(targetDate: event.targetDate) >= 1000) {
+            } else if width > 5.5
+                // 天数太长升级排版，四位数天数配上不算短的标题
+                || (width >= 4 && days >= 1000)
+                // 天数超长到五位数时，标题短也升级排版
+                || (width >= 3 && days >= 10000) {
                 PinnedTallLayout(event: event)
             } else {
                 PinnedShortLayout(event: event)
@@ -143,9 +148,11 @@ private struct PinnedShortLayout: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             PinnedDaysBlock(
                 event: event,
-                daysSize: 54,
+                // 天数到五位缩小一号，避免数字太宽挤占标题
+                daysSize: TimeUtils.daysBetween(targetDate: event.targetDate) >= 10000 ? 50 : 54,
                 showsDate: false
             )
+   
         }
     }
 }

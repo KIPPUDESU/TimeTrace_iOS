@@ -1,7 +1,7 @@
 import Foundation
 
 // 放设定的数据函数变量
-// 倒数累计（对应安卓的 `DisplayMode`）
+// 倒数累计
 enum DisplayMode: Hashable {
     case countDown   // 倒数
     case accumulate  // 累计
