@@ -7,6 +7,8 @@ struct HomeScreen: View {
     @State private var editingEvent: DateEvent?
     // 控制全屏编辑器是否弹出
     @State private var showAddEditor = false
+    // 进详情页
+    @State private var detailEvent: DateEvent?
     // 添加按钮弹跳计数
     @State private var addButtonBounce = 0
 
@@ -61,6 +63,10 @@ struct HomeScreen: View {
                         showAddEditor = false
                     }
                 )
+            }
+            // 点卡片进详情页
+            .fullScreenCover(item: $detailEvent) { event in
+                DetailScreen(events: $events, initialEventId: event.id)
             }
         }
         .sensoryFeedback(.impact(weight: .heavy), trigger: pendingDelete?.id)
@@ -200,9 +206,9 @@ struct HomeScreen: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // 点卡片先打开编辑面板，暂时先这样捏
+    // 点卡片进全屏详情页捏
     private func open(_ event: DateEvent) {
-        editingEvent = event
+        detailEvent = event
     }
 
     // 确认删除

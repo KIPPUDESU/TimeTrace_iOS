@@ -67,4 +67,14 @@ enum TimeUtils {
         formatter.locale = Locale.current
         return formatter.string(from: date)
     }
+
+    // 详情页实时时分秒，目标日为成本地午夜，算距离时分秒
+    static func detailedTime(targetDate: Date, now: Date = Date()) -> (hours: Int, minutes: Int, seconds: Int) {
+        let targetMidnight = Calendar.current.startOfDay(for: targetDate)
+        let total = abs(Int(now.timeIntervalSince(targetMidnight)))
+        let hours = total % 86400 / 3600
+        let minutes = total % 3600 / 60
+        let seconds = total % 60
+        return (hours, minutes, seconds)
+    }
 }
