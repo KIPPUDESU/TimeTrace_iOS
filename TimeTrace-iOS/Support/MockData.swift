@@ -19,7 +19,7 @@ enum MockData {
             targetDate: date(2025, 3, 1),
             isFuture: false,
             mode: .accumulate,
-            backgroundImageName: "beloved",
+            backgroundImageName: "newbg",
             isPinned: true,
             maskOpacity: 0.5
         ),

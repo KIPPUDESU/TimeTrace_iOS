@@ -13,10 +13,10 @@ struct DetailScreen: View {
 
     // 控制栏是否显示
     @State private var showControls = false
-    // scrollPosition 双向绑定，只负责初始定位
-    @State private var pageIndex: Int?
     // 几何算出的当前页
     @State private var currentPage: Int = 0
+    // 滚动几何实时算出的页码，等停稳后再提交
+    @State private var computedPage: Int = 0
     // 屏幕尺寸，保存图片渲染用
     @State private var screenSize: CGSize = .zero
     // 起始页虚拟页中对应被点事件的页
@@ -45,8 +45,9 @@ struct DetailScreen: View {
         let half = Self.virtualCount / 2
         let computed = n > 1 ? half - (half % n) + idx : 0
         self.startPage = computed
-        _pageIndex = State(initialValue: computed)
+        // computedPage 初值也对齐，不要让首次 idle 提交把当前页错位成 0
         _currentPage = State(initialValue: computed)
+        _computedPage = State(initialValue: computed)
     }
 
     var body: some View {
@@ -171,26 +172,37 @@ struct DetailScreen: View {
 
     // 垂直无限分页器
     private var pager: some View {
-        ScrollView(.vertical) {
-            LazyVStack(spacing: 0) {
-                ForEach(0..<Self.virtualCount, id: \.self) { i in
-                    EventPosterView(event: events[i % events.count], isCurrentPage: currentPage == i)
-                        .containerRelativeFrame(.vertical)
+        ScrollViewReader { proxy in
+            ScrollView(.vertical) {
+                LazyVStack(spacing: 0) {
+                    ForEach(0..<Self.virtualCount, id: \.self) { i in
+                        EventPosterView(event: events[i % events.count], isCurrentPage: currentPage == i)
+                            .id(i)
+                            .containerRelativeFrame(.vertical)
+                    }
                 }
             }
+            .scrollTargetBehavior(.paging)
+            .scrollIndicators(.hidden)
+            .ignoresSafeArea()
+            // 滚动时实时算页码，但先存着就好w，动画是停稳的事
+            .onScrollGeometryChange(for: Int.self) { geometry in
+                Int((geometry.contentOffset.y / geometry.containerSize.height).rounded())
+            } action: { _, page in
+                computedPage = page
+            }
+            // 等滚动停稳了才提交当前页
+            .onScrollPhaseChange { _, newPhase in
+                if newPhase == .idle {
+                    currentPage = computedPage
+                }
+            }
+            // 用 scrollTo 这种更可靠的方法跳到起始页
+            // 这样上下让两边都有巨大缓冲，才能形成无限循环www
+            .onAppear {
+                proxy.scrollTo(startPage, anchor: .top)
+            }
         }
-        .scrollTargetBehavior(.paging)
-        .scrollPosition(id: $pageIndex)
-        .scrollIndicators(.hidden)
-        .ignoresSafeArea()
-        // 滚动偏移一下就算出当前页，页码一变化就让新页重播动画
-        .onScrollGeometryChange(for: Int.self) { geometry in
-            Int((geometry.contentOffset.y / geometry.containerSize.height).rounded())
-        } action: { _, page in
-            currentPage = page
-        }
-        // 确保初始定位到被点的事件
-        .onAppear { pageIndex = startPage }
     }
 
     // 空状态

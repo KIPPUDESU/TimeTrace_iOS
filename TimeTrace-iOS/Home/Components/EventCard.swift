@@ -200,24 +200,43 @@ private struct PinnedDaysBlock: View {
 
 // 背景图
 // 有背景图时渲染 bundle 内图片，无背景图时浅灰
+// 背景图解码缓存，同一张只解一次
+private enum BackgroundImageCache {
+    static let cache = NSCache<NSString, UIImage>()
+}
+
 struct EventBackgroundView: View {
     let event: DateEvent
 
     var body: some View {
         Group {
-            // 先按文件路径读，读不到再拿预设的
-            if let name = event.backgroundImageName, let uiImage = UIImage(contentsOfFile: name) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-            } else if let name = event.backgroundImageName {
-                Image(name)
-                    .resizable()
-                    .scaledToFill()
+            if let name = event.backgroundImageName {
+                cachedImage(name: name)
             } else {
                 TimeTracePalette.surfaceVariant
             }
         }
+    }
+
+    @ViewBuilder
+    private func cachedImage(name: String) -> some View {
+        if let uiImage = cachedUIImage(for: name) {
+            Image(uiImage: uiImage)
+                .resizable()
+                .scaledToFill()
+        } else {
+            TimeTracePalette.surfaceVariant
+        }
+    }
+
+    // 查缓存，没有就解码并缓存，这是纯逻辑代码
+    private func cachedUIImage(for name: String) -> UIImage? {
+        if let cached = BackgroundImageCache.cache.object(forKey: name as NSString) {
+            return cached
+        }
+        guard let loaded = UIImage(contentsOfFile: name) ?? UIImage(named: name) else { return nil }
+        BackgroundImageCache.cache.setObject(loaded, forKey: name as NSString)
+        return loaded
     }
 }
 
