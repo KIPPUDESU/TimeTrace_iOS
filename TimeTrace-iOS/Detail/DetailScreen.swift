@@ -135,6 +135,10 @@ struct DetailScreen: View {
         .animation(.snappy(duration: 0.3), value: showActionSheet)
         .preferredColorScheme(.dark)
         .ignoresSafeArea()
+        // 详情页隐藏状态栏 iOS 26
+        // 页面在状态栏区域自动渲染透明背板，代码删不掉
+        // 顶部没有时间电量了 T T
+        .statusBarHidden(true)
         // 量一下屏幕尺寸，给保存图片渲染用
         .background(
             GeometryReader { proxy in
@@ -179,8 +183,12 @@ struct DetailScreen: View {
                         EventPosterView(event: events[i % events.count], isCurrentPage: currentPage == i)
                             .id(i)
                             .containerRelativeFrame(.vertical)
+                            // 每页背景延伸到状态栏下面，顶到最顶
+                            .ignoresSafeArea(edges: .top)
                     }
                 }
+                // 海报内容延伸到状态栏下面，盖住顶部那条固定的黑带
+                .ignoresSafeArea(edges: .top)
             }
             .scrollTargetBehavior(.paging)
             .scrollIndicators(.hidden)

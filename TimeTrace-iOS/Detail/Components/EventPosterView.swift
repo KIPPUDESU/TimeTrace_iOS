@@ -118,4 +118,6 @@ struct EventPosterView: View {
 #Preview("海报预览") {
     PosterContent(event: MockData.sampleEvents[0], days: 42)
         .frame(width: 393, height: 852)
+        // 预览默认在安全区内，这里忽略安全区让背景顶到最顶
+        .ignoresSafeArea()
 }
