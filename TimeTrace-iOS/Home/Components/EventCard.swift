@@ -136,7 +136,7 @@ private struct PinnedShortLayout: View {
         HStack(alignment: .bottom, spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(event.title)
-                    .font(.system(size: 40, weight: .bold))
+                    .font(.system(size: 38, weight: .bold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .shadow(color: .black.opacity(0.5), radius: 8)
@@ -149,12 +149,19 @@ private struct PinnedShortLayout: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             PinnedDaysBlock(
                 event: event,
-                // 天数到五位缩小一号，避免数字太宽挤占标题
-                daysSize: TimeUtils.daysBetween(targetDate: event.targetDate) >= 10000 ? 50 : 54,
+                // 天数五位、或标题约 3 宽配上四位天数，数字缩小一号避免挤占标题
+                daysSize: shortLayoutDaysSize,
                 showsDate: false
             )
-   
+
         }
+    }
+
+    // 短排版的数字字号：天数五位、或标题约 3 宽配上四位天数时缩小一号
+    private var shortLayoutDaysSize: CGFloat {
+        let days = TimeUtils.daysBetween(targetDate: event.targetDate)
+        let width = TimeTextUtils.visualWidth(of: event.title)
+        return days >= 10000 || (width >= 3 && days >= 1000) ? 50 : 54
     }
 }
 
@@ -224,6 +231,9 @@ struct EventBackgroundView: View {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFill()
+                // 图片自身也铺满容器，避免在无界上下文里按自然尺寸撑开布局
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
         } else {
             TimeTracePalette.surfaceVariant
         }

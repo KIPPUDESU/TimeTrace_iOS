@@ -4,6 +4,10 @@ import SwiftUI
 struct PosterContent: View {
     let event: DateEvent
     let days: Int
+    // 是否显示实时时分秒；编辑器里的全屏预览不显示，跟安卓一致
+    var showsTime: Bool = true
+    // 缩放系数：详情页全屏是 1，编辑器小尺寸预览按比例缩小字号
+    var scale: CGFloat = 1.0
 
     var body: some View {
         ZStack {
@@ -17,15 +21,19 @@ struct PosterContent: View {
             VStack(spacing: 0) {
                 Spacer()
                 titleText
-                Spacer().frame(height: 16)
+                Spacer().frame(height: 16 * scale)
                 daysText
                 dateLine
-                Spacer().frame(height: 8)
-                timeText
+                if showsTime {
+                    Spacer().frame(height: 8 * scale)
+                    timeText
+                }
                 Spacer()
             }
             .padding(.horizontal, 32)
         }
+        // 海报铺满父容器，图片不会按自然尺寸撑开布局
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black)
     }
 
@@ -39,8 +47,8 @@ struct PosterContent: View {
 
         // 用富文本拼：标题白色、前缀半透明白，避开已弃用的 Text 加法
         var base = AttributeContainer()
-        base.font = .system(size: 30, weight: .light)
-        base.kern = 4.0
+        base.font = .system(size: 30 * scale, weight: .light)
+        base.kern = 4.0 * scale
 
         var titleAttr = AttributedString(chunks.joined(separator: "\n"))
         titleAttr.mergeAttributes(base)
@@ -64,20 +72,20 @@ struct PosterContent: View {
 
     private var daysFontSize: CGFloat {
         switch String(days).count {
-        case 8...: return 60
-        case 7: return 72
-        case 6: return 88
-        case 5: return 100
-        default: return 120
+        case 8...: return 60 * scale
+        case 7: return 72 * scale
+        case 6: return 88 * scale
+        case 5: return 100 * scale
+        default: return 120 * scale
         }
     }
 
     // 日期
     private var dateLine: some View {
         Text("\(event.isFuture ? "距离" : "自从") \(TimeUtils.shortDate(event.targetDate))")
-            .font(.system(size: 17))
+            .font(.system(size: 17 * scale))
             .foregroundStyle(.white.opacity(0.6))
-            .tracking(2)
+            .tracking(2 * scale)
     }
 
     // 时分秒desu
@@ -85,8 +93,8 @@ struct PosterContent: View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             let t = TimeUtils.detailedTime(targetDate: event.targetDate, now: context.date)
             Text(String(format: "%02d:%02d:%02d", t.hours, t.minutes, t.seconds))
-                .font(.system(size: 17))
-                .tracking(4)
+                .font(.system(size: 17 * scale))
+                .tracking(4 * scale)
                 .foregroundStyle(.white.opacity(0.8))
         }
     }

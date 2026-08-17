@@ -156,9 +156,11 @@ struct DetailScreen: View {
             Task {
                 guard let data = try? await newItem?.loadTransferable(type: Data.self),
                       let uiImage = UIImage(data: data) else { return }
+                // 先缩到合理尺寸再存，避免原图撑爆布局和体积
+                let resized = ImageUtils.downscaled(uiImage)
                 let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
                     .appendingPathComponent("bg-\(UUID().uuidString).jpg")
-                guard let jpeg = uiImage.jpegData(compressionQuality: 0.85) else { return }
+                guard let jpeg = resized.jpegData(compressionQuality: 0.85) else { return }
                 try? jpeg.write(to: url)
                 updateCurrentEvent { $0.backgroundImageName = url.path }
             }

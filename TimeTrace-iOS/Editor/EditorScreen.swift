@@ -27,6 +27,7 @@ struct EditorScreen: View {
                     pinRow
                     maskRow
                     pinnedPreview
+                    fullScreenPreview
                 }
                 .padding(16)
             }
@@ -135,9 +136,11 @@ struct EditorScreen: View {
                 Task {
                     guard let data = try? await newItem?.loadTransferable(type: Data.self),
                           let uiImage = UIImage(data: data) else { return }
+                    // 先缩到合理尺寸再存，避免原图撑爆布局和体积
+                    let resized = ImageUtils.downscaled(uiImage)
                     let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
                         .appendingPathComponent("bg-\(UUID().uuidString).jpg")
-                    guard let jpeg = uiImage.jpegData(compressionQuality: 0.85) else { return }
+                    guard let jpeg = resized.jpegData(compressionQuality: 0.85) else { return }
                     try? jpeg.write(to: url)
                     backgroundImageName = url.path
                 }
@@ -195,7 +198,34 @@ struct EditorScreen: View {
                 // 中等次要的字号
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(TimeTracePalette.secondary)
-            PinnedEventCard(event: previewEvent) {}
+            // 外层锁死宽度，防止卡片内部 aspectRatio 在滚动视图里被图片自然尺寸撑宽
+            GeometryReader { geo in
+                PinnedEventCard(event: previewEvent) {}
+                    .frame(width: geo.size.width, height: geo.size.height)
+            }
+            .aspectRatio(16.0 / 9.0, contentMode: .fit)
+        }
+    }
+
+    // 全屏展示预览：复用详情页海报，实时看编辑后的详情页效果
+    private var fullScreenPreview: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("全屏展示预览")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(TimeTracePalette.secondary)
+            // 用 GeometryReader 锁死实际内容宽度，防止图片按自然宽度把页面撑宽
+            GeometryReader { geo in
+                PosterContent(
+                    event: previewEvent,
+                    days: TimeUtils.daysBetween(targetDate: previewEvent.targetDate),
+                    showsTime: false,
+                    // 预览不是真全屏，字号按比例缩小
+                    scale: 0.55
+                )
+                .frame(width: geo.size.width, height: 500)
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            }
+            .frame(height: 500)
         }
     }
 
