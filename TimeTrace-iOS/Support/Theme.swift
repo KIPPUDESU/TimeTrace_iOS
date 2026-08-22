@@ -48,3 +48,47 @@ enum TimeTracePalette {
     static let outline          = Color.adaptive(light: 0x74777F, dark: 0x8E9099)
     static let error            = Color.adaptive(light: 0xB3261E, dark: 0xF2B8B5)
 }
+
+// 日夜模式三档，跟安卓的 ThemeMode 对齐
+enum ThemeMode: String, CaseIterable, Identifiable {
+    case system   // 跟随系统
+    case light    // 浅色模式
+    case dark     // 深色模式
+
+    var id: String { rawValue }
+
+    // 选项显示名
+    var label: String {
+        switch self {
+        case .system: return "跟随系统"
+        case .light: return "浅色模式"
+        case .dark: return "深色模式"
+        }
+    }
+}
+
+// 语言模式四档，跟安卓的 LanguageMode 对齐，目前先只记住选择
+enum LanguageMode: String, CaseIterable, Identifiable {
+    case system     // 跟随系统
+    case chinese    // 简体中文
+    case english    // English
+    case japanese   // 日本語
+
+    var id: String { rawValue }
+
+    // 选项显示名
+    var label: String {
+        switch self {
+        case .system: return "跟随系统"
+        case .chinese: return "简体中文"
+        case .english: return "English"
+        case .japanese: return "日本語"
+        }
+    }
+}
+
+// 设置偏好在系统里的存储键，设置页和根视图共用
+enum AppPreferenceKeys {
+    static let themeMode = "themeMode"
+    static let languageMode = "languageMode"
+}
