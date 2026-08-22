@@ -8,7 +8,7 @@ struct SettingsScreen: View {
     // 语言模式
     @AppStorage(AppPreferenceKeys.languageMode) private var languageModeRaw = LanguageMode.system.rawValue
 
-    // 弹窗开关
+    // 弹层开关
     @State private var showThemePicker = false
     @State private var showLanguagePicker = false
     @State private var showDevelopingAlert = false
@@ -44,31 +44,40 @@ struct SettingsScreen: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 20)
                 .zIndex(1)
-        }
-        // 日夜模式三档
-        .confirmationDialog("日夜模式", isPresented: $showThemePicker, titleVisibility: .visible) {
-            ForEach(ThemeMode.allCases) { mode in
-                Button { themeModeRaw = mode.rawValue } label: {
-                    if mode == themeMode {
-                        Label(mode.label, systemImage: "checkmark")
-                    } else {
-                        Text(mode.label)
-                    }
-                }
+
+            // 日夜模
+            if showThemePicker {
+                GlassCenterPicker(
+                    title: "日夜模式",
+                    options: ThemeMode.allCases.map { GlassOption(id: $0.rawValue, icon: themeIcon($0), title: $0.label) },
+                    selectedID: themeModeRaw,
+                    onSelect: { id in
+                        themeModeRaw = id
+                        withAnimation { showThemePicker = false }
+                    },
+                    onDismiss: { withAnimation { showThemePicker = false } }
+                )
+                .zIndex(2)
+            }
+
+            // 语言选择
+            if showLanguagePicker {
+                GlassCenterPicker(
+                    title: "语言选择",
+                    options: languageOptions,
+                    selectedID: languageModeRaw,
+                    onSelect: { id in
+                        languageModeRaw = id
+                        withAnimation { showLanguagePicker = false }
+                    },
+                    onDismiss: { withAnimation { showLanguagePicker = false } }
+                )
+                .zIndex(2)
             }
         }
-        // 语言模式四档
-        .confirmationDialog("语言选择", isPresented: $showLanguagePicker, titleVisibility: .visible) {
-            ForEach(LanguageMode.allCases) { mode in
-                Button { languageModeRaw = mode.rawValue } label: {
-                    if mode == languageMode {
-                        Label(mode.label, systemImage: "checkmark")
-                    } else {
-                        Text(mode.label)
-                    }
-                }
-            }
-        }
+        // 切换弹层时用轻弹簧动画
+        .animation(.spring(duration: 0.35, bounce: 0.25), value: showThemePicker)
+        .animation(.spring(duration: 0.35, bounce: 0.25), value: showLanguagePicker)
         // 开发中提示
         .alert("确定", isPresented: $showDevelopingAlert) {
             Button("确定", role: .cancel) {}
@@ -86,11 +95,11 @@ struct SettingsScreen: View {
     private var generalSection: some View {
         SettingsSection(title: "通用设置") {
             SettingsItem(icon: "moon.fill", title: "日夜模式", subtitle: themeMode.label) {
-                showThemePicker = true
+                withAnimation { showThemePicker = true }
             }
             divider
             SettingsItem(icon: "globe", title: "语言选择", subtitle: languageMode.label) {
-                showLanguagePicker = true
+                withAnimation { showLanguagePicker = true }
             }
         }
     }
@@ -142,6 +151,30 @@ struct SettingsScreen: View {
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         return "v\(version)"
+    }
+
+    // 日夜模式三档各自的图标
+    private func themeIcon(_ mode: ThemeMode) -> String {
+        switch mode {
+        case .system: return "circle.lefthalf.filled"
+        case .light: return "sun.max.fill"
+        case .dark: return "moon.fill"
+        }
+    }
+
+    // 语言模式四档各自的图标
+    private var languageOptions: [GlassOption] {
+        LanguageMode.allCases.map { mode in
+            let icon: String
+            let iconText: String?
+            switch mode {
+            case .system: icon = "globe"; iconText = nil
+            case .chinese: icon = "character.book.closed"; iconText = nil
+            case .english: icon = "textformat"; iconText = nil
+            case .japanese: icon = ""; iconText = "あ"
+            }
+            return GlassOption(id: mode.rawValue, icon: icon, title: mode.label, iconText: iconText)
+        }
     }
 }
 
