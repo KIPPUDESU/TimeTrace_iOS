@@ -19,9 +19,13 @@
   <a href="https://t.me/KIPPU_Trace"><img alt="Telegram" src="https://img.shields.io/badge/Telegram-JOIN-188FCA.svg?logo=telegram&logoColor=white&style=for-the-badge"></a>
 </p>
 
+<p align="center">
+  <a href="./README_EN.md">English</a> | 简体中文
+</p>
+
 > 你应该不再忍受那个复古的倒数日，可以看看这个小巧无广的 **TimeTrace**  
-> 本项目是安卓 [KIPPU_Trace](https://github.com/KIPPUDESU/KIPPU_Trace) 的 **SwiftUI** 版本，保留安卓数据与交互设计的基础在 iOS 上继续演进与优化
-> 基于 **SwiftUI** 框架设计，融合 Apple Human Interface Guidelines，在这个版本里，依旧有切符的个人审美和小巧思 w
+> 本项目是安卓 [KIPPU_Trace](https://github.com/KIPPUDESU/KIPPU_Trace) 的 **SwiftUI** 版本，保留安卓数据与交互设计的基础在 iOS 上继续演进与优化  
+> 基于 **SwiftUI** 设计，融合 Apple Human Interface Guidelines，在这个版本，依旧有切符的个人审美和小巧思 w  
 
 同倒数日一致，本 App 旨在帮助用户记录生命中的重要时刻，无论是未来的期待计时，还是过往经历的累积记录
 
