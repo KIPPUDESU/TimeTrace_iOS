@@ -139,6 +139,8 @@ private struct PinnedShortLayout: View {
                     .font(.system(size: 38, weight: .bold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
+                    // 保持一行不截断
+                    .minimumScaleFactor(0.5)
                     .shadow(color: .black.opacity(0.5), radius: 8)
                 Text(TimeUtils.shortDate(event.targetDate))
                     .font(.system(size: 14))
@@ -147,15 +149,13 @@ private struct PinnedShortLayout: View {
                     .offset(x: 4, y: -6)
             }
             Spacer(minLength: 0)
-            // 天数固定一行显示在右侧
-            // 数字横向固定尺寸，位数再多也不换行
+            // 天数字列
             PinnedDaysBlock(
                 event: event,
-                // 天数五位、或标题约 3 宽配上四位天数，数字缩小一号避免挤占标题
                 daysSize: shortLayoutDaysSize,
                 showsDate: false
             )
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            .frame(alignment: .trailing)
         }
     }
 
@@ -196,7 +196,7 @@ private struct PinnedDaysBlock: View {
                     .contentTransition(.numericText())
                     // 强制一行显示
                     .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
+                    // 空间不足时
                     .minimumScaleFactor(0.5)
                 Text("天")
                     .font(.system(size: 16, weight: .medium))
