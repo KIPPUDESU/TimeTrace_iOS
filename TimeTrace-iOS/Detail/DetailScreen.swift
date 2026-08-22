@@ -4,7 +4,7 @@ import PhotosUI
 
 // 全屏详情页
 struct DetailScreen: View {
-    @Binding var events: [DateEvent]
+    let events: [DateEvent]
     let initialEventId: Int64
 
     @Environment(\.dismiss) private var dismiss
@@ -36,13 +36,12 @@ struct DetailScreen: View {
     // 依旧和安卓一样，直接给几百万页，起始页对齐到初始事件
     private static let virtualCount = 1_000_000
 
-    init(events: Binding<[DateEvent]>, initialEventId: Int64) {
-        self._events = events
+    init(events: [DateEvent], initialEventId: Int64) {
+        self.events = events
         self.initialEventId = initialEventId
-        let list = events.wrappedValue
-        let idx = list.firstIndex(where: { $0.id == initialEventId }) ?? 0
-        let n = list.count
+        let idx = events.firstIndex(where: { $0.id == initialEventId }) ?? 0
         let half = Self.virtualCount / 2
+        let n = events.count
         let computed = n > 1 ? half - (half % n) + idx : 0
         self.startPage = computed
         // computedPage 初值也对齐，不要让首次 idle 提交把当前页错位成 0
@@ -162,12 +161,13 @@ struct DetailScreen: View {
                     .appendingPathComponent("bg-\(UUID().uuidString).jpg")
                 guard let jpeg = resized.jpegData(compressionQuality: 0.85) else { return }
                 try? jpeg.write(to: url)
-                updateCurrentEvent { $0.backgroundImageName = url.path }
+                currentEvent?.backgroundImageName = url.path
             }
         }
         .sheet(isPresented: $showDatePicker) {
             DatePickerSheet(initialDate: currentEvent?.targetDate ?? Date()) { newDate in
-                updateCurrentEvent { event in
+                // 数据库自动存
+                if let event = currentEvent {
                     event.targetDate = newDate
                     event.isFuture = newDate > Date()
                     event.mode = newDate > Date() ? .countDown : .accumulate
@@ -235,15 +235,6 @@ struct DetailScreen: View {
         return events[currentPage % events.count]
     }
 
-    // 修改当前页事件
-    private func updateCurrentEvent(_ transform: (inout DateEvent) -> Void) {
-        guard events.indices.contains(currentPage % events.count) else { return }
-        let i = currentPage % events.count
-        var e = events[i]
-        transform(&e)
-        events[i] = e
-    }
-
     // 改标题准备
     private func beginEditTitle() {
         draftTitle = currentEvent?.title ?? ""
@@ -253,7 +244,7 @@ struct DetailScreen: View {
     private func saveTitle() {
         let t = draftTitle.trimmingCharacters(in: .whitespaces)
         if !t.isEmpty {
-            updateCurrentEvent { $0.title = t }
+            currentEvent?.title = t
         }
         showTitleEdit = false
     }
@@ -280,5 +271,5 @@ struct DetailScreen: View {
 }
 
 #Preview("详情页") {
-    DetailScreen(events: .constant(MockData.sampleEvents), initialEventId: MockData.sampleEvents[0].id)
+    DetailScreen(events: MockData.sampleEvents, initialEventId: MockData.sampleEvents[0].id)
 }

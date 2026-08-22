@@ -1,6 +1,7 @@
 import Foundation
+import SwiftData
 
-// 数据层落地后移除。
+// 样例与预览页假数据
 enum MockData {
     static let sampleEvents: [DateEvent] = [
         DateEvent(
@@ -54,5 +55,27 @@ enum MockData {
         comps.month = month
         comps.day = day
         return Calendar.current.date(from: comps) ?? Date()
+    }
+
+    // 样例放
+    static func seedIfEmpty(in context: ModelContext) {
+        let count = (try? context.fetchCount(FetchDescriptor<DateEvent>())) ?? 0
+        guard count == 0 else { return }
+        sampleEvents.forEach { context.insert($0) }
+        try? context.save()
+        // 新事件的编号从 6 开始
+        EventIDGenerator.ensureAtLeast(6)
+    }
+
+    @MainActor
+    static func previewContainer() -> ModelContainer {
+        let container = try! ModelContainer(
+            for: DateEvent.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let context = container.mainContext
+        sampleEvents.forEach { context.insert($0) }
+        try? context.save()
+        return container
     }
 }

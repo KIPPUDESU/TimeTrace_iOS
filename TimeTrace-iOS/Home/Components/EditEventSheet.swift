@@ -2,20 +2,31 @@ import SwiftUI
 import PhotosUI
 
 // 编辑页面
+// 先改草稿，确定写数据库，取消什么都不动
 struct EditEventSheet: View {
-    @Binding var event: DateEvent
-    var onSave: (DateEvent) -> Void
+    let event: DateEvent
+    var onSave: () -> Void
     var onCancel: () -> Void
 
     @State private var title: String
+    @State private var selectedDate: Date
+    @State private var isPinned: Bool
+    @State private var maskOpacity: Double
+    @State private var mode: DisplayMode
+    @State private var backgroundImageName: String?
     @State private var showDatePicker = false
     @State private var pickerItem: PhotosPickerItem?
 
-    init(event: Binding<DateEvent>, onSave: @escaping (DateEvent) -> Void, onCancel: @escaping () -> Void) {
-        self._event = event
-        self._title = State(initialValue: event.wrappedValue.title)
+    init(event: DateEvent, onSave: @escaping () -> Void, onCancel: @escaping () -> Void) {
+        self.event = event
         self.onSave = onSave
         self.onCancel = onCancel
+        _title = State(initialValue: event.title)
+        _selectedDate = State(initialValue: event.targetDate)
+        _isPinned = State(initialValue: event.isPinned)
+        _maskOpacity = State(initialValue: event.maskOpacity)
+        _mode = State(initialValue: event.mode)
+        _backgroundImageName = State(initialValue: event.backgroundImageName)
     }
 
     var body: some View {
@@ -45,10 +56,10 @@ struct EditEventSheet: View {
         .presentationDetents([.height(580)])
         .presentationDragIndicator(.visible)
         .sheet(isPresented: $showDatePicker) {
-            DatePickerSheet(initialDate: event.targetDate) { newDate in
-                event.targetDate = newDate
-                event.isFuture = newDate > Date()
-                event.mode = newDate > Date() ? .countDown : .accumulate
+            DatePickerSheet(initialDate: selectedDate) { newDate in
+                selectedDate = newDate
+                // 日期变更自动切换模式
+                mode = newDate > Date() ? .countDown : .accumulate
             }
         }
     }
@@ -80,10 +91,10 @@ struct EditEventSheet: View {
         HStack(spacing: 12) {
             Button { showDatePicker = true } label: {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(event.mode == .countDown ? "目标日期" : "起始日期")
+                    Text(mode == .countDown ? "目标日期" : "起始日期")
                         .font(.caption)
                         .foregroundStyle(TimeTracePalette.onSurfaceVariant)
-                    Text(TimeUtils.shortDate(event.targetDate))
+                    Text(TimeUtils.shortDate(selectedDate))
                         .font(.headline)
                         .foregroundStyle(TimeTracePalette.onSurface)
                 }
@@ -101,7 +112,7 @@ struct EditEventSheet: View {
                     HStack(spacing: 4) {
                         Image(systemName: "photo")
                             .font(.system(size: 14))
-                        Text(event.backgroundImageName == nil ? "点击选择" : "已选择")
+                        Text(backgroundImageName == nil ? "点击选择" : "已选择")
                             .font(.headline)
                     }
                     .foregroundStyle(TimeTracePalette.onSurface)
@@ -120,7 +131,7 @@ struct EditEventSheet: View {
                         .appendingPathComponent("bg-\(UUID().uuidString).jpg")
                     guard let jpeg = resized.jpegData(compressionQuality: 0.85) else { return }
                     try? jpeg.write(to: url)
-                    event.backgroundImageName = url.path
+                    backgroundImageName = url.path
                 }
             }
         }
@@ -128,14 +139,14 @@ struct EditEventSheet: View {
 
     // 模式 置顶 遮罩
     private var modeSwitcher: some View {
-        Picker("模式", selection: $event.mode) {
+        Picker("模式", selection: $mode) {
             Text("倒数模式").tag(DisplayMode.countDown)
             Text("累计模式").tag(DisplayMode.accumulate)
         }
         .pickerStyle(.segmented)
         // 和全屏编辑器一致，用大号分段控件
         .controlSize(.large)
-        .sensoryFeedback(.selection, trigger: event.mode)
+        .sensoryFeedback(.selection, trigger: mode)
     }
     // 是否置顶
     private var pinRow: some View {
@@ -143,11 +154,11 @@ struct EditEventSheet: View {
             Text("在首页置顶展示")
                 .font(.headline)
             Spacer()
-            Toggle("", isOn: $event.isPinned)
+            Toggle("", isOn: $isPinned)
                 .labelsHidden()
                 // 开关底色从默认绿换成主色黑
                 .tint(TimeTracePalette.primary)
-                .sensoryFeedback(.impact(weight: .light), trigger: event.isPinned)
+                .sensoryFeedback(.impact(weight: .light), trigger: isPinned)
         }
     }
 
@@ -157,11 +168,11 @@ struct EditEventSheet: View {
                 Text("遮罩强度")
                     .font(.headline)
                 Spacer()
-                Text("\(Int(event.maskOpacity * 100))%")
+                Text("\(Int(maskOpacity * 100))%")
                     .font(.subheadline)
                     .foregroundStyle(TimeTracePalette.primary)
             }
-            Slider(value: $event.maskOpacity, in: 0.1...0.9)
+            Slider(value: $maskOpacity, in: 0.1...0.9)
                 // 和全屏编辑器一致，拖拽条用主色
                 .tint(TimeTracePalette.primary)
         }
@@ -199,11 +210,16 @@ struct EditEventSheet: View {
         .padding(.top, 6)
     }
 
+    // 把草稿写回这条记录
     private func save() {
-        var updated = event
-        updated.title = title.isEmpty ? "无题" : title
-        updated.isFuture = updated.targetDate > Date()
-        onSave(updated)
+        event.title = title.isEmpty ? "无题" : title
+        event.targetDate = selectedDate
+        event.isFuture = selectedDate > Date()
+        event.mode = mode
+        event.isPinned = isPinned
+        event.maskOpacity = maskOpacity
+        event.backgroundImageName = backgroundImageName
+        onSave()
     }
 }
 
@@ -248,8 +264,8 @@ struct DatePickerSheet: View {
 // 给预览
 #Preview("编辑面板") {
     EditEventSheet(
-        event: .constant(MockData.sampleEvents[0]),
-        onSave: { _ in },
+        event: MockData.sampleEvents[0],
+        onSave: {},
         onCancel: {}
     )
 }

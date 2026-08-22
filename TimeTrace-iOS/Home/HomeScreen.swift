@@ -1,8 +1,16 @@
 import SwiftUI
+import SwiftData
 
 // 这个文件是首页时间轴
 struct HomeScreen: View {
-    @State private var events: [DateEvent]
+    // 直接从数据库读数据，首页自动跟着变
+    // 用 filter 分组天然实现置顶在前
+    @Query(sort: [
+        SortDescriptor(\DateEvent.position),
+        SortDescriptor(\DateEvent.id, order: .reverse)
+    ]) private var events: [DateEvent]
+    @Environment(\.modelContext) private var modelContext
+
     @State private var pendingDelete: DateEvent?
     @State private var editingEvent: DateEvent?
     // 控制全屏编辑器是否弹出
@@ -15,10 +23,6 @@ struct HomeScreen: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     // 判断留不留毛玻璃
     @Environment(\.colorScheme) private var colorScheme
-
-    init(events: [DateEvent] = MockData.sampleEvents) {
-        self._events = State(initialValue: events)
-    }
 
     // 置顶单独一组
     private var pinnedEvents: [DateEvent] { events.filter(\.isPinned) }
@@ -49,8 +53,8 @@ struct HomeScreen: View {
             }
             .sheet(item: $editingEvent) { item in
                 EditEventSheet(
-                    event: Binding(get: { item }, set: { editingEvent = $0 }),
-                    onSave: { update($0) },
+                    event: item,
+                    onSave: { editingEvent = nil },
                     onCancel: { editingEvent = nil }
                 )
             }
@@ -59,14 +63,14 @@ struct HomeScreen: View {
                 EditorScreen(
                     onDismiss: { showAddEditor = false },
                     onSave: { event in
-                        update(event)
+                        addNew(event)
                         showAddEditor = false
                     }
                 )
             }
             // 点卡片进详情页
             .fullScreenCover(item: $detailEvent) { event in
-                DetailScreen(events: $events, initialEventId: event.id)
+                DetailScreen(events: events, initialEventId: event.id)
             }
         }
         .sensoryFeedback(.impact(weight: .heavy), trigger: pendingDelete?.id)
@@ -214,19 +218,20 @@ struct HomeScreen: View {
     // 确认删除
     private func delete(_ event: DateEvent) {
         withAnimation {
-            events.removeAll { $0.id == event.id }
+            modelContext.delete(event)
+            try? modelContext.save()
         }
         pendingDelete = nil
     }
 
-    // 把编辑后的结果存回列表，是新记录就加进去
-    private func update(_ event: DateEvent) {
-        if let index = events.firstIndex(where: { $0.id == event.id }) {
-            events[index] = event
-        } else {
-            events.append(event)
+    // 把编辑器新建的记录放进数据库
+    private func addNew(_ event: DateEvent) {
+        // 新记录还没有编号，先发一个
+        if event.id == 0 {
+            event.id = EventIDGenerator.next()
         }
-        editingEvent = nil
+        modelContext.insert(event)
+        try? modelContext.save()
     }
 
     // 判断删除确认框
@@ -241,9 +246,11 @@ struct HomeScreen: View {
 // 预览用的两种模式
 #Preview("首页浅色模式") {
     HomeScreen()
+        .modelContainer(MockData.previewContainer())
 }
 
 #Preview("首页深色模式") {
     HomeScreen()
+        .modelContainer(MockData.previewContainer())
         .preferredColorScheme(.dark)
 }

@@ -362,7 +362,7 @@ private struct NormalStandardLayout: View {
 }
 
 #Preview("普通卡堆叠") {
-    NormalEventCard(event: MockData.sampleEvents[5])
+    NormalEventCard(event: MockData.sampleEvents[4])
         .padding()
         .background(TimeTracePalette.background)
 }
