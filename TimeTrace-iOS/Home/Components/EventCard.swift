@@ -146,20 +146,26 @@ private struct PinnedShortLayout: View {
                     // 日期和标题左边对齐
                     .offset(x: 4, y: -6)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            Spacer(minLength: 0)
+            // 天数固定一行显示在右侧
+            // 数字横向固定尺寸，位数再多也不换行
             PinnedDaysBlock(
                 event: event,
                 // 天数五位、或标题约 3 宽配上四位天数，数字缩小一号避免挤占标题
                 daysSize: shortLayoutDaysSize,
                 showsDate: false
             )
-
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 
-    // 短排版的数字字号：天数五位、或标题约 3 宽配上四位天数时缩小一号
+    private var daysBetween: Int {
+        TimeUtils.daysBetween(targetDate: event.targetDate)
+    }
+
+    // 天数五位、或标题约 3 宽配上四位天数时缩小一号
     private var shortLayoutDaysSize: CGFloat {
-        let days = TimeUtils.daysBetween(targetDate: event.targetDate)
+        let days = daysBetween
         let width = TimeTextUtils.visualWidth(of: event.title)
         return days >= 10000 || (width >= 3 && days >= 1000) ? 50 : 54
     }
@@ -188,6 +194,10 @@ private struct PinnedDaysBlock: View {
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.5), radius: 12)
                     .contentTransition(.numericText())
+                    // 强制一行显示
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .minimumScaleFactor(0.5)
                 Text("天")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(.white.opacity(0.8))
