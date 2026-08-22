@@ -21,49 +21,61 @@ struct SettingsScreen: View {
     private var languageMode: LanguageMode { LanguageMode(rawValue: languageModeRaw) ?? .system }
 
     var body: some View {
-        NavigationStack {
-            List {
-                generalSection
-                dataSection
-                aboutSection
-                brandFooter
+        ZStack(alignment: .top) {
+            // 页面底色从上到下铺满
+            TimeTracePalette.background.ignoresSafeArea()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    generalSection
+                    dataSection
+                    aboutSection
+                    brandFooter
+                }
+                .padding(.top, 108)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 40)
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
-            .background(TimeTracePalette.background)
-            .navigationTitle("我的")
-            // 日夜模式三档
-            .confirmationDialog("日夜模式", isPresented: $showThemePicker, titleVisibility: .visible) {
-                ForEach(ThemeMode.allCases) { mode in
-                    Button { themeModeRaw = mode.rawValue } label: {
-                        if mode == themeMode {
-                            Label(mode.label, systemImage: "checkmark")
-                        } else {
-                            Text(mode.label)
-                        }
+            .scrollIndicators(.hidden)
+
+            Text("我的")
+                .font(.system(size: 32, weight: .bold))
+                .foregroundStyle(TimeTracePalette.onSurface)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 20)
+                .zIndex(1)
+        }
+        // 日夜模式三档
+        .confirmationDialog("日夜模式", isPresented: $showThemePicker, titleVisibility: .visible) {
+            ForEach(ThemeMode.allCases) { mode in
+                Button { themeModeRaw = mode.rawValue } label: {
+                    if mode == themeMode {
+                        Label(mode.label, systemImage: "checkmark")
+                    } else {
+                        Text(mode.label)
                     }
                 }
             }
-            // 语言模式四档
-            .confirmationDialog("语言选择", isPresented: $showLanguagePicker, titleVisibility: .visible) {
-                ForEach(LanguageMode.allCases) { mode in
-                    Button { languageModeRaw = mode.rawValue } label: {
-                        if mode == languageMode {
-                            Label(mode.label, systemImage: "checkmark")
-                        } else {
-                            Text(mode.label)
-                        }
+        }
+        // 语言模式四档
+        .confirmationDialog("语言选择", isPresented: $showLanguagePicker, titleVisibility: .visible) {
+            ForEach(LanguageMode.allCases) { mode in
+                Button { languageModeRaw = mode.rawValue } label: {
+                    if mode == languageMode {
+                        Label(mode.label, systemImage: "checkmark")
+                    } else {
+                        Text(mode.label)
                     }
                 }
             }
-            // 开发中提示
-            .alert("确定", isPresented: $showDevelopingAlert) {
-                Button("确定", role: .cancel) {}
-            } message: {
-                Text(developingFeature == "关于时痕"
-                     ? "关于时痕\nMaintained by KIPPU"
-                     : "「\(developingFeature)」功能正在开发中，敬请期待！")
-            }
+        }
+        // 开发中提示
+        .alert("确定", isPresented: $showDevelopingAlert) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(developingFeature == "关于时痕"
+                 ? "关于时痕\nMaintained by KIPPU"
+                 : "「\(developingFeature)」功能正在开发中，敬请期待！")
         }
         // 切换日夜模式和语言时给个轻微震动
         .sensoryFeedback(.selection, trigger: themeModeRaw)
@@ -81,8 +93,6 @@ struct SettingsScreen: View {
                 showLanguagePicker = true
             }
         }
-        .listRowSeparator(.hidden)
-        .listRowBackground(Color.clear)
     }
 
     // 数据安全
@@ -93,8 +103,6 @@ struct SettingsScreen: View {
                 showDevelopingAlert = true
             }
         }
-        .listRowSeparator(.hidden)
-        .listRowBackground(Color.clear)
     }
 
     // 关于分区
@@ -105,8 +113,6 @@ struct SettingsScreen: View {
                 showDevelopingAlert = true
             }
         }
-        .listRowSeparator(.hidden)
-        .listRowBackground(Color.clear)
     }
 
     // 底部
@@ -122,8 +128,6 @@ struct SettingsScreen: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
-        .listRowSeparator(.hidden)
-        .listRowBackground(Color.clear)
     }
 
     // 细分割线
