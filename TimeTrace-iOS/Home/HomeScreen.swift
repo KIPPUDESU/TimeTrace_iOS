@@ -45,11 +45,11 @@ struct HomeScreen: View {
             .safeAreaInset(edge: .top, spacing: 0) {
                 headerView
             }
-            .alert("确认删除", isPresented: deleteAlertBinding, presenting: pendingDelete) { event in
-                Button("删除", role: .destructive) { delete(event) }
-                Button("取消", role: .cancel) {}
+            .alert("confirm_delete_title", isPresented: deleteAlertBinding, presenting: pendingDelete) { event in
+                Button("delete_button", role: .destructive) { delete(event) }
+                Button("cancel", role: .cancel) {}
             } message: { event in
-                Text("确定要删除\"\(event.title)\"吗？此操作不可撤销。")
+                Text(String(format: String(localized: "delete_confirm_message"), event.title))
             }
             .sheet(item: $editingEvent) { item in
                 EditEventSheet(
@@ -85,7 +85,7 @@ struct HomeScreen: View {
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(TimeTracePalette.secondary)
                     .offset(x: 1.5)
-                Text("时间轴")
+                Text("timeline_title")
                     .font(.system(size: 32, weight: .bold))
                     .foregroundStyle(TimeTracePalette.onSurface)
             }
@@ -112,7 +112,7 @@ struct HomeScreen: View {
                 }
                 .symbolEffect(.bounce, value: addButtonBounce)   // 点击弹跳
             }
-            .accessibilityLabel("添加")
+            .accessibilityLabel("add")
         }
         .padding(.horizontal, 16)
         .padding(.top, 6)
@@ -166,7 +166,7 @@ struct HomeScreen: View {
         .listRowBackground(Color.clear)
         // 左滑编辑，右滑删除
         .swipeActions(edge: .leading, allowsFullSwipe: false) {
-            Button { editingEvent = event } label: { Label("编辑", systemImage: "pencil") }
+            Button { editingEvent = event } label: { Label("edit_title", systemImage: "pencil") }
                 .tint(TimeTracePalette.primary)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -176,7 +176,7 @@ struct HomeScreen: View {
                     try? await Task.sleep(nanoseconds: 300_000_000)
                     pendingDelete = event
                 }
-            } label: { Label("删除", systemImage: "trash") }
+            } label: { Label("delete_button", systemImage: "trash") }
                 .tint(.red)
         }
     }
@@ -204,7 +204,7 @@ struct HomeScreen: View {
 
     // 没有记录的提示
     private var emptyState: some View {
-        Text("点击右上角 + 记录你的 TimeTrace")
+        Text("empty_timeline_hint")
             .font(.body)
             .foregroundStyle(TimeTracePalette.secondary)
             .frame(maxWidth: .infinity, maxHeight: .infinity)

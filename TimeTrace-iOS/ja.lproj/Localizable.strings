@@ -5,6 +5,9 @@
 "section_about" = "このアプリについて";
 "theme_mode" = "テーマ";
 "language_selection" = "表示言語";
+"language_chinese" = "簡体字中国語";
+"language_english" = "English";
+"language_japanese" = "日本語";
 "backup_restore" = "バックアップと復元";
 "about_app" = "TimeTrace について";
 "close" = "閉じる";

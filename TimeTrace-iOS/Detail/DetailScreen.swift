@@ -94,7 +94,7 @@ struct DetailScreen: View {
 
             // 保存成功横幅
             if showSavedBanner {
-                Text("图片已保存至相册")
+                Text("image_saved")
                     .font(.subheadline)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 16)
@@ -145,10 +145,10 @@ struct DetailScreen: View {
                     .onAppear { screenSize = proxy.size }
             }
         )
-        .alert("修改标题", isPresented: $showTitleEdit) {
-            TextField("给这一刻起个名字", text: $draftTitle)
-            Button("确定") { saveTitle() }
-            Button("取消", role: .cancel) {}
+        .alert("edit_title", isPresented: $showTitleEdit) {
+            TextField("name_this_moment", text: $draftTitle)
+            Button("confirm") { saveTitle() }
+            Button("cancel", role: .cancel) {}
         }
         .photosPicker(isPresented: $showPhotoPicker, selection: $pickerItem, matching: .images)
         .onChange(of: pickerItem) { _, newItem in
@@ -221,7 +221,7 @@ struct DetailScreen: View {
             Image(systemName: "chevron.left")
                 .font(.system(size: 28))
                 .foregroundStyle(.white.opacity(0.6))
-            Text("请左滑在时间轴页中添加事件")
+            Text("no_data")
                 .font(.body)
                 .foregroundStyle(.white.opacity(0.6))
                 .multilineTextAlignment(.center)

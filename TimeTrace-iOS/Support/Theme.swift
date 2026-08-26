@@ -60,9 +60,9 @@ enum ThemeMode: String, CaseIterable, Identifiable {
     // 选项显示名
     var label: String {
         switch self {
-        case .system: return "跟随系统"
-        case .light: return "浅色模式"
-        case .dark: return "深色模式"
+        case .system: return String(localized: "follow_system")
+        case .light: return String(localized: "light_mode")
+        case .dark: return String(localized: "dark_mode")
         }
     }
 }
@@ -79,10 +79,10 @@ enum LanguageMode: String, CaseIterable, Identifiable {
     // 选项显示名
     var label: String {
         switch self {
-        case .system: return "跟随系统"
-        case .chinese: return "简体中文"
-        case .english: return "English"
-        case .japanese: return "日本語"
+        case .system: return String(localized: "follow_system")
+        case .chinese: return String(localized: "language_chinese")
+        case .english: return String(localized: "language_english")
+        case .japanese: return String(localized: "language_japanese")
         }
     }
 }

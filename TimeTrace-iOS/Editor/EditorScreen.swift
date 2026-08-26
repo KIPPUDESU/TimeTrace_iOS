@@ -33,7 +33,7 @@ struct EditorScreen: View {
             }
             .scrollIndicators(.hidden)
             .background(TimeTracePalette.background)
-            .navigationTitle("编辑时痕")
+            .navigationTitle("edit_timetrace")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -65,7 +65,7 @@ struct EditorScreen: View {
         VStack(spacing: 4) {
             ZStack(alignment: .leading) {
                 if title.isEmpty {
-                    Text("给这一刻起个名字")
+                    Text("name_this_moment")
                         .font(.body)
                         .foregroundStyle(TimeTracePalette.onSurfaceVariant.opacity(0.6))
                 }
@@ -93,7 +93,8 @@ struct EditorScreen: View {
     private var widthHint: String {
         let width = TimeTextUtils.visualWidth(of: title)
         let isPureEnglish = title.unicodeScalars.allSatisfy { $0.isASCII }
-        return "当前视觉宽度: \(Int(width)) (\(isPureEnglish ? "英文/数字" : "中文字符"))"
+        let category = String(localized: isPureEnglish ? "english_numbers_label" : "chinese_characters_label")
+        return String(format: String(localized: "visual_width_format"), width, category)
     }
 
     // 设定日期和背景图片两个并排卡片
@@ -101,7 +102,7 @@ struct EditorScreen: View {
         HStack(spacing: 12) {
             Button { showDatePicker = true } label: {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(mode == .countDown ? "目标日期" : "起始日期")
+                    Text(mode == .countDown ? "target_date_label" : "start_date_label")
                         .font(.caption)
                         .foregroundStyle(TimeTracePalette.onSurfaceVariant)
                     Text(TimeUtils.shortDate(selectedDate))
@@ -117,13 +118,13 @@ struct EditorScreen: View {
             // 点开系统相册选一张，压缩存进 Documents 记录好路径w
             PhotosPicker(selection: $pickerItem, matching: .images) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("背景图片")
+                    Text("background_image_label")
                         .font(.caption)
                         .foregroundStyle(TimeTracePalette.onSurfaceVariant)
                     HStack(spacing: 4) {
                         Image(systemName: "photo")
                             .font(.system(size: 14))
-                        Text(backgroundImageName == nil ? "点击选择" : "已选择")
+                        Text(backgroundImageName == nil ? "tap_to_select" : "selected_label")
                             .font(.headline)
                     }
                     .foregroundStyle(TimeTracePalette.onSurface)
@@ -150,9 +151,9 @@ struct EditorScreen: View {
 
     // 倒数 / 累计模式，用 iOS 原生分段控件
     private var modeSection: some View {
-        Picker("模式", selection: $mode) {
-            Text("倒数模式").tag(DisplayMode.countDown)
-            Text("累计模式").tag(DisplayMode.accumulate)
+        Picker("mode", selection: $mode) {
+            Text("countdown_mode").tag(DisplayMode.countDown)
+            Text("accumulate_mode").tag(DisplayMode.accumulate)
         }
         .pickerStyle(.segmented)
         // 用大号分段控件，抬高一点更接近安卓的胶囊切换
@@ -162,7 +163,7 @@ struct EditorScreen: View {
 
     private var pinRow: some View {
         HStack {
-            Text("在首页置顶展示")
+            Text("pin_to_top")
                 .font(.headline)
             Spacer()
             Toggle("", isOn: $isPinned)
@@ -176,7 +177,7 @@ struct EditorScreen: View {
     private var maskRow: some View {
         VStack(spacing: 8) {
             HStack {
-                Text("遮罩强度")
+                Text("mask_intensity")
                     .font(.headline)
                 Spacer()
                 Text("\(Int(maskOpacity * 100))%")
@@ -194,7 +195,7 @@ struct EditorScreen: View {
     // 实时预览编辑后的置顶卡片效果
     private var pinnedPreview: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("置顶效果")
+            Text("pinned_preview")
                 // 中等次要的字号
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(TimeTracePalette.secondary)
@@ -210,7 +211,7 @@ struct EditorScreen: View {
     // 全屏展示预览：复用详情页海报，实时看编辑后的详情页效果
     private var fullScreenPreview: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("全屏展示预览")
+            Text("fullscreen_preview")
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(TimeTracePalette.secondary)
             // 用 GeometryReader 锁死实际内容宽度，防止图片按自然宽度把页面撑宽
@@ -231,7 +232,7 @@ struct EditorScreen: View {
 
     private var previewEvent: DateEvent {
         DateEvent(
-            title: title.isEmpty ? "示例标题" : title,
+            title: title.isEmpty ? String(localized: "sample_title") : title,
             targetDate: selectedDate,
             isFuture: mode == .countDown,
             mode: mode,
@@ -244,7 +245,7 @@ struct EditorScreen: View {
     // 保存为新记录
     private func save() {
         onSave(DateEvent(
-            title: title.isEmpty ? "无题" : title,
+            title: title.isEmpty ? String(localized: "untitled") : title,
             targetDate: selectedDate,
             isFuture: mode == .countDown,
             mode: mode,

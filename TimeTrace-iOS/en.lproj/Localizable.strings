@@ -5,6 +5,9 @@
 "section_about" = "About";
 "theme_mode" = "Theme Mode";
 "language_selection" = "Language";
+"language_chinese" = "Simplified Chinese";
+"language_english" = "English";
+"language_japanese" = "Japanese";
 "backup_restore" = "Backup & Restore";
 "about_app" = "About TimeTrace";
 "close" = "Close";

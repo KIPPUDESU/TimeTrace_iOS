@@ -5,6 +5,9 @@
 "section_about" = "关于";
 "theme_mode" = "日夜模式";
 "language_selection" = "语言选择";
+"language_chinese" = "简体中文";
+"language_english" = "English";
+"language_japanese" = "日本語";
 "backup_restore" = "数据备份与恢复";
 "about_app" = "关于时痕";
 "close" = "关闭";

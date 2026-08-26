@@ -38,7 +38,7 @@ struct SettingsScreen: View {
             }
             .scrollIndicators(.hidden)
 
-            Text("我的")
+            Text("settings_title")
                 .font(.system(size: 32, weight: .bold))
                 .foregroundStyle(TimeTracePalette.onSurface)
                 .frame(maxWidth: .infinity)
@@ -48,7 +48,7 @@ struct SettingsScreen: View {
             // 日夜模
             if showThemePicker {
                 GlassCenterPicker(
-                    title: "日夜模式",
+                    title: String(localized: "theme_mode"),
                     options: ThemeMode.allCases.map { GlassOption(id: $0.rawValue, icon: themeIcon($0), title: $0.label) },
                     selectedID: themeModeRaw,
                     onSelect: { id in
@@ -63,7 +63,7 @@ struct SettingsScreen: View {
             // 语言选择
             if showLanguagePicker {
                 GlassCenterPicker(
-                    title: "语言选择",
+                    title: String(localized: "language_selection"),
                     options: languageOptions,
                     selectedID: languageModeRaw,
                     onSelect: { id in
@@ -79,12 +79,12 @@ struct SettingsScreen: View {
         .animation(.spring(duration: 0.35, bounce: 0.25), value: showThemePicker)
         .animation(.spring(duration: 0.35, bounce: 0.25), value: showLanguagePicker)
         // 开发中提示
-        .alert("确定", isPresented: $showDevelopingAlert) {
-            Button("确定", role: .cancel) {}
+        .alert("confirm", isPresented: $showDevelopingAlert) {
+            Button("confirm", role: .cancel) {}
         } message: {
-            Text(developingFeature == "关于时痕"
-                 ? "关于时痕\nMaintained by KIPPU"
-                 : "「\(developingFeature)」功能正在开发中，敬请期待！")
+            Text(developingFeature == "about_app"
+                 ? "\(String(localized: "about_app"))\n\(String(localized: "about_maintenance"))"
+                 : String(format: String(localized: "feature_developing"), NSLocalizedString(developingFeature, comment: "")))
         }
         // 切换日夜模式和语言时给个轻微震动
         .sensoryFeedback(.selection, trigger: themeModeRaw)
@@ -93,12 +93,12 @@ struct SettingsScreen: View {
 
     // 通用设置
     private var generalSection: some View {
-        SettingsSection(title: "通用设置") {
-            SettingsItem(icon: "moon.fill", title: "日夜模式", subtitle: themeMode.label) {
+        SettingsSection(title: String(localized: "section_general")) {
+            SettingsItem(icon: "moon.fill", title: String(localized: "theme_mode"), subtitle: themeMode.label) {
                 withAnimation { showThemePicker = true }
             }
             divider
-            SettingsItem(icon: "globe", title: "语言选择", subtitle: languageMode.label) {
+            SettingsItem(icon: "globe", title: String(localized: "language_selection"), subtitle: languageMode.label) {
                 withAnimation { showLanguagePicker = true }
             }
         }
@@ -106,9 +106,9 @@ struct SettingsScreen: View {
 
     // 数据安全
     private var dataSection: some View {
-        SettingsSection(title: "数据安全") {
-            SettingsItem(icon: "externaldrive.badge.checkmark", title: "数据备份与恢复", subtitle: "本地导入/导出") {
-                developingFeature = "数据备份与恢复"
+        SettingsSection(title: String(localized: "section_data")) {
+            SettingsItem(icon: "externaldrive.badge.checkmark", title: String(localized: "backup_restore"), subtitle: String(localized: "local_backup_subtitle")) {
+                developingFeature = "backup_restore"
                 showDevelopingAlert = true
             }
         }
@@ -116,9 +116,9 @@ struct SettingsScreen: View {
 
     // 关于分区
     private var aboutSection: some View {
-        SettingsSection(title: "关于") {
-            SettingsItem(icon: "info.circle", title: "关于时痕", subtitle: "\(appVersion) Stable") {
-                developingFeature = "关于时痕"
+        SettingsSection(title: String(localized: "section_about")) {
+            SettingsItem(icon: "info.circle", title: String(localized: "about_app"), subtitle: "\(appVersion) Stable") {
+                developingFeature = "about_app"
                 showDevelopingAlert = true
             }
         }

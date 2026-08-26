@@ -32,7 +32,7 @@ struct EditEventSheet: View {
     var body: some View {
         // 去掉滚动，内容固定在一屏，并顶到容器上方
         VStack(spacing: 20) {
-            Text("编辑时痕")
+            Text("edit_timetrace")
                 .font(.title.weight(.bold))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 // 标题往下留一点，避开顶部的引导线
@@ -68,7 +68,7 @@ struct EditEventSheet: View {
     private var titleField: some View {
         ZStack(alignment: .leading) {
             if title.isEmpty {
-                Text("给这一刻起个名字")
+                Text("name_this_moment")
                     .font(.body)
                     .foregroundStyle(TimeTracePalette.onSurfaceVariant.opacity(0.6))
             }
@@ -91,7 +91,7 @@ struct EditEventSheet: View {
         HStack(spacing: 12) {
             Button { showDatePicker = true } label: {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(mode == .countDown ? "目标日期" : "起始日期")
+                    Text(mode == .countDown ? "target_date_label" : "start_date_label")
                         .font(.caption)
                         .foregroundStyle(TimeTracePalette.onSurfaceVariant)
                     Text(TimeUtils.shortDate(selectedDate))
@@ -106,13 +106,13 @@ struct EditEventSheet: View {
 
             PhotosPicker(selection: $pickerItem, matching: .images) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("背景图片")
+                    Text("background_image_label")
                         .font(.caption)
                         .foregroundStyle(TimeTracePalette.onSurfaceVariant)
                     HStack(spacing: 4) {
                         Image(systemName: "photo")
                             .font(.system(size: 14))
-                        Text(backgroundImageName == nil ? "点击选择" : "已选择")
+                        Text(backgroundImageName == nil ? "tap_to_select" : "selected_label")
                             .font(.headline)
                     }
                     .foregroundStyle(TimeTracePalette.onSurface)
@@ -139,9 +139,9 @@ struct EditEventSheet: View {
 
     // 模式 置顶 遮罩
     private var modeSwitcher: some View {
-        Picker("模式", selection: $mode) {
-            Text("倒数模式").tag(DisplayMode.countDown)
-            Text("累计模式").tag(DisplayMode.accumulate)
+        Picker("mode", selection: $mode) {
+            Text("countdown_mode").tag(DisplayMode.countDown)
+            Text("accumulate_mode").tag(DisplayMode.accumulate)
         }
         .pickerStyle(.segmented)
         // 和全屏编辑器一致，用大号分段控件
@@ -151,7 +151,7 @@ struct EditEventSheet: View {
     // 是否置顶
     private var pinRow: some View {
         HStack {
-            Text("在首页置顶展示")
+            Text("pin_to_top")
                 .font(.headline)
             Spacer()
             Toggle("", isOn: $isPinned)
@@ -165,7 +165,7 @@ struct EditEventSheet: View {
     private var maskRow: some View {
         VStack(spacing: 8) {
             HStack {
-                Text("遮罩强度")
+                Text("mask_intensity")
                     .font(.headline)
                 Spacer()
                 Text("\(Int(maskOpacity * 100))%")
@@ -184,7 +184,7 @@ struct EditEventSheet: View {
     private var actionButtons: some View {
         VStack(spacing: 12) {
             Button(action: save) {
-                Text("确定")
+                Text("confirm")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
@@ -194,7 +194,7 @@ struct EditEventSheet: View {
             .buttonStyle(.plain)
 
             Button(action: onCancel) {
-                Text("取消")
+                Text("cancel")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
@@ -212,7 +212,7 @@ struct EditEventSheet: View {
 
     // 把草稿写回这条记录
     private func save() {
-        event.title = title.isEmpty ? "无题" : title
+        event.title = title.isEmpty ? String(localized: "untitled") : title
         event.targetDate = selectedDate
         event.isFuture = selectedDate > Date()
         event.mode = mode
@@ -236,7 +236,7 @@ struct DatePickerSheet: View {
 
     var body: some View {
         NavigationStack {
-            DatePicker("选择日期", selection: $date, displayedComponents: .date)
+            DatePicker("select_date", selection: $date, displayedComponents: .date)
                 .datePickerStyle(.graphical)
                 // 选中还有今天标记这些指示色从蓝换成主色黑
                 .tint(TimeTracePalette.primary)
@@ -245,14 +245,14 @@ struct DatePickerSheet: View {
                 // 强制用简体中文，不然日历的月份星期会跟着系统语言走
                 .environment(\.locale, Locale(identifier: "zh_CN"))
                 .padding()
-                .navigationTitle("选择日期")
+                .navigationTitle("select_date")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("取消") { dismiss() }
+                        Button("cancel") { dismiss() }
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("确定") { onConfirm(date); dismiss() }
+                        Button("confirm") { onConfirm(date); dismiss() }
                     }
                 }
         }

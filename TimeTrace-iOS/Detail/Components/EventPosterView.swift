@@ -39,7 +39,7 @@ struct PosterContent: View {
 
     // 这个标题每 9 字换行，还有/已经 的前缀必须尾随其后
     private var titleText: some View {
-        let prefix = event.isFuture ? "还有" : "已经"
+        let prefix = String(localized: event.isFuture ? "label_until" : "label_since")
         let displayTitle = event.title.count > 35 ? String(event.title.prefix(32)) + "..." : event.title
         let chars = Array(displayTitle)
         let chunks = stride(from: 0, to: chars.count, by: 9)
@@ -82,7 +82,7 @@ struct PosterContent: View {
 
     // 日期
     private var dateLine: some View {
-        Text("\(event.isFuture ? "距离" : "自从") \(TimeUtils.shortDate(event.targetDate))")
+        Text("\(String(localized: event.isFuture ? "label_from" : "label_since_date")) \(TimeUtils.shortDate(event.targetDate))")
             .font(.system(size: 17 * scale))
             .foregroundStyle(.white.opacity(0.6))
             .tracking(2 * scale)
