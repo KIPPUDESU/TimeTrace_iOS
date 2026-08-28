@@ -76,6 +76,16 @@ enum LanguageMode: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    // 对应的 .lproj 文件夹名，跟随系统时返回 nil
+    var localeIdentifier: String? {
+        switch self {
+        case .system: return nil
+        case .chinese: return "zh-Hans"
+        case .english: return "en"
+        case .japanese: return "ja"
+        }
+    }
+
     // 选项显示名
     var label: String {
         switch self {
