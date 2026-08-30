@@ -115,8 +115,10 @@ struct HomeScreen: View {
             .accessibilityLabel("add")
         }
         .padding(.horizontal, 16)
-        .padding(.top, 6)
-        .padding(.bottom, 12)
+        // 标题和加号离状态栏
+        .padding(.top, 0)
+        // 遮罩往下拖
+        .padding(.bottom, 2)
         .frame(maxWidth: .infinity)
         .background {
             // 顶部毛玻璃背景覆盖整个顶部，延伸到状态栏后面

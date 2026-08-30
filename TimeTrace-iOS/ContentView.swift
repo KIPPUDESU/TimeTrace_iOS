@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-// 导航胶囊
+// 导航胶囊 切符最喜欢的原生液态玻璃控件www
 
 struct ContentView: View {
     // 日夜模式，设置页里切换后这里自动跟着变
@@ -21,12 +21,18 @@ struct ContentView: View {
     }
 
     var body: some View {
+        // 标签只有图标
         TabView(selection: $selection) {
-            Tab(L("timeline_title"), systemImage: "calendar", value: Screen.timeline) {
+            Tab(value: Screen.timeline) {
                 HomeScreen()
+            } label: {
+                Image(systemName: "calendar")
+                    // 这是无障碍功能
+                    // 补一个屏幕上看不见的名字
+                    .accessibilityLabel(L("timeline_title"))
             }
 
-            Tab(L("detail_title"), systemImage: "rectangle.stack", value: Screen.detail) {
+            Tab(value: Screen.detail) {
                 // 没有记录时传 0
                 DetailScreen(
                     events: events,
@@ -34,12 +40,22 @@ struct ContentView: View {
                     // 回就切回时间轴
                     onBack: { selection = .timeline }
                 )
+            } label: {
+                Image(systemName: "rectangle.stack")
+                    // 补
+                    .accessibilityLabel(L("detail_title"))
             }
 
-            Tab(L("settings_title"), systemImage: "gearshape", value: Screen.settings) {
+            Tab(value: Screen.settings) {
                 SettingsScreen()
+            } label: {
+                Image(systemName: "gearshape")
+                    // 补
+                    .accessibilityLabel(L("settings_title"))
             }
         }
+        // 选中的标签用 secondary，跟安卓一致：选中偏灰，未选中是深色
+        .tint(TimeTracePalette.secondary)
         // 锁整个 App 的日夜模式
         .preferredColorScheme(colorScheme)
     }

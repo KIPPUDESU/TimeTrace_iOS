@@ -81,7 +81,7 @@
 "widget_select_title" = "表示するカードを選択";
 "widget_no_cards" = "カードがありません";
 "widget_configure_label" = "カードを変更";
-"pinned_label" = "▷ 固定";
+"pinned_label" = "固定";
 "time_separator" = " ";
 "time_years" = "%d年";
 "time_months" = "%d月";
