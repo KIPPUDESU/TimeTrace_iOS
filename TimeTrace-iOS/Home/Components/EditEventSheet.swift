@@ -32,7 +32,7 @@ struct EditEventSheet: View {
     var body: some View {
         // 去掉滚动，内容固定在一屏，并顶到容器上方
         VStack(spacing: 20) {
-            Text("edit_timetrace")
+            Text(L("edit_timetrace"))
                 .font(.title.weight(.bold))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 // 标题往下留一点，避开顶部的引导线
@@ -68,7 +68,7 @@ struct EditEventSheet: View {
     private var titleField: some View {
         ZStack(alignment: .leading) {
             if title.isEmpty {
-                Text("name_this_moment")
+                Text(L("name_this_moment"))
                     .font(.body)
                     .foregroundStyle(TimeTracePalette.onSurfaceVariant.opacity(0.6))
             }
@@ -106,7 +106,7 @@ struct EditEventSheet: View {
 
             PhotosPicker(selection: $pickerItem, matching: .images) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("background_image_label")
+                    Text(L("background_image_label"))
                         .font(.caption)
                         .foregroundStyle(TimeTracePalette.onSurfaceVariant)
                     HStack(spacing: 4) {
@@ -140,8 +140,8 @@ struct EditEventSheet: View {
     // 模式 置顶 遮罩
     private var modeSwitcher: some View {
         Picker("mode", selection: $mode) {
-            Text("countdown_mode").tag(DisplayMode.countDown)
-            Text("accumulate_mode").tag(DisplayMode.accumulate)
+            Text(L("countdown_mode")).tag(DisplayMode.countDown)
+            Text(L("accumulate_mode")).tag(DisplayMode.accumulate)
         }
         .pickerStyle(.segmented)
         // 和全屏编辑器一致，用大号分段控件
@@ -151,7 +151,7 @@ struct EditEventSheet: View {
     // 是否置顶
     private var pinRow: some View {
         HStack {
-            Text("pin_to_top")
+            Text(L("pin_to_top"))
                 .font(.headline)
             Spacer()
             Toggle("", isOn: $isPinned)
@@ -165,7 +165,7 @@ struct EditEventSheet: View {
     private var maskRow: some View {
         VStack(spacing: 8) {
             HStack {
-                Text("mask_intensity")
+                Text(L("mask_intensity"))
                     .font(.headline)
                 Spacer()
                 Text("\(Int(maskOpacity * 100))%")
@@ -184,7 +184,7 @@ struct EditEventSheet: View {
     private var actionButtons: some View {
         VStack(spacing: 12) {
             Button(action: save) {
-                Text("confirm")
+                Text(L("confirm"))
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
@@ -194,7 +194,7 @@ struct EditEventSheet: View {
             .buttonStyle(.plain)
 
             Button(action: onCancel) {
-                Text("cancel")
+                Text(L("cancel"))
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
@@ -212,7 +212,7 @@ struct EditEventSheet: View {
 
     // 把草稿写回这条记录
     private func save() {
-        event.title = title.isEmpty ? String(localized: "untitled") : title
+        event.title = title.isEmpty ? L("untitled") : title
         event.targetDate = selectedDate
         event.isFuture = selectedDate > Date()
         event.mode = mode
@@ -245,14 +245,14 @@ struct DatePickerSheet: View {
                 // 强制用简体中文，不然日历的月份星期会跟着系统语言走
                 .environment(\.locale, Locale(identifier: "zh_CN"))
                 .padding()
-                .navigationTitle("select_date")
+                .navigationTitle(L("select_date"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("cancel") { dismiss() }
+                        Button(L("cancel")) { dismiss() }
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("confirm") { onConfirm(date); dismiss() }
+                        Button(L("confirm")) { onConfirm(date); dismiss() }
                     }
                 }
         }

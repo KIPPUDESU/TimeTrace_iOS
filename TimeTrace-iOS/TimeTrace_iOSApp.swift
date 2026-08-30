@@ -14,6 +14,8 @@ struct TimeTrace_iOSApp: App {
     let container: ModelContainer
     // 监听语言切换
     @AppStorage(AppPreferenceKeys.languageMode) private var languageModeRaw = LanguageMode.system.rawValue
+    // 强制 SwiftUI 重建全部视图
+    @State private var refreshID = UUID()
 
     init() {
         container = try! ModelContainer(for: DateEvent.self)
@@ -26,15 +28,18 @@ struct TimeTrace_iOSApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                // 语言切换时重新应用 Bundle 覆盖
-                .onChange(of: languageModeRaw) { _, _ in applyLanguage() }
+                // 语言切换时重建视图树
+                .id(refreshID)
+                .onChange(of: languageModeRaw) { _, _ in
+                    applyLanguage()
+                    refreshID = UUID()
+                }
         }
         .modelContainer(container)
     }
 
-    // 把语言偏好同步到 Bundle 层，让所有 String(localized:) 走对应 .lproj
     private func applyLanguage() {
         let mode = LanguageMode(rawValue: languageModeRaw) ?? .system
-        Bundle.setLanguage(mode.localeIdentifier)
+        LanguageManager.apply(mode.localeIdentifier)
     }
 }

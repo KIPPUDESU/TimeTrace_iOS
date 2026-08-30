@@ -38,7 +38,7 @@ struct SettingsScreen: View {
             }
             .scrollIndicators(.hidden)
 
-            Text("settings_title")
+            Text(L("settings_title"))
                 .font(.system(size: 32, weight: .bold))
                 .foregroundStyle(TimeTracePalette.onSurface)
                 .frame(maxWidth: .infinity)
@@ -48,7 +48,7 @@ struct SettingsScreen: View {
             // 日夜模
             if showThemePicker {
                 GlassCenterPicker(
-                    title: String(localized: "theme_mode"),
+                    title: L("theme_mode"),
                     options: ThemeMode.allCases.map { GlassOption(id: $0.rawValue, icon: themeIcon($0), title: $0.label) },
                     selectedID: themeModeRaw,
                     onSelect: { id in
@@ -63,11 +63,13 @@ struct SettingsScreen: View {
             // 语言选择
             if showLanguagePicker {
                 GlassCenterPicker(
-                    title: String(localized: "language_selection"),
+                    title: L("language_selection"),
                     options: languageOptions,
                     selectedID: languageModeRaw,
                     onSelect: { id in
                         languageModeRaw = id
+                        // 先把语言换好再让界面重建
+                        LanguageManager.apply(LanguageMode(rawValue: id)?.localeIdentifier)
                         withAnimation { showLanguagePicker = false }
                     },
                     onDismiss: { withAnimation { showLanguagePicker = false } }
@@ -75,16 +77,19 @@ struct SettingsScreen: View {
                 .zIndex(2)
             }
         }
+        // 重建这棵界面树
+        // 设置页在自己也带一份
+        .id(languageModeRaw)
         // 切换弹层时用轻弹簧动画
         .animation(.spring(duration: 0.35, bounce: 0.25), value: showThemePicker)
         .animation(.spring(duration: 0.35, bounce: 0.25), value: showLanguagePicker)
         // 开发中提示
-        .alert("confirm", isPresented: $showDevelopingAlert) {
-            Button("confirm", role: .cancel) {}
+        .alert(L("confirm"), isPresented: $showDevelopingAlert) {
+            Button(L("confirm"), role: .cancel) {}
         } message: {
             Text(developingFeature == "about_app"
-                 ? "\(String(localized: "about_app"))\n\(String(localized: "about_maintenance"))"
-                 : String(format: String(localized: "feature_developing"), NSLocalizedString(developingFeature, comment: "")))
+                 ? "\(L("about_app"))\n\(L("about_maintenance"))"
+                 : String(format: L("feature_developing"), L(developingFeature)))
         }
         // 切换日夜模式和语言时给个轻微震动
         .sensoryFeedback(.selection, trigger: themeModeRaw)
@@ -93,12 +98,12 @@ struct SettingsScreen: View {
 
     // 通用设置
     private var generalSection: some View {
-        SettingsSection(title: String(localized: "section_general")) {
-            SettingsItem(icon: "moon.fill", title: String(localized: "theme_mode"), subtitle: themeMode.label) {
+        SettingsSection(title: L("section_general")) {
+            SettingsItem(icon: "moon.fill", title: L("theme_mode"), subtitle: themeMode.label) {
                 withAnimation { showThemePicker = true }
             }
             divider
-            SettingsItem(icon: "globe", title: String(localized: "language_selection"), subtitle: languageMode.label) {
+            SettingsItem(icon: "globe", title: L("language_selection"), subtitle: languageMode.label) {
                 withAnimation { showLanguagePicker = true }
             }
         }
@@ -106,8 +111,8 @@ struct SettingsScreen: View {
 
     // 数据安全
     private var dataSection: some View {
-        SettingsSection(title: String(localized: "section_data")) {
-            SettingsItem(icon: "externaldrive.badge.checkmark", title: String(localized: "backup_restore"), subtitle: String(localized: "local_backup_subtitle")) {
+        SettingsSection(title: L("section_data")) {
+            SettingsItem(icon: "externaldrive.badge.checkmark", title: L("backup_restore"), subtitle: L("local_backup_subtitle")) {
                 developingFeature = "backup_restore"
                 showDevelopingAlert = true
             }
@@ -116,8 +121,8 @@ struct SettingsScreen: View {
 
     // 关于分区
     private var aboutSection: some View {
-        SettingsSection(title: String(localized: "section_about")) {
-            SettingsItem(icon: "info.circle", title: String(localized: "about_app"), subtitle: "\(appVersion) Stable") {
+        SettingsSection(title: L("section_about")) {
+            SettingsItem(icon: "info.circle", title: L("about_app"), subtitle: "\(appVersion) Stable") {
                 developingFeature = "about_app"
                 showDevelopingAlert = true
             }

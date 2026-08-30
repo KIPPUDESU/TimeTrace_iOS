@@ -53,11 +53,11 @@ enum TimeUtils {
     static func relativeDescription(targetDate: Date, now: Date = Date()) -> String {
         let r = relativeTime(targetDate: targetDate, now: now)
         var parts: [String] = []
-        if r.years > 0 { parts.append(String(format: String(localized: "time_years"), r.years)) }
-        if r.months > 0 { parts.append(String(format: String(localized: "time_months"), r.months)) }
-        if r.weeks > 0 { parts.append(String(format: String(localized: "time_weeks"), r.weeks)) }
-        if r.days > 0 { parts.append(String(format: String(localized: "time_days_unit"), r.days)) }
-        return parts.isEmpty ? String(localized: "time_today") : parts.joined(separator: String(localized: "time_separator"))
+        if r.years > 0 { parts.append(String(format: L("time_years"), r.years)) }
+        if r.months > 0 { parts.append(String(format: L("time_months"), r.months)) }
+        if r.weeks > 0 { parts.append(String(format: L("time_weeks"), r.weeks)) }
+        if r.days > 0 { parts.append(String(format: L("time_days_unit"), r.days)) }
+        return parts.isEmpty ? L("time_today") : parts.joined(separator: L("time_separator"))
     }
 
     // 本地日期文本

@@ -45,11 +45,11 @@ struct HomeScreen: View {
             .safeAreaInset(edge: .top, spacing: 0) {
                 headerView
             }
-            .alert("confirm_delete_title", isPresented: deleteAlertBinding, presenting: pendingDelete) { event in
-                Button("delete_button", role: .destructive) { delete(event) }
-                Button("cancel", role: .cancel) {}
+            .alert(L("confirm_delete_title"), isPresented: deleteAlertBinding, presenting: pendingDelete) { event in
+                Button(L("delete_button"), role: .destructive) { delete(event) }
+                Button(L("cancel"), role: .cancel) {}
             } message: { event in
-                Text(String(format: String(localized: "delete_confirm_message"), event.title))
+                Text(String(format: L("delete_confirm_message"), event.title))
             }
             .sheet(item: $editingEvent) { item in
                 EditEventSheet(
@@ -85,7 +85,7 @@ struct HomeScreen: View {
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(TimeTracePalette.secondary)
                     .offset(x: 1.5)
-                Text("timeline_title")
+                Text(L("timeline_title"))
                     .font(.system(size: 32, weight: .bold))
                     .foregroundStyle(TimeTracePalette.onSurface)
             }
@@ -166,7 +166,7 @@ struct HomeScreen: View {
         .listRowBackground(Color.clear)
         // 左滑编辑，右滑删除
         .swipeActions(edge: .leading, allowsFullSwipe: false) {
-            Button { editingEvent = event } label: { Label("edit_title", systemImage: "pencil") }
+            Button { editingEvent = event } label: { Label(L("edit_title"), systemImage: "pencil") }
                 .tint(TimeTracePalette.primary)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -176,7 +176,7 @@ struct HomeScreen: View {
                     try? await Task.sleep(nanoseconds: 300_000_000)
                     pendingDelete = event
                 }
-            } label: { Label("delete_button", systemImage: "trash") }
+            } label: { Label(L("delete_button"), systemImage: "trash") }
                 .tint(.red)
         }
     }
@@ -204,7 +204,7 @@ struct HomeScreen: View {
 
     // 没有记录的提示
     private var emptyState: some View {
-        Text("empty_timeline_hint")
+        Text(L("empty_timeline_hint"))
             .font(.body)
             .foregroundStyle(TimeTracePalette.secondary)
             .frame(maxWidth: .infinity, maxHeight: .infinity)

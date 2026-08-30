@@ -29,7 +29,7 @@ struct PinnedEventCard: View {
                         .padding(24)
 
                     // 置顶标签
-                    Text("pinned_label")
+                    Text(L("pinned_label"))
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 10)
@@ -198,7 +198,7 @@ private struct PinnedDaysBlock: View {
                     .lineLimit(1)
                     // 空间不足时
                     .minimumScaleFactor(0.5)
-                Text("day_unit")
+                Text(L("day_unit"))
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(.white.opacity(0.8))
                     .padding(.bottom, 10)
@@ -314,7 +314,7 @@ private struct NormalCollapsedLayout: View {
                 Text("\(TimeUtils.daysBetween(targetDate: event.targetDate))")
                     .font(.system(size: 32, weight: .bold))
                     .foregroundStyle(TimeTracePalette.primary)
-                Text("day_unit")
+                Text(L("day_unit"))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(TimeTracePalette.secondary)
                     .padding(.bottom, 6)
@@ -325,7 +325,7 @@ private struct NormalCollapsedLayout: View {
         .padding(.vertical, 16)
     }
 
-    private var prefix: String { String(localized: event.isFuture ? "label_until" : "label_since") }
+    private var prefix: String { L(event.isFuture ? "label_until" : "label_since") }
 }
 
 /// 标准横排
@@ -353,7 +353,7 @@ private struct NormalStandardLayout: View {
                 Text("\(TimeUtils.daysBetween(targetDate: event.targetDate))")
                     .font(.system(size: 36, weight: .bold))
                     .foregroundStyle(TimeTracePalette.primary)
-                Text("day_unit")
+                Text(L("day_unit"))
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(TimeTracePalette.secondary)
                     .padding(.bottom, 8)
@@ -362,7 +362,7 @@ private struct NormalStandardLayout: View {
         .padding(.horizontal, 24)
     }
 
-    private var prefix: String { String(localized: event.isFuture ? "label_until" : "label_since") }
+    private var prefix: String { L(event.isFuture ? "label_until" : "label_since") }
 }
 
 #Preview("普通卡横排") {

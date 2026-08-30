@@ -10,13 +10,13 @@ struct DetailActionSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ActionRow(icon: "square.and.arrow.down", title: String(localized: "save_image"), subtitle: String(localized: "save_image_subtitle")) { onSaveImage() }
+            ActionRow(icon: "square.and.arrow.down", title: L("save_image"), subtitle: L("save_image_subtitle")) { onSaveImage() }
             divider
-            ActionRow(icon: "pencil", title: String(localized: "edit_title"), subtitle: String(localized: "edit_title_subtitle")) { onEditTitle() }
+            ActionRow(icon: "pencil", title: L("edit_title"), subtitle: L("edit_title_subtitle")) { onEditTitle() }
             divider
-            ActionRow(icon: "photo", title: String(localized: "change_background"), subtitle: String(localized: "change_background_subtitle")) { onChangeBackground() }
+            ActionRow(icon: "photo", title: L("change_background"), subtitle: L("change_background_subtitle")) { onChangeBackground() }
             divider
-            ActionRow(icon: "calendar", title: String(localized: "adjust_date"), subtitle: String(localized: "adjust_date_subtitle")) { onAdjustDate() }
+            ActionRow(icon: "calendar", title: L("adjust_date"), subtitle: L("adjust_date_subtitle")) { onAdjustDate() }
         }
         // 卡片本身用液态玻璃，不再套实色底
         .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 28, style: .continuous))

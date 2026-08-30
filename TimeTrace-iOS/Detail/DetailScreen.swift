@@ -94,7 +94,7 @@ struct DetailScreen: View {
 
             // 保存成功横幅
             if showSavedBanner {
-                Text("image_saved")
+                Text(L("image_saved"))
                     .font(.subheadline)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 16)
@@ -145,10 +145,10 @@ struct DetailScreen: View {
                     .onAppear { screenSize = proxy.size }
             }
         )
-        .alert("edit_title", isPresented: $showTitleEdit) {
-            TextField("name_this_moment", text: $draftTitle)
-            Button("confirm") { saveTitle() }
-            Button("cancel", role: .cancel) {}
+        .alert(L("edit_title"), isPresented: $showTitleEdit) {
+            TextField(L("name_this_moment"), text: $draftTitle)
+            Button(L("confirm")) { saveTitle() }
+            Button(L("cancel"), role: .cancel) {}
         }
         .photosPicker(isPresented: $showPhotoPicker, selection: $pickerItem, matching: .images)
         .onChange(of: pickerItem) { _, newItem in
@@ -221,7 +221,7 @@ struct DetailScreen: View {
             Image(systemName: "chevron.left")
                 .font(.system(size: 28))
                 .foregroundStyle(.white.opacity(0.6))
-            Text("no_data")
+            Text(L("no_data"))
                 .font(.body)
                 .foregroundStyle(.white.opacity(0.6))
                 .multilineTextAlignment(.center)
