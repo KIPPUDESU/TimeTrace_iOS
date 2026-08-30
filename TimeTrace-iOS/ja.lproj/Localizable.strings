@@ -56,6 +56,7 @@
 "confirm_delete_title" = "記録を削除";
 "delete_confirm_message" = "「%@」を削除しますか？この操作は取り消せません。";
 "delete_button" = "削除";
+"detail_title" = "詳細";
 "timeline_title" = "タイムライン";
 "empty_timeline_hint" = "右上の + から TimeTrace を記録";
 "edit_timetrace" = "TimeTrace を記録";

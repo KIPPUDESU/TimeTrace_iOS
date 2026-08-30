@@ -56,6 +56,7 @@
 "confirm_delete_title" = "确认删除";
 "delete_confirm_message" = "确定要删除\"%@\"吗？此操作不可撤销。";
 "delete_button" = "删除";
+"detail_title" = "详情";
 "timeline_title" = "时间轴";
 "empty_timeline_hint" = "点击右上角 + 记录你的 TimeTrace";
 "edit_timetrace" = "编辑时痕";

@@ -56,6 +56,7 @@
 "confirm_delete_title" = "Confirm Delete";
 "delete_confirm_message" = "Are you sure you want to delete \"%@\"? This action is irreversible.";
 "delete_button" = "Delete";
+"detail_title" = "Details";
 "timeline_title" = "Moments";
 "empty_timeline_hint" = "Tap + to record your TimeTrace";
 "edit_timetrace" = "Edit TimeTrace";

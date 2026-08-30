@@ -6,6 +6,8 @@ import PhotosUI
 struct DetailScreen: View {
     let events: [DateEvent]
     let initialEventId: Int64
+    // 返回按钮要做什么。当成标签页用时没有弹层可关，得由外面告诉它回哪去
+    var onBack: (() -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
     // 渲染保存图片用的显示缩放
@@ -36,9 +38,10 @@ struct DetailScreen: View {
     // 依旧和安卓一样，直接给几百万页，起始页对齐到初始事件
     private static let virtualCount = 1_000_000
 
-    init(events: [DateEvent], initialEventId: Int64) {
+    init(events: [DateEvent], initialEventId: Int64, onBack: (() -> Void)? = nil) {
         self.events = events
         self.initialEventId = initialEventId
+        self.onBack = onBack
         let idx = events.firstIndex(where: { $0.id == initialEventId }) ?? 0
         let half = Self.virtualCount / 2
         let n = events.count
@@ -68,7 +71,7 @@ struct DetailScreen: View {
             // 顶部控制栏，同样用透明度控制显隐
             VStack {
                 HStack {
-                    Button { dismiss() } label: {
+                    Button { onBack?() ?? dismiss() } label: {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 26, weight: .semibold))
                             .foregroundStyle(.white)
