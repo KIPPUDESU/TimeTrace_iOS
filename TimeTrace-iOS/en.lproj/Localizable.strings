@@ -91,5 +91,6 @@
 "backup_failed" = "Backup failed: %@";
 "restore_success" = "Restore successful, %d record(s) imported";
 "restore_failed" = "Restore failed: %@";
+"backup_invalid" = "Invalid backup file, events.json not found";
 "unknown_error" = "Unknown error";
 "select_date" = "Select Date";

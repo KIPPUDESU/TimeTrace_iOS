@@ -218,8 +218,13 @@ private struct PinnedDaysBlock: View {
 // 背景图
 // 有背景图时渲染 bundle 内图片，无背景图时浅灰
 // 背景图解码缓存，同一张只解一次
-private enum BackgroundImageCache {
+enum BackgroundImageCache {
     static let cache = NSCache<NSString, UIImage>()
+
+    // 清空缓存重新读名字防止显示冲突
+    static func clear() {
+        cache.removeAllObjects()
+    }
 }
 
 struct EventBackgroundView: View {

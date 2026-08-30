@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 // 设置页
 
@@ -12,6 +13,7 @@ struct SettingsScreen: View {
     @State private var showThemePicker = false
     @State private var showLanguagePicker = false
     @State private var showDevelopingAlert = false
+    @State private var showBackupFlow = false
     // 决定弹窗文案
     @State private var developingFeature = ""
 
@@ -96,6 +98,8 @@ struct SettingsScreen: View {
         // 切换日夜模式和语言时给个轻微震动
         .sensoryFeedback(.selection, trigger: themeModeRaw)
         .sensoryFeedback(.selection, trigger: languageModeRaw)
+        // 数据备份与恢复
+        .backupFlow(isPresented: $showBackupFlow)
     }
 
     // 通用设置
@@ -115,8 +119,7 @@ struct SettingsScreen: View {
     private var dataSection: some View {
         SettingsSection(title: L("section_data")) {
             SettingsItem(icon: "externaldrive.badge.checkmark", title: L("backup_restore"), subtitle: L("local_backup_subtitle")) {
-                developingFeature = "backup_restore"
-                showDevelopingAlert = true
+                showBackupFlow = true
             }
         }
     }
@@ -187,9 +190,11 @@ struct SettingsScreen: View {
 
 #Preview("设置页浅色模式") {
     SettingsScreen()
+        .modelContainer(MockData.previewContainer())
 }
 
 #Preview("设置页深色模式") {
     SettingsScreen()
+        .modelContainer(MockData.previewContainer())
         .preferredColorScheme(.dark)
 }

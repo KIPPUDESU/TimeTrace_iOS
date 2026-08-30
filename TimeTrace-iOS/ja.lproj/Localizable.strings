@@ -91,5 +91,6 @@
 "backup_failed" = "バックアップに失敗しました: %@";
 "restore_success" = "%d 件の記録を復元しました";
 "restore_failed" = "復元に失敗しました: %@";
+"backup_invalid" = "バックアップファイルが不正です。events.json が見つかりません";
 "unknown_error" = "不明なエラー";
 "select_date" = "日付を選択";

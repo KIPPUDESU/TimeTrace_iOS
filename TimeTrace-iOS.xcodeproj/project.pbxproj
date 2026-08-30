@@ -6,6 +6,10 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F13F6C05304455390008A0B7 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = F13F6C04304455390008A0B7 /* ZIPFoundation */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		F1F73478301E57F7002DCB5A /* TimeTrace-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TimeTrace-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -22,6 +26,7 @@
 		F1F73475301E57F7002DCB5A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				F13F6C05304455390008A0B7 /* ZIPFoundation in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -60,6 +65,9 @@
 				F1F7347A301E57F7002DCB5A /* TimeTrace-iOS */,
 			);
 			name = "TimeTrace-iOS";
+			packageProductDependencies = (
+				F13F6C04304455390008A0B7 /* ZIPFoundation */,
+			);
 			productName = "TimeTrace-iOS";
 			productReference = F1F73478301E57F7002DCB5A /* TimeTrace-iOS.app */;
 			productType = "com.apple.product-type.application";
@@ -90,6 +98,9 @@
 			);
 			mainGroup = F1F7346F301E57F7002DCB5A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F13F6C03304455390008A0B7 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F1F73479301E57F7002DCB5A /* Products */;
 			projectDirPath = "";
@@ -320,6 +331,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F13F6C03304455390008A0B7 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.20;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F13F6C04304455390008A0B7 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F13F6C03304455390008A0B7 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F1F73470301E57F7002DCB5A /* Project object */;
 	validationLevel = 1;
