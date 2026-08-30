@@ -254,7 +254,7 @@ struct EventBackgroundView: View {
         if let cached = BackgroundImageCache.cache.object(forKey: name as NSString) {
             return cached
         }
-        guard let loaded = UIImage(contentsOfFile: name) ?? UIImage(named: name) else { return nil }
+        guard let loaded = ImageUtils.loadBackground(named: name) else { return nil }
         BackgroundImageCache.cache.setObject(loaded, forKey: name as NSString)
         return loaded
     }
