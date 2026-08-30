@@ -12,6 +12,11 @@ struct ContentView: View {
         SortDescriptor(\DateEvent.id, order: .reverse)
     ]) private var events: [DateEvent]
 
+    // 置顶的排在前面
+    private var orderedEvents: [DateEvent] {
+        events.filter(\.isPinned) + events.filter { !$0.isPinned }
+    }
+
     // 当前选中哪个标签
     @State private var selection = Screen.timeline
 
@@ -25,6 +30,7 @@ struct ContentView: View {
         TabView(selection: $selection) {
             Tab(value: Screen.timeline) {
                 HomeScreen()
+                    .tabAppear(isActive: selection == .timeline)
             } label: {
                 Image(systemName: "calendar")
                     // 这是无障碍功能
@@ -35,11 +41,12 @@ struct ContentView: View {
             Tab(value: Screen.detail) {
                 // 没有记录时传 0
                 DetailScreen(
-                    events: events,
-                    initialEventId: events.first?.id ?? 0,
+                    events: orderedEvents,
+                    initialEventId: orderedEvents.first?.id ?? 0,
                     // 回就切回时间轴
                     onBack: { selection = .timeline }
                 )
+                .tabAppear(isActive: selection == .detail)
             } label: {
                 Image(systemName: "rectangle.stack")
                     // 补
@@ -48,6 +55,7 @@ struct ContentView: View {
 
             Tab(value: Screen.settings) {
                 SettingsScreen()
+                    .tabAppear(isActive: selection == .settings)
             } label: {
                 Image(systemName: "gearshape")
                     // 补
@@ -66,6 +74,36 @@ enum Screen {
     case timeline
     case detail
     case settings
+}
+
+// 让内容演出
+private struct TabAppear: ViewModifier {
+    let isActive: Bool
+
+    // 越大越慢
+    private let duration = 1.00
+
+    @State private var shown = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(shown ? 1 : 0)
+            // 带 initial 是为了第一次切到这个标签时也能演，而不是直接蹦出来
+            .onChange(of: isActive, initial: true) { _, active in
+                guard active else {
+                    shown = false
+                    return
+                }
+                withAnimation(.smooth(duration: duration)) { shown = true }
+            }
+    }
+}
+
+extension View {
+    // 传当前这个标签是不是选中的
+    func tabAppear(isActive: Bool) -> some View {
+        modifier(TabAppear(isActive: isActive))
+    }
 }
 
 #Preview {

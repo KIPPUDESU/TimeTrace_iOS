@@ -28,6 +28,8 @@ struct HomeScreen: View {
     private var pinnedEvents: [DateEvent] { events.filter(\.isPinned) }
     // 没置顶另一组
     private var normalEvents: [DateEvent] { events.filter { !$0.isPinned } }
+    // 屏幕上从上到下的真实顺序
+    private var orderedEvents: [DateEvent] { pinnedEvents + normalEvents }
 
     var body: some View {
         NavigationStack {
@@ -70,7 +72,7 @@ struct HomeScreen: View {
             }
             // 点卡片进详情页
             .fullScreenCover(item: $detailEvent) { event in
-                DetailScreen(events: events, initialEventId: event.id)
+                DetailScreen(events: orderedEvents, initialEventId: event.id)
             }
         }
         .sensoryFeedback(.impact(weight: .heavy), trigger: pendingDelete?.id)
@@ -185,7 +187,7 @@ struct HomeScreen: View {
 
     // 平板上用的双列网格
     private var gridLayout: some View {
-        let all = pinnedEvents + normalEvents
+        let all = orderedEvents
         return ScrollView {
             LazyVGrid(
                 columns: [GridItem(.adaptive(minimum: 300), spacing: 12)],
