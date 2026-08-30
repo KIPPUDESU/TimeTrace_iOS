@@ -174,8 +174,8 @@ struct SettingsScreen: View {
             let iconText: String?
             switch mode {
             case .system: icon = "globe"; iconText = nil
-            case .chinese: icon = "character.book.closed"; iconText = nil
-            case .english: icon = "textformat"; iconText = nil
+            case .chinese: icon = "character.book.closed.zh"; iconText = nil
+            case .english: icon = "a.circle"; iconText = nil
             case .japanese: icon = ""; iconText = "あ"
             }
             return GlassOption(id: mode.rawValue, icon: icon, title: mode.label, iconText: iconText)
