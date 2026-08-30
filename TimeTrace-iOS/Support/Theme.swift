@@ -57,6 +57,15 @@ enum ThemeMode: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    // 对应的界面外观，跟随系统时不强制
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+
     // 选项显示名
     var label: String {
         switch self {

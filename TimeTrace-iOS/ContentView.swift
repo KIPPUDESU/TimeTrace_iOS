@@ -7,11 +7,7 @@ struct ContentView: View {
 
     // 三档日夜模式对应的外观，跟随系统就不强制
     private var colorScheme: ColorScheme? {
-        switch ThemeMode(rawValue: themeModeRaw) ?? .system {
-        case .system: return nil
-        case .light: return .light
-        case .dark: return .dark
-        }
+        (ThemeMode(rawValue: themeModeRaw) ?? .system).colorScheme
     }
 
     var body: some View {

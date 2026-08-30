@@ -80,6 +80,8 @@ struct SettingsScreen: View {
         // 重建这棵界面树
         // 设置页在自己也带一份
         .id(languageModeRaw)
+        // 套用选中的日夜模式，单独跑设置页时也能看出效果
+        .preferredColorScheme(themeMode.colorScheme)
         // 切换弹层时用轻弹簧动画
         .animation(.spring(duration: 0.35, bounce: 0.25), value: showThemePicker)
         .animation(.spring(duration: 0.35, bounce: 0.25), value: showLanguagePicker)
