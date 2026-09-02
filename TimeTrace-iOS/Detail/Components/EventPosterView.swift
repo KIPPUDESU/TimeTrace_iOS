@@ -111,6 +111,8 @@ struct PosterContent: View {
 struct EventPosterView: View {
     let event: DateEvent
     var isCurrentPage: Bool = false
+    // 详情页每次重新出现清零
+    var replayToken: Int = 0
 
     @State private var animatedDays = 0
 
@@ -122,6 +124,15 @@ struct EventPosterView: View {
             .onChange(of: isCurrentPage) { _, current in
                 if current { animateToFinal() } else { animatedDays = 0 }
             }
+            // 清零
+            .onChange(of: replayToken) { _, _ in
+                if isCurrentPage { replayFromZero() }
+            }
+    }
+
+    private func replayFromZero() {
+        animatedDays = 0
+        animateToFinal()
     }
 
     private func animateToFinal() {

@@ -24,6 +24,8 @@ struct DetailScreen: View {
     @State private var currentPage: Int = 0
     // 滚动几何实时算出的页码，等停稳后再提交
     @State private var computedPage: Int = 0
+    // 每次页面重新出现加一
+    @State private var replayToken = 0
     // 屏幕尺寸，保存图片渲染用
     @State private var screenSize: CGSize = .zero
     // 起始页虚拟页中对应被点事件的页
@@ -157,6 +159,8 @@ struct DetailScreen: View {
         // 页面在状态栏区域自动渲染透明背板，代码删不掉
         // 顶部没有时间电量了 T T
         .statusBarHidden(true)
+        // 每次重新计数就好了捏
+        .onAppear { replayToken += 1 }
         // 量一下屏幕尺寸，给保存图片渲染用
         .background(
             GeometryReader { proxy in
@@ -196,7 +200,11 @@ struct DetailScreen: View {
             ScrollView(.vertical) {
                 LazyVStack(spacing: 0) {
                     ForEach(0..<Self.virtualCount, id: \.self) { i in
-                        EventPosterView(event: events[i % events.count], isCurrentPage: currentPage == i)
+                        EventPosterView(
+                            event: events[i % events.count],
+                            isCurrentPage: currentPage == i,
+                            replayToken: replayToken
+                        )
                             .id(i)
                             .containerRelativeFrame(.vertical)
                             // 每页背景延伸到状态栏下面，顶到最顶
