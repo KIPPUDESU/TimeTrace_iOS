@@ -1,6 +1,7 @@
 import SwiftUI
 import Photos
 import PhotosUI
+import UIKit
 
 // 全屏详情页
 struct DetailScreen: View {
@@ -8,6 +9,8 @@ struct DetailScreen: View {
     let initialEventId: Int64
     // 返回按钮要做什么。当成标签页用时没有弹层可关，得由外面告诉它回哪去
     var onBack: (() -> Void)? = nil
+    // 亲爱的用户在详情标 tab 又点了一下
+    var reselectTick: Int = 0
 
     @Environment(\.dismiss) private var dismiss
     // 标签切换时整页会横移，垫底的黑靠它把自己挪回原位
@@ -44,10 +47,11 @@ struct DetailScreen: View {
     // 我们 现在 就 靠这个 键 找回 了 ！
     private static let resumeKey = "DetailScreen.scrollVirtual"
 
-    init(events: [DateEvent], initialEventId: Int64, onBack: (() -> Void)? = nil) {
+    init(events: [DateEvent], initialEventId: Int64, onBack: (() -> Void)? = nil, reselectTick: Int = 0) {
         self.events = events
         self.initialEventId = initialEventId
         self.onBack = onBack
+        self.reselectTick = reselectTick
         let idx = events.firstIndex(where: { $0.id == initialEventId }) ?? 0
         let half = Self.virtualCount / 2
         let n = events.count
@@ -233,6 +237,14 @@ struct DetailScreen: View {
             .onAppear {
                 proxy.scrollTo(startPage, anchor: .top)
             }
+            .background(ScrollToTopDisabled())
+            .onChange(of: reselectTick) { _, _ in
+                let n = max(events.count, 1)
+                let groupTop = currentPage - (currentPage % n)
+                withAnimation(.easeOut(duration: 0.35)) {
+                    proxy.scrollTo(groupTop, anchor: .top)
+                }
+            }
         }
     }
 
@@ -293,4 +305,27 @@ struct DetailScreen: View {
 
 #Preview("详情页") {
     DetailScreen(events: MockData.sampleEvents, initialEventId: MockData.sampleEvents[0].id)
+}
+
+// 把底层逻辑回顶部关掉
+private struct ScrollToTopDisabled: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.isHidden = true
+        view.isUserInteractionEnabled = false
+        // 往父链上找最近 UIScrollView 关回顶
+        DispatchQueue.main.async {
+            var node = view.superview
+            while let current = node {
+                if let scroll = current as? UIScrollView {
+                    scroll.scrollsToTop = false
+                    break
+                }
+                node = current.superview
+            }
+        }
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
 }

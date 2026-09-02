@@ -21,12 +21,18 @@ struct ContentView: View {
     @State private var selection = Screen.timeline
     // 往右还是往左
     @State private var goingRight = true
+    @State private var detailReselectTick = 0
 
     // 换标签时先算方向
     private var selectionBinding: Binding<Screen> {
         Binding(
             get: { selection },
             set: { target in
+                // 点的是详情，通知回本组第一张
+                if target == selection {
+                    if target == .detail { detailReselectTick += 1 }
+                    return
+                }
                 goingRight = target.order > selection.order
                 selection = target
             }
@@ -58,7 +64,9 @@ struct ContentView: View {
                     events: orderedEvents,
                     initialEventId: orderedEvents.first?.id ?? 0,
                     // 回就切回时间轴
-                    onBack: { selection = .timeline }
+                    onBack: { selection = .timeline },
+                    // 点击详情回到本组第一张
+                    reselectTick: detailReselectTick
                 )
                 .tabAppear(isActive: selection == .detail, goingRight: goingRight, movesWholePage: false)
             } label: {
