@@ -43,7 +43,7 @@ struct HomeScreen: View {
                     listLayout
                 }
             }
-            .background(TimeTracePalette.background.ignoresSafeArea())
+            // 钉背景
             .safeAreaInset(edge: .top, spacing: 0) {
                 headerView
             }

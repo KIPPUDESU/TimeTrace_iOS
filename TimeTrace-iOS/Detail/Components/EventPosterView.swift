@@ -9,14 +9,20 @@ struct PosterContent: View {
     // 缩放系数：详情页全屏是 1，编辑器小尺寸预览按比例缩小字号
     var scale: CGFloat = 1.0
 
+    // 横移距离
+    @Environment(\.tabSlideOffset) private var slideOffset
+
     var body: some View {
         ZStack {
-            // 背景图满屏
-            EventBackgroundView(event: event)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-            // 黑的遮罩
-            Color.black.opacity(event.maskOpacity)
+            // 只有文字滑动
+            ZStack {
+                // 背景图满屏
+                EventBackgroundView(event: event)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+                // 黑的遮罩
+                Color.black.opacity(event.maskOpacity)
+            }
 
             VStack(spacing: 0) {
                 Spacer()
@@ -31,6 +37,7 @@ struct PosterContent: View {
                 Spacer()
             }
             .padding(.horizontal, 32)
+            .offset(x: slideOffset)
         }
         // 海报铺满父容器，图片不会按自然尺寸撑开布局
         .frame(maxWidth: .infinity, maxHeight: .infinity)

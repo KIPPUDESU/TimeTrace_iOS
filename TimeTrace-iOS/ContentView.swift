@@ -19,6 +19,19 @@ struct ContentView: View {
 
     // 当前选中哪个标签
     @State private var selection = Screen.timeline
+    // 往右还是往左
+    @State private var goingRight = true
+
+    // 换标签时先算方向
+    private var selectionBinding: Binding<Screen> {
+        Binding(
+            get: { selection },
+            set: { target in
+                goingRight = target.order > selection.order
+                selection = target
+            }
+        )
+    }
 
     // 三档日夜模式对应的外观，跟随系统就不强制
     private var colorScheme: ColorScheme? {
@@ -27,10 +40,10 @@ struct ContentView: View {
 
     var body: some View {
         // 标签只有图标
-        TabView(selection: $selection) {
+        TabView(selection: selectionBinding) {
             Tab(value: Screen.timeline) {
                 HomeScreen()
-                    .tabAppear(isActive: selection == .timeline)
+                    .tabAppear(isActive: selection == .timeline, goingRight: goingRight)
             } label: {
                 Image(systemName: "calendar")
                     // 这是无障碍功能
@@ -46,7 +59,7 @@ struct ContentView: View {
                     // 回就切回时间轴
                     onBack: { selection = .timeline }
                 )
-                .tabAppear(isActive: selection == .detail)
+                .tabAppear(isActive: selection == .detail, goingRight: goingRight, movesWholePage: false)
             } label: {
                 Image(systemName: "rectangle.stack")
                     // 补
@@ -55,15 +68,17 @@ struct ContentView: View {
 
             Tab(value: Screen.settings) {
                 SettingsScreen()
-                    .tabAppear(isActive: selection == .settings)
+                    .tabAppear(isActive: selection == .settings, goingRight: goingRight)
             } label: {
                 Image(systemName: "gearshape")
                     // 补
                     .accessibilityLabel(L("settings_title"))
             }
         }
-        // 选中的标签用 secondary，跟安卓一致：选中偏灰，未选中是深色
+        // 选中的标签用 secondary
         .tint(TimeTracePalette.secondary)
+        // 背景色
+        .background(TimeTracePalette.background.ignoresSafeArea())
         // 锁整个 App 的日夜模式
         .preferredColorScheme(colorScheme)
     }
@@ -74,23 +89,42 @@ enum Screen {
     case timeline
     case detail
     case settings
+
+    // 位置标号
+    var order: Int {
+        switch self {
+        case .timeline: return 0
+        case .detail: return 1
+        case .settings: return 2
+        }
+    }
 }
 
 // 让内容演出
 private struct TabAppear: ViewModifier {
     let isActive: Bool
+    let goingRight: Bool
+    let movesWholePage: Bool
 
-    // 越大越慢
-    private let duration = 1.00
+    private let duration = 0.60
+    // 起步位
+    private let distance: CGFloat = 400
 
     @State private var shown = false
 
+    // 这一刻该横移多少
+    private var slide: CGFloat {
+        shown ? 0 : (goingRight ? distance : -distance)
+    }
+
     func body(content: Content) -> some View {
         content
-            .opacity(shown ? 1 : 0)
-            // 带 initial 是为了第一次切到这个标签时也能演，而不是直接蹦出来
+            .offset(x: movesWholePage ? slide : 0)
+            // 拿距离
+            .environment(\.tabSlideOffset, slide)
             .onChange(of: isActive, initial: true) { _, active in
                 guard active else {
+                    // 归零
                     shown = false
                     return
                 }
@@ -99,10 +133,21 @@ private struct TabAppear: ViewModifier {
     }
 }
 
+private struct TabSlideOffsetKey: EnvironmentKey {
+    static let defaultValue: CGFloat = 0
+}
+
+extension EnvironmentValues {
+    var tabSlideOffset: CGFloat {
+        get { self[TabSlideOffsetKey.self] }
+        set { self[TabSlideOffsetKey.self] = newValue }
+    }
+}
+
 extension View {
-    // 传当前这个标签是不是选中的
-    func tabAppear(isActive: Bool) -> some View {
-        modifier(TabAppear(isActive: isActive))
+    // 传选中 切换方向
+    func tabAppear(isActive: Bool, goingRight: Bool, movesWholePage: Bool = true) -> some View {
+        modifier(TabAppear(isActive: isActive, goingRight: goingRight, movesWholePage: movesWholePage))
     }
 }
 

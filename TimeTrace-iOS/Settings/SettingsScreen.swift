@@ -24,8 +24,7 @@ struct SettingsScreen: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            // 页面底色从上到下铺满
-            TimeTracePalette.background.ignoresSafeArea()
+            // 背景不动
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {

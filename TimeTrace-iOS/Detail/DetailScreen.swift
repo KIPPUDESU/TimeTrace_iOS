@@ -10,6 +10,8 @@ struct DetailScreen: View {
     var onBack: (() -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
+    // 标签切换时整页会横移，垫底的黑靠它把自己挪回原位
+    @Environment(\.tabSlideOffset) private var slideOffset
     // 渲染保存图片用的显示缩放
     @Environment(\.displayScale) private var displayScale
 
@@ -94,6 +96,8 @@ struct DetailScreen: View {
             }
             .opacity(showControls ? 1 : 0)
             .allowsHitTesting(showControls)
+            // 切换标签时只有这两个按钮跟着滑，背景和遮罩都待着不动
+            .offset(x: slideOffset)
 
             // 保存成功横幅
             if showSavedBanner {
