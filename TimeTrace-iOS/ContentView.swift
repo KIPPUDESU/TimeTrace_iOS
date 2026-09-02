@@ -132,6 +132,8 @@ private struct TabAppear: ViewModifier {
             .offset(x: movesWholePage ? slide : 0)
             // 拿距离
             .environment(\.tabSlideOffset, slide)
+            // 页面自己决定淡入
+            .environment(\.tabReveal, shown ? 1 : 0)
             .onChange(of: isActive, initial: true) { _, active in
                 guard active else {
                     // 归零
@@ -151,6 +153,17 @@ extension EnvironmentValues {
     var tabSlideOffset: CGFloat {
         get { self[TabSlideOffsetKey.self] }
         set { self[TabSlideOffsetKey.self] = newValue }
+    }
+}
+
+private struct TabRevealKey: EnvironmentKey {
+    static let defaultValue: Double = 1
+}
+
+extension EnvironmentValues {
+    var tabReveal: Double {
+        get { self[TabRevealKey.self] }
+        set { self[TabRevealKey.self] = newValue }
     }
 }
 

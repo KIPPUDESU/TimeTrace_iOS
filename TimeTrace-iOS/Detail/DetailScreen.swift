@@ -15,6 +15,8 @@ struct DetailScreen: View {
     @Environment(\.dismiss) private var dismiss
     // 标签切换时整页会横移，垫底的黑靠它把自己挪回原位
     @Environment(\.tabSlideOffset) private var slideOffset
+    // 海报淡入用垫底
+    @Environment(\.tabReveal) private var reveal
     // 渲染保存图片用的显示缩放
     @Environment(\.displayScale) private var displayScale
 
@@ -70,12 +72,14 @@ struct DetailScreen: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            // 垫一层灰
+            Color(white: 0.15).ignoresSafeArea()
 
             if events.isEmpty {
                 emptyState
             } else {
-                pager
+                // 淡入
+                pager.opacity(max(reveal, 0.5))
             }
 
             // 栏遮罩，不挡滑动，靠透明度淡入淡出

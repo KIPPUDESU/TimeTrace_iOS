@@ -22,6 +22,8 @@ struct SettingsScreen: View {
     // 当前语言模式
     private var languageMode: LanguageMode { LanguageMode(rawValue: languageModeRaw) ?? .system }
     @Environment(\.tabSlideOffset) private var slideOffset
+    // 前景淡入
+    @Environment(\.tabReveal) private var reveal
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -81,6 +83,7 @@ struct SettingsScreen: View {
             }
             }
             .offset(x: slideOffset)
+            .opacity(reveal)
         }
         // 重建这棵界面树
         // 设置页在自己也带一份

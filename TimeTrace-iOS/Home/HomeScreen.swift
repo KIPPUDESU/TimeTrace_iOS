@@ -25,6 +25,8 @@ struct HomeScreen: View {
     @Environment(\.colorScheme) private var colorScheme
     // 内容要滑动距离
     @Environment(\.tabSlideOffset) private var slideOffset
+    // 内容淡入用，背景不跟着淡
+    @Environment(\.tabReveal) private var reveal
 
     // 置顶单独一组
     private var pinnedEvents: [DateEvent] { events.filter(\.isPinned) }
@@ -59,6 +61,7 @@ struct HomeScreen: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .offset(x: slideOffset)
+                .opacity(reveal)
             }
             .alert(L("confirm_delete_title"), isPresented: deleteAlertBinding, presenting: pendingDelete) { event in
                 Button(L("delete_button"), role: .destructive) { delete(event) }
