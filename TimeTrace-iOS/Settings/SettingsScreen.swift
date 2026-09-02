@@ -21,13 +21,15 @@ struct SettingsScreen: View {
     private var themeMode: ThemeMode { ThemeMode(rawValue: themeModeRaw) ?? .system }
     // 当前语言模式
     private var languageMode: LanguageMode { LanguageMode(rawValue: languageModeRaw) ?? .system }
+    @Environment(\.tabSlideOffset) private var slideOffset
 
     var body: some View {
         ZStack(alignment: .top) {
-            // 页面底色
+            // 底色钉住
             TimeTracePalette.background.ignoresSafeArea()
 
-            // 设置页内容固定
+            // 前景
+            ZStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 20) {
                 generalSection
                 dataSection
@@ -77,6 +79,8 @@ struct SettingsScreen: View {
                 )
                 .zIndex(2)
             }
+            }
+            .offset(x: slideOffset)
         }
         // 重建这棵界面树
         // 设置页在自己也带一份

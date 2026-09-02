@@ -68,8 +68,9 @@ struct ContentView: View {
             }
 
             Tab(value: Screen.settings) {
+                // 设置页自己分层
                 SettingsScreen()
-                    .tabAppear(isActive: selection == .settings, goingRight: goingRight)
+                    .tabAppear(isActive: selection == .settings, goingRight: goingRight, movesWholePage: false)
             } label: {
                 Image(systemName: "gearshape")
                     // 补

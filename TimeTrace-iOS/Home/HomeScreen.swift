@@ -35,20 +35,30 @@ struct HomeScreen: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                // 没有记录时显示提示，平板双列网格，手机单列列表
-                if events.isEmpty {
-                    emptyState
-                } else if sizeClass == .regular {
-                    gridLayout
-                } else {
-                    listLayout
+            ZStack(alignment: .top) {
+                // 底色放在导航栈内部最底
+                TimeTracePalette.background.ignoresSafeArea()
+
+                // 只让前景标题和内容滑
+                headerMaterialBar
+                    .allowsHitTesting(false)
+
+                VStack(spacing: 0) {
+                    headerTitleRow
+                    Group {
+                        // 没有记录时显示提示，平板双列网格，手机单列列表
+                        if events.isEmpty {
+                            emptyState
+                        } else if sizeClass == .regular {
+                            gridLayout
+                        } else {
+                            listLayout
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 }
-            }
-            // 只有这层滑动
-            .offset(x: slideOffset)
-            .safeAreaInset(edge: .top, spacing: 0) {
-                headerView
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .offset(x: slideOffset)
             }
             .alert(L("confirm_delete_title"), isPresented: deleteAlertBinding, presenting: pendingDelete) { event in
                 Button(L("delete_button"), role: .destructive) { delete(event) }
@@ -81,8 +91,26 @@ struct HomeScreen: View {
         .sensoryFeedback(.impact(weight: .heavy), trigger: pendingDelete?.id)
     }
 
-    // 顶部标题栏双行品牌标题，添加按钮和它同一水平线
-    private var headerView: some View {
+    private var headerMaterialBar: some View {
+        ZStack(alignment: .top) {
+            Rectangle()
+                .fill(.regularMaterial)
+                .overlay {
+                    // 深色没毛玻璃，浅色模式保留
+                    if colorScheme == .dark {
+                        TimeTracePalette.background.opacity(1.0)
+                    }
+                }
+            headerTitleRow
+                .opacity(0)
+                .accessibilityHidden(true)
+        }
+        .frame(maxWidth: .infinity)
+        .ignoresSafeArea(edges: .top)
+    }
+
+    // 小字品牌 大字标题 添加按钮
+    private var headerTitleRow: some View {
         HStack(alignment: .center) {
             // 小字品牌上，大字标题在下
             VStack(alignment: .leading, spacing: 0) {
@@ -120,23 +148,7 @@ struct HomeScreen: View {
             .accessibilityLabel("add")
         }
         .padding(.horizontal, 16)
-        // 标题和加号离状态栏
-        .padding(.top, 0)
-        // 遮罩往下拖
-        .padding(.bottom, 2)
         .frame(maxWidth: .infinity)
-        .background {
-            // 顶部毛玻璃背景覆盖整个顶部，延伸到状态栏后面
-            Rectangle()
-                .fill(.regularMaterial)
-                .overlay {
-                    // 深色没毛玻璃，浅色模式保留
-                    if colorScheme == .dark {
-                        TimeTracePalette.background.opacity(1.0)
-                    }
-                }
-                .ignoresSafeArea(edges: .top)
-        }
     }
 
     // 手机上用的单列列表
