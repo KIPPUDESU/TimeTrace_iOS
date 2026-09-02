@@ -28,8 +28,6 @@ struct DetailScreen: View {
     @State private var screenSize: CGSize = .zero
     // 起始页虚拟页中对应被点事件的页
     private let startPage: Int
-    // 重建后从上次位置恢复时记住是哪页
-    private let resumeIndex: Int?
     // 底部动作
     @State private var showActionSheet = false
     // 保存成功横幅
@@ -56,16 +54,13 @@ struct DetailScreen: View {
         let half = Self.virtualCount / 2
         let n = events.count
         var computed = n > 1 ? half - (half % n) + idx : 0
-        // 从偏好里回到上次停的位置
-        var resumed: Int? = nil
+        // 作为标签页用（有返回动作）时重建后靠这里回到上次停的位置，天数照常播动画
         if onBack != nil, n > 1,
            let saved = UserDefaults.standard.object(forKey: Self.resumeKey) as? Int,
            saved >= 0, saved < Self.virtualCount {
             computed = saved
-            resumed = saved
         }
         self.startPage = computed
-        self.resumeIndex = resumed
         // computedPage 初值也对齐，不要让首次 idle 提交把当前页错位成 0
         _currentPage = State(initialValue: computed)
         _computedPage = State(initialValue: computed)
@@ -201,11 +196,7 @@ struct DetailScreen: View {
             ScrollView(.vertical) {
                 LazyVStack(spacing: 0) {
                     ForEach(0..<Self.virtualCount, id: \.self) { i in
-                        EventPosterView(
-                            event: events[i % events.count],
-                            isCurrentPage: currentPage == i,
-                            countUp: resumeIndex.map { i != $0 } ?? true
-                        )
+                        EventPosterView(event: events[i % events.count], isCurrentPage: currentPage == i)
                             .id(i)
                             .containerRelativeFrame(.vertical)
                             // 每页背景延伸到状态栏下面，顶到最顶
