@@ -28,6 +28,10 @@ struct DetailScreen: View {
     @State private var computedPage: Int = 0
     // 每次页面重新出现加一
     @State private var replayToken = 0
+    // 首次进详情
+    @State private var firstSlideX: CGFloat = 0
+    @State private var firstSlideDone = false
+    @Environment(\.tabSlideRight) private var slideFromRight
     // 屏幕尺寸，保存图片渲染用
     @State private var screenSize: CGSize = .zero
     // 起始页虚拟页中对应被点事件的页
@@ -164,7 +168,10 @@ struct DetailScreen: View {
         // 顶部没有时间电量了 T T
         .statusBarHidden(true)
         // 每次重新计数就好了捏
-        .onAppear { replayToken += 1 }
+        .onAppear {
+            replayToken += 1
+            kickFirstSlideOnce()
+        }
         // 量一下屏幕尺寸，给保存图片渲染用
         .background(
             GeometryReader { proxy in
@@ -198,6 +205,22 @@ struct DetailScreen: View {
         }
     }
 
+    // 仪式
+    private func kickFirstSlideOnce() {
+        guard onBack != nil, !firstSlideDone else { return }
+        firstSlideDone = true
+        let start: CGFloat = slideFromRight ? 400 : -400
+        // 文字起点停屏外
+        var noAnim = Transaction()
+        noAnim.disablesAnimations = true
+        withTransaction(noAnim) { firstSlideX = start }
+        Task { @MainActor in
+            // 等当前那个
+            try? await Task.sleep(nanoseconds: 550_000_000)
+            withAnimation(.smooth(duration: 0.9)) { firstSlideX = 0 }
+        }
+    }
+
     // 垂直无限分页器
     private var pager: some View {
         ScrollViewReader { proxy in
@@ -207,7 +230,8 @@ struct DetailScreen: View {
                         EventPosterView(
                             event: events[i % events.count],
                             isCurrentPage: currentPage == i,
-                            replayToken: replayToken
+                            replayToken: replayToken,
+                            firstSlideX: firstSlideX
                         )
                             .id(i)
                             .containerRelativeFrame(.vertical)

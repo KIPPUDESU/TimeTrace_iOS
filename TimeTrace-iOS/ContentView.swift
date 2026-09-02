@@ -134,6 +134,8 @@ private struct TabAppear: ViewModifier {
             .environment(\.tabSlideOffset, slide)
             // 页面自己决定淡入
             .environment(\.tabReveal, shown ? 1 : 0)
+            // 从哪边来
+            .environment(\.tabSlideRight, goingRight)
             .onChange(of: isActive, initial: true) { _, active in
                 guard active else {
                     // 归零
@@ -164,6 +166,18 @@ extension EnvironmentValues {
     var tabReveal: Double {
         get { self[TabRevealKey.self] }
         set { self[TabRevealKey.self] = newValue }
+    }
+}
+
+private struct TabSlideRightKey: EnvironmentKey {
+    static let defaultValue: Bool = true
+}
+
+extension EnvironmentValues {
+    // 左右
+    var tabSlideRight: Bool {
+        get { self[TabSlideRightKey.self] }
+        set { self[TabSlideRightKey.self] = newValue }
     }
 }
 

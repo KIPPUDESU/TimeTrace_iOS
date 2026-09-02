@@ -8,6 +8,8 @@ struct PosterContent: View {
     var showsTime: Bool = true
     // 缩放系数：详情页全屏是 1，编辑器小尺寸预览按比例缩小字号
     var scale: CGFloat = 1.0
+    // 首次进入时的一次性文字滑入量
+    var firstSlideX: CGFloat = 0
 
     // 横移距离
     @Environment(\.tabSlideOffset) private var slideOffset
@@ -27,12 +29,15 @@ struct PosterContent: View {
             VStack(spacing: 0) {
                 Spacer()
                 titleText
+                    .offset(x: firstSlideX)
                 Spacer().frame(height: 16 * scale)
                 daysText
                 dateLine
+                    .offset(x: firstSlideX)
                 if showsTime {
                     Spacer().frame(height: 8 * scale)
                     timeText
+                        .offset(x: firstSlideX)
                 }
                 Spacer()
             }
@@ -113,11 +118,12 @@ struct EventPosterView: View {
     var isCurrentPage: Bool = false
     // 详情页每次重新出现清零
     var replayToken: Int = 0
+    var firstSlideX: CGFloat = 0
 
     @State private var animatedDays = 0
 
     var body: some View {
-        PosterContent(event: event, days: animatedDays)
+        PosterContent(event: event, days: animatedDays, firstSlideX: firstSlideX)
             // 首次就是当前页时直接播动画
             .onAppear { if isCurrentPage { animateToFinal() } }
             // 每次滑入变成当前页都重播一遍，离页归零
