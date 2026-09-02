@@ -24,20 +24,20 @@ struct SettingsScreen: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            // 背景不动
+            // 页面底色
+            TimeTracePalette.background.ignoresSafeArea()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    generalSection
-                    dataSection
-                    aboutSection
-                    brandFooter
-                }
-                .padding(.top, 108)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 40)
+            // 设置页内容固定
+            VStack(alignment: .leading, spacing: 20) {
+                generalSection
+                dataSection
+                aboutSection
+                brandFooter
             }
-            .scrollIndicators(.hidden)
+            .padding(.top, 108)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 40)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             Text(L("settings_title"))
                 .font(.system(size: 32, weight: .bold))

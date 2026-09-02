@@ -23,6 +23,8 @@ struct HomeScreen: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     // 判断留不留毛玻璃
     @Environment(\.colorScheme) private var colorScheme
+    // 内容要滑动距离
+    @Environment(\.tabSlideOffset) private var slideOffset
 
     // 置顶单独一组
     private var pinnedEvents: [DateEvent] { events.filter(\.isPinned) }
@@ -43,7 +45,8 @@ struct HomeScreen: View {
                     listLayout
                 }
             }
-            // 钉背景
+            // 只有这层滑动
+            .offset(x: slideOffset)
             .safeAreaInset(edge: .top, spacing: 0) {
                 headerView
             }
@@ -148,6 +151,7 @@ struct HomeScreen: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        .background(Color.clear)
         // 不要上下滚动时的滚动条
         .scrollIndicators(.hidden)
         .contentMargins(.bottom, 120, for: .scrollContent)

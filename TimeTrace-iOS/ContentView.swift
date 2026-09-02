@@ -42,8 +42,9 @@ struct ContentView: View {
         // 标签只有图标
         TabView(selection: selectionBinding) {
             Tab(value: Screen.timeline) {
+                // 分层
                 HomeScreen()
-                    .tabAppear(isActive: selection == .timeline, goingRight: goingRight)
+                    .tabAppear(isActive: selection == .timeline, goingRight: goingRight, movesWholePage: false)
             } label: {
                 Image(systemName: "calendar")
                     // 这是无障碍功能
