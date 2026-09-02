@@ -111,17 +111,25 @@ struct PosterContent: View {
 struct EventPosterView: View {
     let event: DateEvent
     var isCurrentPage: Bool = false
+    // 恢复天数不从 0 数
+    var countUp: Bool = true
 
     @State private var animatedDays = 0
 
     var body: some View {
         PosterContent(event: event, days: animatedDays)
             // 首次就是当前页时直接播动画
-            .onAppear { if isCurrentPage { animateToFinal() } }
+            .onAppear {
+                if isCurrentPage { countUp ? animateToFinal() : jumpToFinal() }
+            }
             // 每次滑入变成当前页都重播一遍，离页归零
             .onChange(of: isCurrentPage) { _, current in
-                if current { animateToFinal() } else { animatedDays = 0 }
+                if current { countUp ? animateToFinal() : jumpToFinal() } else { animatedDays = 0 }
             }
+    }
+
+    private func jumpToFinal() {
+        animatedDays = TimeUtils.daysBetween(targetDate: event.targetDate)
     }
 
     private func animateToFinal() {

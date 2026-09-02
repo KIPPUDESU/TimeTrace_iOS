@@ -25,6 +25,8 @@ struct DetailScreen: View {
     @State private var screenSize: CGSize = .zero
     // 起始页虚拟页中对应被点事件的页
     private let startPage: Int
+    // 重建后从上次位置恢复时记住是哪页
+    private let resumeIndex: Int?
     // 底部动作
     @State private var showActionSheet = false
     // 保存成功横幅
@@ -39,6 +41,8 @@ struct DetailScreen: View {
 
     // 依旧和安卓一样，直接给几百万页，起始页对齐到初始事件
     private static let virtualCount = 1_000_000
+    // 我们 现在 就 靠这个 键 找回 了 ！
+    private static let resumeKey = "DetailScreen.scrollVirtual"
 
     init(events: [DateEvent], initialEventId: Int64, onBack: (() -> Void)? = nil) {
         self.events = events
@@ -47,8 +51,17 @@ struct DetailScreen: View {
         let idx = events.firstIndex(where: { $0.id == initialEventId }) ?? 0
         let half = Self.virtualCount / 2
         let n = events.count
-        let computed = n > 1 ? half - (half % n) + idx : 0
+        var computed = n > 1 ? half - (half % n) + idx : 0
+        // 从偏好里回到上次停的位置
+        var resumed: Int? = nil
+        if onBack != nil, n > 1,
+           let saved = UserDefaults.standard.object(forKey: Self.resumeKey) as? Int,
+           saved >= 0, saved < Self.virtualCount {
+            computed = saved
+            resumed = saved
+        }
         self.startPage = computed
+        self.resumeIndex = resumed
         // computedPage 初值也对齐，不要让首次 idle 提交把当前页错位成 0
         _currentPage = State(initialValue: computed)
         _computedPage = State(initialValue: computed)
@@ -184,7 +197,11 @@ struct DetailScreen: View {
             ScrollView(.vertical) {
                 LazyVStack(spacing: 0) {
                     ForEach(0..<Self.virtualCount, id: \.self) { i in
-                        EventPosterView(event: events[i % events.count], isCurrentPage: currentPage == i)
+                        EventPosterView(
+                            event: events[i % events.count],
+                            isCurrentPage: currentPage == i,
+                            countUp: resumeIndex.map { i != $0 } ?? true
+                        )
                             .id(i)
                             .containerRelativeFrame(.vertical)
                             // 每页背景延伸到状态栏下面，顶到最顶
@@ -207,6 +224,8 @@ struct DetailScreen: View {
             .onScrollPhaseChange { _, newPhase in
                 if newPhase == .idle {
                     currentPage = computedPage
+                    // 记
+                    UserDefaults.standard.set(computedPage, forKey: Self.resumeKey)
                 }
             }
             // 用 scrollTo 这种更可靠的方法跳到起始页
