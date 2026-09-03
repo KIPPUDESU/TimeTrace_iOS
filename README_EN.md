@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./TimeTrace-iOS/Assets.xcassets/AppIcon.appiconset/TimeTrace-iOS-Dark-1024@1x.png" style="width: 128px; height: 128px;">
+  <img src="./TimeTrace-iOS/Assets/AppIcon-iOS-Dark-1024x1024@1x.png" style="width: 128px; height: 128px;">
 </div>
 
 <h1 align="center">
