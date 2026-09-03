@@ -34,6 +34,8 @@ struct HomeScreen: View {
     private var normalEvents: [DateEvent] { events.filter { !$0.isPinned } }
     // 屏幕上从上到下的真实顺序
     private var orderedEvents: [DateEvent] { pinnedEvents + normalEvents }
+    // 顶部遮罩高度
+    private let headerTotal: CGFloat = 118
 
     var body: some View {
         NavigationStack {
@@ -41,27 +43,30 @@ struct HomeScreen: View {
                 // 底色放在导航栈内部最底
                 TimeTracePalette.background.ignoresSafeArea()
 
-                // 只让前景标题和内容滑
-                headerMaterialBar
-                    .allowsHitTesting(false)
-
-                VStack(spacing: 0) {
-                    headerTitleRow
-                    Group {
-                        // 没有记录时显示提示，平板双列网格，手机单列列表
-                        if events.isEmpty {
-                            emptyState
-                        } else if sizeClass == .regular {
-                            gridLayout
-                        } else {
-                            listLayout
-                        }
+                // 片能进遮罩下
+                Group {
+                    // 没有记录时显示提示，平板双列网格，手机单列列表
+                    if events.isEmpty {
+                        emptyState
+                    } else if sizeClass == .regular {
+                        gridLayout
+                    } else {
+                        listLayout
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .ignoresSafeArea(edges: .top)
                 .offset(x: slideOffset)
                 .opacity(reveal)
+
+                // 最上层
+                headerMaterialBar
+
+                // 标题行再往上
+                headerTitleRow
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                    .offset(x: slideOffset)
+                    .opacity(reveal)
             }
             .alert(L("confirm_delete_title"), isPresented: deleteAlertBinding, presenting: pendingDelete) { event in
                 Button(L("delete_button"), role: .destructive) { delete(event) }
@@ -95,21 +100,17 @@ struct HomeScreen: View {
     }
 
     private var headerMaterialBar: some View {
-        ZStack(alignment: .top) {
-            Rectangle()
-                .fill(.regularMaterial)
-                .overlay {
-                    // 深色没毛玻璃，浅色模式保留
-                    if colorScheme == .dark {
-                        TimeTracePalette.background.opacity(1.0)
-                    }
+        Rectangle()
+            .fill(.regularMaterial)
+            .overlay {
+                // 深色没毛玻璃，浅色模式保留
+                if colorScheme == .dark {
+                    TimeTracePalette.background.opacity(1.0)
                 }
-            headerTitleRow
-                .opacity(0)
-                .accessibilityHidden(true)
-        }
-        .frame(maxWidth: .infinity)
-        .ignoresSafeArea(edges: .top)
+            }
+            .frame(height: headerTotal)
+            .ignoresSafeArea(edges: .top)
+            .allowsHitTesting(false)
     }
 
     // 小字品牌 大字标题 添加按钮
@@ -157,6 +158,12 @@ struct HomeScreen: View {
     // 手机上用的单列列表
     private var listLayout: some View {
         List {
+            // 也挺好
+            Color.clear
+                .frame(height: headerTotal)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
             ForEach(pinnedEvents) { event in
                 cardRow(event: event, isPinned: true)
             }
@@ -208,19 +215,23 @@ struct HomeScreen: View {
     private var gridLayout: some View {
         let all = orderedEvents
         return ScrollView {
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 300), spacing: 12)],
-                spacing: 16
-            ) {
-                ForEach(all) { event in
-                    if event.isPinned {
-                        PinnedEventCard(event: event) { open(event) }
-                    } else {
-                        NormalEventCard(event: event) { open(event) }
+            VStack(spacing: 0) {
+                // 空白垫出遮罩高度
+                Color.clear.frame(height: headerTotal)
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 300), spacing: 12)],
+                    spacing: 16
+                ) {
+                    ForEach(all) { event in
+                        if event.isPinned {
+                            PinnedEventCard(event: event) { open(event) }
+                        } else {
+                            NormalEventCard(event: event) { open(event) }
+                        }
                     }
                 }
+                .padding(EdgeInsets(top: 16, leading: 16, bottom: 120, trailing: 16))
             }
-            .padding(EdgeInsets(top: 16, leading: 16, bottom: 120, trailing: 16))
         }
         .scrollIndicators(.hidden)
     }
