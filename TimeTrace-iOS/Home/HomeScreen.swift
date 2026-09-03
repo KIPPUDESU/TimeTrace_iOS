@@ -43,7 +43,7 @@ struct HomeScreen: View {
                 // 底色放在导航栈内部最底
                 TimeTracePalette.background.ignoresSafeArea()
 
-                // 片能进遮罩下
+                // 卡片内容层
                 Group {
                     // 没有记录时显示提示，平板双列网格，手机单列列表
                     if events.isEmpty {
@@ -56,13 +56,15 @@ struct HomeScreen: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .ignoresSafeArea(edges: .top)
+                // 左右渐隐
+                .overlay(alignment: .leading) { edgeFade(solidOnLeading: true) }
+                .overlay(alignment: .trailing) { edgeFade(solidOnLeading: false) }
                 .offset(x: slideOffset)
                 .opacity(reveal)
 
-                // 最上层
+                // 顶部材质遮罩钉住
                 headerMaterialBar
 
-                // 标题行再往上
                 headerTitleRow
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                     .offset(x: slideOffset)
@@ -97,6 +99,23 @@ struct HomeScreen: View {
             }
         }
         .sensoryFeedback(.impact(weight: .heavy), trigger: pendingDelete?.id)
+    }
+
+    // 缝柔化
+    private func edgeFade(solidOnLeading: Bool) -> some View {
+        LinearGradient(
+            stops: [
+                .init(color: TimeTracePalette.background, location: 0),
+                .init(color: TimeTracePalette.background, location: 0.8),
+                .init(color: .clear, location: 1)
+            ],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+        .frame(width: 16)
+        .scaleEffect(x: solidOnLeading ? 1 : -1, y: 1)
+        .blur(radius: 2)
+        .allowsHitTesting(false)
     }
 
     private var headerMaterialBar: some View {
@@ -194,10 +213,14 @@ struct HomeScreen: View {
         .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
         .listRowSeparator(.hidden)
         .listRowBackground(Color.clear)
-        // 左滑编辑，右滑删除
+        // 只放图标
         .swipeActions(edge: .leading, allowsFullSwipe: false) {
-            Button { editingEvent = event } label: { Label(L("edit_title"), systemImage: "pencil") }
-                .tint(TimeTracePalette.primary)
+            Button { editingEvent = event } label: {
+                Image(systemName: "pencil")
+                    .font(.system(size: 2, weight: .medium))
+                    .accessibilityLabel(L("edit_title"))
+            }
+            .tint(TimeTracePalette.primary)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button {
@@ -206,8 +229,12 @@ struct HomeScreen: View {
                     try? await Task.sleep(nanoseconds: 300_000_000)
                     pendingDelete = event
                 }
-            } label: { Label(L("delete_button"), systemImage: "trash") }
-                .tint(.red)
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 2, weight: .medium))
+                    .accessibilityLabel(L("delete_button"))
+            }
+            .tint(.red)
         }
     }
 
