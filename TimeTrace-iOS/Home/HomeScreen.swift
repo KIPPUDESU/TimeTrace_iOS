@@ -23,6 +23,8 @@ struct HomeScreen: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     // 判断留不留毛玻璃
     @Environment(\.colorScheme) private var colorScheme
+    // 在卡片之间的缝上横滑时穿参
+    var onGapSwipe: ((_ toNext: Bool) -> Void)? = nil
     // 内容要滑动距离
     @Environment(\.tabSlideOffset) private var slideOffset
     // 内容淡入用，背景不跟着淡
@@ -200,6 +202,22 @@ struct HomeScreen: View {
         .padding(.horizontal, 8)
     }
 
+    // 透明横滑带 因为苹果你 list 真紧吧 我只能这么妥协了 还不知道手指滑动是什么样呢
+    private var gapSwipeBand: some View {
+        Color.clear
+            .contentShape(Rectangle())
+            .frame(height: 8)
+            .gesture(
+                DragGesture(minimumDistance: 20)
+                    .onEnded { value in
+                        let dx = value.translation.width
+                        let dy = value.translation.height
+                        guard abs(dx) > 20, abs(dx) > abs(dy) * 1.3 else { return }
+                        onGapSwipe?(dx < 0)
+                    }
+            )
+    }
+
     @ViewBuilder
     private func cardRow(event: DateEvent, isPinned: Bool) -> some View {
         Group {
@@ -209,10 +227,11 @@ struct HomeScreen: View {
                 NormalEventCard(event: event) { open(event) }
             }
         }
-        // 和 ‘.padding(.horizontal, 8)’ 对冲
         .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
         .listRowSeparator(.hidden)
         .listRowBackground(Color.clear)
+        .overlay(alignment: .top) { gapSwipeBand.offset(y: -8) }
+        .overlay(alignment: .bottom) { gapSwipeBand.offset(y: 8) }
         // 只放图标
         .swipeActions(edge: .leading, allowsFullSwipe: false) {
             Button { editingEvent = event } label: {

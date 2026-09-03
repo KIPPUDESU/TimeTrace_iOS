@@ -48,8 +48,10 @@ struct ContentView: View {
         // 标签只有图标
         TabView(selection: selectionBinding) {
             Tab(value: Screen.timeline) {
-                // 分层
-                HomeScreen()
+                // 卡片之间的缝横滑
+                HomeScreen(onGapSwipe: { goNext in
+                    switchBySwipe(left: goNext)
+                })
                     .tabAppear(isActive: selection == .timeline, goingRight: goingRight, movesWholePage: false)
             } label: {
                 Image(systemName: "calendar")
@@ -91,11 +93,37 @@ struct ContentView: View {
         .background(TimeTracePalette.background.ignoresSafeArea())
         // 锁整个 App 的日夜模式
         .preferredColorScheme(colorScheme)
+        // 横向拖动结束，按方向切到相邻标签
+        // 非同时手势
+        .gesture(swipeSwitch)
+    }
+
+    // 检测横向滑动
+    private var swipeSwitch: some Gesture {
+        DragGesture(minimumDistance: 40)
+            .onEnded { value in
+                let dx = value.translation.width
+                let dy = value.translation.height
+                // 斜着划、或基本是上下滚动就别动
+                guard abs(dx) > abs(dy) * 1.4, abs(dx) > 40 else { return }
+                switchBySwipe(left: dx < 0)
+            }
+    }
+
+    // 左右滑动不同页
+    private func switchBySwipe(left: Bool) {
+        let list = Screen.ordered
+        guard let idx = list.firstIndex(of: selection) else { return }
+        let target = left
+            ? (idx + 1 < list.count ? list[idx + 1] : nil)
+            : (idx > 0 ? list[idx - 1] : nil)
+        guard let t = target else { return }
+        selectionBinding.wrappedValue = t
     }
 }
 
 // 三个标签
-enum Screen {
+enum Screen: CaseIterable {
     case timeline
     case detail
     case settings
@@ -107,6 +135,10 @@ enum Screen {
         case .detail: return 1
         case .settings: return 2
         }
+    }
+
+    static var ordered: [Screen] {
+        allCases.sorted { $0.order < $1.order }
     }
 }
 
