@@ -19,8 +19,10 @@ struct TimeTrace_iOSApp: App {
 
     init() {
         container = try! ModelContainer(for: DateEvent.self)
-        // 第一次打开时如果库里是空的，放几条样例进去
+        // 只在开发构建时给空库放样例，正式包不给用户预设数据
+        #if DEBUG
         MockData.seedIfEmpty(in: container.mainContext)
+        #endif
         // 启动时应用已保存的语言偏好
         applyLanguage()
     }
