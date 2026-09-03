@@ -50,9 +50,6 @@ final class DateEvent {
     }
 }
 
-// SwiftUI 的 sheet、全屏页、删除确认框都要用 Identifiable，声明的 id 正好是 Int64
-extension DateEvent: Identifiable {}
-
 // 给新事件发不重复的自增编号
 enum EventIDGenerator {
     private static let key = "EventIDGenerator.next"
