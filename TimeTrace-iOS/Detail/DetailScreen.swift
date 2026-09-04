@@ -175,6 +175,8 @@ struct DetailScreen: View {
         .animation(.snappy(duration: 0.3), value: showActionSheet)
         .preferredColorScheme(.dark)
         .ignoresSafeArea()
+        // 动作面板弹出时把底部胶囊藏起来，面板关了再露出来
+        .toolbar(showActionSheet ? .hidden : .visible, for: .tabBar)
         // 详情页隐藏状态栏 iOS 26
         // 页面在状态栏区域自动渲染透明背板，代码删不掉
         // 顶部没有时间电量了 T T

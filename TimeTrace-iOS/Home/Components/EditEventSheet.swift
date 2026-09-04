@@ -245,9 +245,14 @@ struct DatePickerSheet: View {
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button(L("cancel")) { dismiss() }
+                            // 取消
+                            .tint(TimeTracePalette.primary)
                     }
                     ToolbarItem(placement: .confirmationAction) {
                         Button(L("confirm")) { onConfirm(date); dismiss() }
+                            // 确定
+                            .tint(TimeTracePalette.primary)
+                            .fontWeight(.semibold)
                     }
                 }
         }
