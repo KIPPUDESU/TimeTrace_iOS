@@ -95,3 +95,4 @@
 "backup_invalid" = "Invalid backup file, events.json not found";
 "unknown_error" = "Unknown error";
 "select_date" = "Select Date";
+"publisher_title" = "Candy Rectangle";

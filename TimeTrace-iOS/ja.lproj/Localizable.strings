@@ -95,3 +95,4 @@
 "backup_invalid" = "バックアップファイルが不正です。events.json が見つかりません";
 "unknown_error" = "不明なエラー";
 "select_date" = "日付を選択";
+"publisher_title" = "Candy Rectangle";

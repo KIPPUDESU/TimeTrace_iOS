@@ -14,6 +14,8 @@ struct SettingsScreen: View {
     @State private var showLanguagePicker = false
     @State private var showDevelopingAlert = false
     @State private var showBackupFlow = false
+    // 感谢糖方喵
+    @State private var showPublisherAlert = false
     // 决定弹窗文案
     @State private var developingFeature = ""
 
@@ -104,6 +106,12 @@ struct SettingsScreen: View {
         // 切换日夜模式和语言时给个轻微震动
         .sensoryFeedback(.selection, trigger: themeModeRaw)
         .sensoryFeedback(.selection, trigger: languageModeRaw)
+        // 点发行方后看公司全称
+        .alert("Candy Rectangle", isPresented: $showPublisherAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Published by Shanghai Candy Rectangle Technology Co., Ltd.")
+        }
         // 数据备份与恢复
         .backupFlow(isPresented: $showBackupFlow)
     }
@@ -136,6 +144,11 @@ struct SettingsScreen: View {
             SettingsItem(icon: "info.circle", title: L("about_app"), subtitle: "\(appVersion) Stable") {
                 developingFeature = "about_app"
                 showDevelopingAlert = true
+            }
+            divider
+            // 详细公司信息
+            SettingsItem(icon: "shippingbox", title: L("publisher_title"), subtitle: "Publisher") {
+                showPublisherAlert = true
             }
         }
     }

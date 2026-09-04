@@ -95,3 +95,4 @@
 "backup_invalid" = "备份文件无效，找不到 events.json";
 "unknown_error" = "未知错误";
 "select_date" = "选择日期";
+"publisher_title" = "糖方科技";
