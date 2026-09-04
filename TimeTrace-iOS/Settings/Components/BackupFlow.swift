@@ -23,7 +23,7 @@ struct BackupFlow: ViewModifier {
     func body(content: Content) -> some View {
         content
             // 导出 导入
-            .confirmationDialog(L("backup_restore"), isPresented: $isPresented, titleVisibility: .visible) {
+            .alert(L("backup_restore"), isPresented: $isPresented) {
                 Button(L("backup_export")) { startExport() }
                 Button(L("backup_import")) { showImportWarning = true }
                 Button(L("cancel"), role: .cancel) {}
