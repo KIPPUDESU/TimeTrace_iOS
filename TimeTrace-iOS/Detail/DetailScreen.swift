@@ -31,6 +31,8 @@ struct DetailScreen: View {
     // 首次进详情
     @State private var firstSlideX: CGFloat = 0
     @State private var firstSlideDone = false
+    // 每次进入时海报从 0 淡到 1，慢慢来
+    @State private var posterReveal: Double = 0
     @Environment(\.tabSlideRight) private var slideFromRight
     // 屏幕尺寸，保存图片渲染用
     @State private var screenSize: CGSize = .zero
@@ -90,9 +92,10 @@ struct DetailScreen: View {
                 emptyState
                     .offset(x: slideOffset)
                     .opacity(max(reveal, 0.5))
+                    .animation(.easeOut(duration: 1.0), value: reveal)
             } else {
-                // 淡入
-                pager.opacity(max(reveal, 0.5))
+                // 透明慢慢浮现
+                pager.opacity(posterReveal)
             }
 
             // 栏遮罩，不挡滑动，靠透明度淡入淡出
@@ -180,6 +183,7 @@ struct DetailScreen: View {
         .onAppear {
             replayToken += 1
             kickFirstSlideOnce()
+            startPosterFade()
         }
         // 量一下屏幕尺寸，给保存图片渲染用
         .background(
@@ -228,6 +232,12 @@ struct DetailScreen: View {
             try? await Task.sleep(nanoseconds: 550_000_000)
             withAnimation(.smooth(duration: 0.9)) { firstSlideX = 0 }
         }
+    }
+
+    // 出现的时间
+    private func startPosterFade() {
+        posterReveal = 0
+        withAnimation(.easeOut(duration: 1.0)) { posterReveal = 1 }
     }
 
     // 垂直无限分页器

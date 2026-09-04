@@ -16,6 +16,8 @@ struct EditorScreen: View {
     @State private var backgroundImageName: String?
     // 照片选择器选中的
     @State private var pickerItem: PhotosPickerItem?
+    // 是否弹出系统相册
+    @State private var showPhotoPicker = false
 
     var body: some View {
         NavigationStack {
@@ -57,6 +59,25 @@ struct EditorScreen: View {
                     mode = newDate > Date() ? .countDown : .accumulate
                 }
             }
+            // 系统相册挂在页面根部 严格清理
+            .photosPicker(isPresented: $showPhotoPicker, selection: $pickerItem, matching: .images)
+            .onChange(of: pickerItem) { _, newItem in
+                handlePickedImage(newItem)
+            }
+        }
+    }
+
+    // 图片后台处理
+    private func handlePickedImage(_ newItem: PhotosPickerItem?) {
+        guard let newItem else { return }
+        Task {
+            let name = await Task.detached(priority: .userInitiated) { () -> String? in
+                guard let data = try? await newItem.loadTransferable(type: Data.self),
+                      let uiImage = UIImage(data: data) else { return nil }
+                return ImageUtils.saveBackground(uiImage)
+            }.value
+            backgroundImageName = name
+            pickerItem = nil
         }
     }
 
@@ -115,7 +136,8 @@ struct EditorScreen: View {
             }
             .buttonStyle(.plain)
 
-            // 点开系统相册选一张，压缩存进 Documents 记录好路径w
+            // 旧的内联
+            /*
             PhotosPicker(selection: $pickerItem, matching: .images) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(L("background_image_label"))
@@ -141,6 +163,29 @@ struct EditorScreen: View {
                     backgroundImageName = ImageUtils.saveBackground(uiImage)
                 }
             }
+            */
+            
+            // 新的
+            Button {
+                showPhotoPicker = true
+            } label: {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(L("background_image_label"))
+                        .font(.caption)
+                        .foregroundStyle(TimeTracePalette.onSurfaceVariant)
+                    HStack(spacing: 4) {
+                        Image(systemName: "photo")
+                            .font(.system(size: 14))
+                        Text(backgroundImageName == nil ? "tap_to_select" : "selected_label")
+                            .font(.headline)
+                    }
+                    .foregroundStyle(TimeTracePalette.onSurface)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16)
+                .background(TimeTracePalette.onSurface.opacity(0.03), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+            .buttonStyle(.plain)
         }
     }
 
