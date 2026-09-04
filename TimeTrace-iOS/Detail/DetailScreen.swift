@@ -76,11 +76,20 @@ struct DetailScreen: View {
 
     var body: some View {
         ZStack {
-            // 垫一层灰
-            Color(white: 0.15).ignoresSafeArea()
+            // 有内容时垫灰 空态首页一致的底色
+            Group {
+                if events.isEmpty {
+                    TimeTracePalette.background.ignoresSafeArea()
+                } else {
+                    Color(white: 0.15).ignoresSafeArea()
+                }
+            }
 
             if events.isEmpty {
+                // 空态提示横移
                 emptyState
+                    .offset(x: slideOffset)
+                    .opacity(max(reveal, 0.5))
             } else {
                 // 淡入
                 pager.opacity(max(reveal, 0.5))
@@ -280,10 +289,10 @@ struct DetailScreen: View {
         VStack(spacing: 16) {
             Image(systemName: "chevron.left")
                 .font(.system(size: 28))
-                .foregroundStyle(.white.opacity(0.6))
+                .foregroundStyle(TimeTracePalette.secondary.opacity(0.8))
             Text(L("no_data"))
                 .font(.body)
-                .foregroundStyle(.white.opacity(0.6))
+                .foregroundStyle(TimeTracePalette.secondary)
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 32)

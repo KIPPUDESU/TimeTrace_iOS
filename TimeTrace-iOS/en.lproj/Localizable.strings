@@ -24,7 +24,7 @@
 "import_warning" = "Importing a backup will replace all current data. This action is irreversible. Are you sure you want to continue?";
 "confirm_import_button" = "Confirm Import";
 "please_wait" = "Please Wait";
-"processing" = "Processing, please wait...";
+"processing" = "Processing, please wait > <";
 "complete" = "Complete";
 "error" = "Error";
 "local_backup_subtitle" = "Local Import/Export";
@@ -38,7 +38,7 @@
 "widget_4x2_description" = "Shows a wide TimeTrace event with text, days, and background image";
 "widget_no_event" = "No TimeTrace yet";
 "widget_no_date" = "--";
-"no_data" = "Please swipe left on the timeline page to add an event.";
+"no_data" = "Go to the timeline on the left to add an event";
 "save_image" = "Save Image";
 "save_image_subtitle" = "Save as clean long image without UI";
 "change_background" = "Change Background";

@@ -24,7 +24,7 @@
 "import_warning" = "バックアップを復元すると、現在の記録はすべて置き換えられます。この操作は取り消せません。続行しますか？";
 "confirm_import_button" = "復元する";
 "please_wait" = "しばらくお待ちください";
-"processing" = "処理しています…";
+"processing" = "処理中、しばらくお待ちください > <";
 "complete" = "完了";
 "error" = "エラー";
 "local_backup_subtitle" = "端末内で書き出し・復元";
@@ -38,7 +38,7 @@
 "widget_4x2_description" = "TimeTrace の記録をワイドに表示します";
 "widget_no_event" = "TimeTrace はまだありません";
 "widget_no_date" = "--";
-"no_data" = "タイムラインで記録を追加してください";
+"no_data" = "左のタイムラインへ移動してイベントを追加してください";
 "save_image" = "画像を保存";
 "save_image_subtitle" = "UI を含まない一枚の画像として保存";
 "change_background" = "背景を変更";
