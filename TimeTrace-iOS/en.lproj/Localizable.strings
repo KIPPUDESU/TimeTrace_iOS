@@ -96,3 +96,6 @@
 "unknown_error" = "Unknown error";
 "select_date" = "Select Date";
 "publisher_title" = "Candy Rectangle";
+"animation_effects" = "Animation Effects";
+"tab_slide_animation" = "Tab switching slide animation";
+"animation_effects_subtitle" = "UI animations";

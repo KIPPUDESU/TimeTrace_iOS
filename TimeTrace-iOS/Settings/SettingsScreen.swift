@@ -12,6 +12,8 @@ struct SettingsScreen: View {
     // 弹层开关
     @State private var showThemePicker = false
     @State private var showLanguagePicker = false
+    @State private var showAnimations = false
+    @AppStorage(AppPreferenceKeys.tabAnimations) private var tabAnimationsOn = true
     @State private var showDevelopingAlert = false
     @State private var showBackupFlow = false
     // 感谢糖方喵
@@ -86,6 +88,13 @@ struct SettingsScreen: View {
             }
             .offset(x: slideOffset)
             .opacity(reveal)
+
+            // 居中
+            if showAnimations {
+                animationPanel
+                    .zIndex(3)
+                    .transition(.opacity.combined(with: .scale(0.96)))
+            }
         }
         // 重建这棵界面树
         // 设置页在自己也带一份
@@ -95,6 +104,7 @@ struct SettingsScreen: View {
         // 切换弹层时用轻弹簧动画
         .animation(.spring(duration: 0.35, bounce: 0.25), value: showThemePicker)
         .animation(.spring(duration: 0.35, bounce: 0.25), value: showLanguagePicker)
+        .animation(.spring(duration: 0.35, bounce: 0.25), value: showAnimations)
         // 开发中提示
         .alert(L("confirm"), isPresented: $showDevelopingAlert) {
             Button(L("confirm"), role: .cancel) {}
@@ -116,6 +126,46 @@ struct SettingsScreen: View {
         .backupFlow(isPresented: $showBackupFlow)
     }
 
+    // 浮层
+    private var animationPanel: some View {
+        ZStack {
+            // 半透明
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .onTapGesture { showAnimations = false }
+
+            VStack(spacing: 20) {
+                Text(L("animation_effects"))
+                    .font(.headline)
+                    .foregroundStyle(TimeTracePalette.onSurface)
+
+                HStack {
+                    Text(L("tab_slide_animation"))
+                        .font(.body)
+                        .foregroundStyle(TimeTracePalette.onSurface)
+                    Spacer()
+                    Toggle("", isOn: $tabAnimationsOn)
+                        .labelsHidden()
+                        .tint(TimeTracePalette.primary)
+                }
+                .padding(.horizontal, 4)
+
+                Button {
+                    showAnimations = false
+                } label: {
+                    Text(L("complete"))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(TimeTracePalette.primary)
+                }
+            }
+            .padding(22)
+            .frame(maxWidth: 320)
+            .background(TimeTracePalette.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .shadow(color: .black.opacity(0.15), radius: 20, y: 8)
+            .padding(.horizontal, 40)
+        }
+    }
+
     // 通用设置
     private var generalSection: some View {
         SettingsSection(title: L("section_general")) {
@@ -125,6 +175,10 @@ struct SettingsScreen: View {
             divider
             SettingsItem(icon: "globe", title: L("language_selection"), subtitle: languageMode.label) {
                 withAnimation { showLanguagePicker = true }
+            }
+            divider
+            SettingsItem(icon: "wand.and.stars", title: L("animation_effects"), subtitle: L("animation_effects_subtitle")) {
+                showAnimations = true
             }
         }
     }

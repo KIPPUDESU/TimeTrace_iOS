@@ -22,6 +22,8 @@ struct ContentView: View {
     // 往右还是往左
     @State private var goingRight = true
     @State private var detailReselectTick = 0
+    // 标签切换动画开关
+    @AppStorage(AppPreferenceKeys.tabAnimations) private var tabAnimationsOn = true
 
     // 换标签时先算方向
     private var selectionBinding: Binding<Screen> {
@@ -52,7 +54,7 @@ struct ContentView: View {
                 HomeScreen(onGapSwipe: { goNext in
                     switchBySwipe(left: goNext)
                 })
-                    .tabAppear(isActive: selection == .timeline, goingRight: goingRight, movesWholePage: false)
+                    .tabAppear(isActive: selection == .timeline, goingRight: goingRight, movesWholePage: false, animated: tabAnimationsOn)
             } label: {
                 Image(systemName: "calendar")
                     // 这是无障碍功能
@@ -70,7 +72,7 @@ struct ContentView: View {
                     // 点击详情回到本组第一张
                     reselectTick: detailReselectTick
                 )
-                .tabAppear(isActive: selection == .detail, goingRight: goingRight, movesWholePage: false)
+                .tabAppear(isActive: selection == .detail, goingRight: goingRight, movesWholePage: false, animated: tabAnimationsOn)
             } label: {
                 Image(systemName: "rectangle.stack")
                     // 补
@@ -80,7 +82,7 @@ struct ContentView: View {
             Tab(value: Screen.settings) {
                 // 设置页自己分层
                 SettingsScreen()
-                    .tabAppear(isActive: selection == .settings, goingRight: goingRight, movesWholePage: false)
+                    .tabAppear(isActive: selection == .settings, goingRight: goingRight, movesWholePage: false, animated: tabAnimationsOn)
             } label: {
                 Image(systemName: "gearshape")
                     // 补
@@ -147,6 +149,7 @@ private struct TabAppear: ViewModifier {
     let isActive: Bool
     let goingRight: Bool
     let movesWholePage: Bool
+    let animated: Bool
 
     private let duration = 0.60
     // 起步位
@@ -174,7 +177,12 @@ private struct TabAppear: ViewModifier {
                     shown = false
                     return
                 }
-                withAnimation(.smooth(duration: duration)) { shown = true }
+                if animated {
+                    withAnimation(.smooth(duration: duration)) { shown = true }
+                } else {
+                    // 关动画
+                    shown = true
+                }
             }
     }
 }
@@ -215,8 +223,8 @@ extension EnvironmentValues {
 
 extension View {
     // 传选中 切换方向
-    func tabAppear(isActive: Bool, goingRight: Bool, movesWholePage: Bool = true) -> some View {
-        modifier(TabAppear(isActive: isActive, goingRight: goingRight, movesWholePage: movesWholePage))
+    func tabAppear(isActive: Bool, goingRight: Bool, movesWholePage: Bool = true, animated: Bool = true) -> some View {
+        modifier(TabAppear(isActive: isActive, goingRight: goingRight, movesWholePage: movesWholePage, animated: animated))
     }
 }
 

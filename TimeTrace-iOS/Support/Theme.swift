@@ -110,4 +110,6 @@ enum LanguageMode: String, CaseIterable, Identifiable {
 enum AppPreferenceKeys {
     static let themeMode = "themeMode"
     static let languageMode = "languageMode"
+    // 标签切换动画总开关
+    static let tabAnimations = "tabAnimations"
 }

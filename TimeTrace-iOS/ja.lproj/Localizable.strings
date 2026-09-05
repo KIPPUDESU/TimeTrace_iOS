@@ -96,3 +96,6 @@
 "unknown_error" = "不明なエラー";
 "select_date" = "日付を選択";
 "publisher_title" = "Candy Rectangle";
+"animation_effects" = "アニメーション効果";
+"tab_slide_animation" = "タブ切り替えスライドアニメ";
+"animation_effects_subtitle" = "UIアニメーション";
