@@ -74,7 +74,7 @@ struct EditorScreen: View {
         }
     }
 
-    // 同时裁出置顶卡和全屏预览的图
+    // 后台裁出置顶卡和全屏预览，并保存完整尺寸缩略图备用
     private func handlePickedImage(_ newItem: PhotosPickerItem?) {
         // 检查
         guard let newItem else { return }
@@ -84,8 +84,6 @@ struct EditorScreen: View {
             let prepared = await Task.detached(priority: .userInitiated) { () -> EditorPreviewImages? in
                 guard let data = try? await newItem.loadTransferable(type: Data.self),
                       let uiImage = UIImage(data: data) else { return nil }
-                      // 拿工具类处理，本来的裁切接口
-                      // 调用原先 return ImageUtils.saveBackground(uiImage) 没用的裁切功能
                 return ImageUtils.prepareEditorBackground(uiImage, posterAspect: posterAspect)
             }.value
             if let prepared {
