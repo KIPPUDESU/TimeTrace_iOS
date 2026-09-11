@@ -6,6 +6,8 @@ import UIKit
 struct PinnedEventCard: View {
     let event: DateEvent
     var onClick: () -> Void = {}
+    // 编辑预览传入后台已按 16:9 裁好的图，卡片自己就不再 scaledToFill
+    var preparedBackground: UIImage? = nil
 
     var body: some View {
         Button(action: onClick) {
@@ -14,7 +16,7 @@ struct PinnedEventCard: View {
             GeometryReader { proxy in
                 ZStack(alignment: .bottomLeading) {
                     // 图片层铺满卡片，超出部分裁剪
-                    EventBackgroundView(event: event)
+                    EventBackgroundView(event: event, preparedImage: preparedBackground)
                         .frame(width: proxy.size.width, height: proxy.size.height)
                         .clipped()
 
@@ -229,10 +231,16 @@ enum BackgroundImageCache {
 
 struct EventBackgroundView: View {
     let event: DateEvent
+    // 已经按容器比例裁好的图，有的话直接铺，不再 scaledToFill
+    var preparedImage: UIImage? = nil
 
     var body: some View {
         Group {
-            if let name = event.backgroundImageName {
+            if let preparedImage {
+                Image(uiImage: preparedImage)
+                    .resizable()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let name = event.backgroundImageName {
                 cachedImage(name: name)
             } else {
                 TimeTracePalette.surfaceVariant

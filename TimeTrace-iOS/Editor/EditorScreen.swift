@@ -14,6 +14,11 @@ struct EditorScreen: View {
     @State private var showDatePicker = false
     // 背景图的文件路径，没选就是 nil
     @State private var backgroundImageName: String?
+    // 后台按预览比例裁好的图，预览直接铺，不再自己 scaledToFill
+    @State private var pinnedPreviewImage: UIImage?
+    @State private var posterPreviewImage: UIImage?
+    // 编辑页内容宽度，给全屏预览裁切用
+    @State private var previewContentWidth: CGFloat = 0
     // 照片选择器选中的
     @State private var pickerItem: PhotosPickerItem?
     // 是否弹出系统相册
@@ -67,18 +72,28 @@ struct EditorScreen: View {
         }
     }
 
-    // 图片后台处理
+    // 图片后台处理：缩图存盘，同时裁出置顶卡和全屏预览要用的图
     private func handlePickedImage(_ newItem: PhotosPickerItem?) {
         guard let newItem else { return }
+        let posterAspect = posterPreviewAspect
         Task {
-            let name = await Task.detached(priority: .userInitiated) { () -> String? in
+            let prepared = await Task.detached(priority: .userInitiated) { () -> EditorPreviewImages? in
                 guard let data = try? await newItem.loadTransferable(type: Data.self),
                       let uiImage = UIImage(data: data) else { return nil }
-                return ImageUtils.saveBackground(uiImage)
+                return ImageUtils.prepareEditorBackground(uiImage, posterAspect: posterAspect)
             }.value
-            backgroundImageName = name
+            if let prepared {
+                backgroundImageName = prepared.fileName
+                pinnedPreviewImage = prepared.pinned
+                posterPreviewImage = prepared.poster
+            }
             pickerItem = nil
         }
+    }
+
+    // 全屏预览框是定高 500，宽跟编辑页内容区走
+    private var posterPreviewAspect: CGFloat {
+        max(previewContentWidth > 0 ? previewContentWidth : 360, 1) / 500
     }
 
     // 标题输入框
@@ -241,7 +256,7 @@ struct EditorScreen: View {
                 .foregroundStyle(TimeTracePalette.secondary)
             // 外层锁死宽度，防止卡片内部 aspectRatio 在滚动视图里被图片自然尺寸撑宽
             GeometryReader { geo in
-                PinnedEventCard(event: previewEvent) {}
+                PinnedEventCard(event: previewEvent, preparedBackground: pinnedPreviewImage)
                     .frame(width: geo.size.width, height: geo.size.height)
             }
             .aspectRatio(16.0 / 9.0, contentMode: .fit)
@@ -261,10 +276,13 @@ struct EditorScreen: View {
                     days: TimeUtils.daysBetween(targetDate: previewEvent.targetDate),
                     showsTime: false,
                     // 预览不是真全屏，字号按比例缩小
-                    scale: 0.55
+                    scale: 0.55,
+                    preparedBackground: posterPreviewImage
                 )
                 .frame(width: geo.size.width, height: 500)
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .onAppear { previewContentWidth = geo.size.width }
+                .onChange(of: geo.size.width) { _, width in previewContentWidth = width }
             }
             .frame(height: 500)
         }

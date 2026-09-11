@@ -10,6 +10,8 @@ struct PosterContent: View {
     var scale: CGFloat = 1.0
     // 首次进入时的一次性文字滑入量
     var firstSlideX: CGFloat = 0
+    // 编辑预览传入后台已按预览框比例裁好的图，海报自己就不再 scaledToFill
+    var preparedBackground: UIImage? = nil
 
     // 横移距离
     @Environment(\.tabSlideOffset) private var slideOffset
@@ -19,7 +21,7 @@ struct PosterContent: View {
             // 只有文字滑动
             ZStack {
                 // 背景图满屏
-                EventBackgroundView(event: event)
+                EventBackgroundView(event: event, preparedImage: preparedBackground)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .clipped()
                 // 黑的遮罩
