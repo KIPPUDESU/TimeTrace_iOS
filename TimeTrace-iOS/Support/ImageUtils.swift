@@ -21,7 +21,7 @@ enum ImageUtils {
         }
     }
 
-    // 按目标宽高比居中裁切，顺带把最长边限制住，给预览直接铺
+    // 按目标宽高比居中裁切 把最长边限制住 给预览直接铺
     nonisolated static func centerCropped(_ image: UIImage, aspectRatio: CGFloat, maxDimension: CGFloat = 1600) -> UIImage {
         let size = image.size
         guard size.width > 0, size.height > 0, aspectRatio > 0 else { return image }
@@ -67,13 +67,12 @@ enum ImageUtils {
         }
     }
 
-    // 存一张背景图，成功就返回文件名
     // 只记文件名不记完整路径，因为 App 每次重装容器路径都会变，记全路径会让老图全部失效
     nonisolated static func saveBackground(_ image: UIImage) -> String? {
         writeBackground(downscaled(image))
     }
 
-    // 后台一次做完：缩图存盘，再按置顶卡 16:9 和全屏预览比例裁两张
+    // 缩图存盘 裁两张备用
     nonisolated static func prepareEditorBackground(_ image: UIImage, posterAspect: CGFloat) -> EditorPreviewImages? {
         let source = downscaled(image)
         guard let fileName = writeBackground(source) else { return nil }

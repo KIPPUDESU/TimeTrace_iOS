@@ -10,7 +10,7 @@ struct PosterContent: View {
     var scale: CGFloat = 1.0
     // 首次进入时的一次性文字滑入量
     var firstSlideX: CGFloat = 0
-    // 编辑预览传入后台已按预览框比例裁好的图，海报自己就不再 scaledToFill
+    // 编辑预览传入后台裁好的图片
     var preparedBackground: UIImage? = nil
 
     // 横移距离

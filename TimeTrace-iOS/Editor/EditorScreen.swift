@@ -14,8 +14,10 @@ struct EditorScreen: View {
     @State private var showDatePicker = false
     // 背景图的文件路径，没选就是 nil
     @State private var backgroundImageName: String?
-    // 后台按预览比例裁好的图，预览直接铺，不再自己 scaledToFill
+    // 预览直接使用后台异步裁切好的图片
+    // 置顶的
     @State private var pinnedPreviewImage: UIImage?
+    // 全屏的
     @State private var posterPreviewImage: UIImage?
     // 编辑页内容宽度，给全屏预览裁切用
     @State private var previewContentWidth: CGFloat = 0
@@ -72,14 +74,18 @@ struct EditorScreen: View {
         }
     }
 
-    // 图片后台处理：缩图存盘，同时裁出置顶卡和全屏预览要用的图
+    // 同时裁出置顶卡和全屏预览的图
     private func handlePickedImage(_ newItem: PhotosPickerItem?) {
+        // 检查
         guard let newItem else { return }
         let posterAspect = posterPreviewAspect
+        // 独立
         Task {
             let prepared = await Task.detached(priority: .userInitiated) { () -> EditorPreviewImages? in
                 guard let data = try? await newItem.loadTransferable(type: Data.self),
                       let uiImage = UIImage(data: data) else { return nil }
+                      // 拿工具类处理，本来的裁切接口
+                      // 调用原先 return ImageUtils.saveBackground(uiImage) 没用的裁切功能
                 return ImageUtils.prepareEditorBackground(uiImage, posterAspect: posterAspect)
             }.value
             if let prepared {

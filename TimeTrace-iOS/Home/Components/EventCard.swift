@@ -6,7 +6,7 @@ import UIKit
 struct PinnedEventCard: View {
     let event: DateEvent
     var onClick: () -> Void = {}
-    // 编辑预览传入后台已按 16:9 裁好的图，卡片自己就不再 scaledToFill
+    // 编辑预览传入后台裁好的图
     var preparedBackground: UIImage? = nil
 
     var body: some View {
@@ -231,7 +231,7 @@ enum BackgroundImageCache {
 
 struct EventBackgroundView: View {
     let event: DateEvent
-    // 已经按容器比例裁好的图，有的话直接铺，不再 scaledToFill
+    // 已经按容器比例裁好的图
     var preparedImage: UIImage? = nil
 
     var body: some View {
