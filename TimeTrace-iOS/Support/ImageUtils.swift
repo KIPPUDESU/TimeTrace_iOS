@@ -1,6 +1,6 @@
 import UIKit
 
-// 编辑页预览用的两张已裁切图，连同写入磁盘的文件名一起从后台任务带回来
+// 编辑页预览用的两张已裁切图，fileName 指向完整尺寸缩略图
 nonisolated struct EditorPreviewImages: @unchecked Sendable {
     let fileName: String
     let pinned: UIImage
@@ -56,12 +56,13 @@ enum ImageUtils {
     }
 
     // 把已经处理好的图写成 JPEG，成功就返回文件名
-    nonisolated static func writeBackground(_ image: UIImage) -> String? {
+    @discardableResult
+    nonisolated static func writeBackground(_ image: UIImage, fileName: String? = nil) -> String? {
         guard let jpeg = image.jpegData(compressionQuality: 0.85) else { return nil }
-        let fileName = "bg-\(UUID().uuidString).jpg"
+        let name = fileName ?? "bg-\(UUID().uuidString).jpg"
         do {
-            try jpeg.write(to: backgroundsDirectory.appendingPathComponent(fileName))
-            return fileName
+            try jpeg.write(to: backgroundsDirectory.appendingPathComponent(name))
+            return name
         } catch {
             return nil
         }
@@ -72,14 +73,20 @@ enum ImageUtils {
         writeBackground(downscaled(image))
     }
 
-    // 缩图存盘 裁两张备用
+    // 后台一次做完：两张预览裁切落盘，再按原先那样存一份完整尺寸缩略图备用
     nonisolated static func prepareEditorBackground(_ image: UIImage, posterAspect: CGFloat) -> EditorPreviewImages? {
         let source = downscaled(image)
-        guard let fileName = writeBackground(source) else { return nil }
+        let pinned = centerCropped(source, aspectRatio: 16.0 / 9.0)
+        let poster = centerCropped(source, aspectRatio: posterAspect)
+        let id = UUID().uuidString
+        // 完整尺寸缩略图给首页、详情当备用，记录里只记这个名字
+        guard let fileName = writeBackground(source, fileName: "bg-\(id).jpg") else { return nil }
+        writeBackground(pinned, fileName: "bg-\(id)-pinned.jpg")
+        writeBackground(poster, fileName: "bg-\(id)-poster.jpg")
         return EditorPreviewImages(
             fileName: fileName,
-            pinned: centerCropped(source, aspectRatio: 16.0 / 9.0),
-            poster: centerCropped(source, aspectRatio: posterAspect)
+            pinned: pinned,
+            poster: poster
         )
     }
 
