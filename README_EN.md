@@ -36,6 +36,7 @@ Like any countdown app, TimeTrace helps you cherish the important moments of lif
 - **Detail view**: Customise the background image and mask intensity, with an immersive full-screen poster preview
 - **Edit preview**: While creating your own TimeTrace in the editor, preview how the card and detail page will look
 - **Theme switching**: Dark / light mode, deeply adapted to the system theme
+- **Animation Toggle**: Users can enable or disable built-in app transition animations
 - **Multi-language**: Native support for Simplified Chinese, English and Japanese, with more languages on the way
 - **Data safety**: One-tap to pack everything into a Zip file, and import a Zip to restore your cards
 
