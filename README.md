@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="./README_EN.md">English</a> | 简体中文
+  <a href="./README_EN.md">English</a> | 简体中文 | <a href="README_JP.md">日本語</a>
 </p>
 
 > 你应该不再忍受那个复古的倒数日，可以看看这个小巧无广的 **TimeTrace**  

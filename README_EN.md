@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="./README.md">简体中文</a> | English
+  English | <a href="./README.md">简体中文</a> | <a href="README_JP.md">日本語</a>
 </p>
 
 > Stop putting up with that outdated countdown app — meet **TimeTrace**, a tiny and ad-free way to keep count
