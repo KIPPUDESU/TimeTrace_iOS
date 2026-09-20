@@ -326,11 +326,11 @@ struct HomeScreen: View {
 // 预览用的两种模式
 #Preview("首页浅色模式") {
     HomeScreen()
-        .modelContainer(MockData.previewContainer())
+        .modelContainer(PresetData.previewContainer())
 }
 
 #Preview("首页深色模式") {
     HomeScreen()
-        .modelContainer(MockData.previewContainer())
+        .modelContainer(PresetData.previewContainer())
         .preferredColorScheme(.dark)
 }

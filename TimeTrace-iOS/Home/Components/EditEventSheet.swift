@@ -264,7 +264,7 @@ struct DatePickerSheet: View {
 // 给预览
 #Preview("编辑面板") {
     EditEventSheet(
-        event: MockData.sampleEvents[0],
+        event: PresetData.sampleEvents[0],
         onSave: {},
         onCancel: {}
     )

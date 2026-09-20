@@ -352,7 +352,7 @@ struct DetailScreen: View {
 }
 
 #Preview("详情页") {
-    DetailScreen(events: MockData.sampleEvents, initialEventId: MockData.sampleEvents[0].id)
+    DetailScreen(events: PresetData.sampleEvents, initialEventId: PresetData.sampleEvents[0].id)
 }
 
 // 把底层逻辑回顶部关掉

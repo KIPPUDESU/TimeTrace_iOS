@@ -96,6 +96,9 @@
 "unknown_error" = "不明なエラー";
 "select_date" = "日付を選択";
 "publisher_title" = "Candy Rectangle";
+"preset_candy_founded" = "Candy Rectangle 設立";
+"preset_iphone_release" = "iPhone 発売";
+"preset_year_title_format" = "%d年";
 "animation_effects" = "アニメーション効果";
 "tab_slide_animation" = "タブ切り替えスライドアニメ";
 "animation_effects_subtitle" = "UIアニメーション";
