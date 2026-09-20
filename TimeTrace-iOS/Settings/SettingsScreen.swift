@@ -263,11 +263,11 @@ struct SettingsScreen: View {
 
 #Preview("设置页浅色模式") {
     SettingsScreen()
-        .modelContainer(MockData.previewContainer())
+        .modelContainer(PresetData.previewContainer())
 }
 
 #Preview("设置页深色模式") {
     SettingsScreen()
-        .modelContainer(MockData.previewContainer())
+        .modelContainer(PresetData.previewContainer())
         .preferredColorScheme(.dark)
 }

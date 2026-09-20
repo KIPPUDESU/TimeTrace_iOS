@@ -96,6 +96,9 @@
 "unknown_error" = "未知错误";
 "select_date" = "选择日期";
 "publisher_title" = "糖方科技";
+"preset_candy_founded" = "糖方科技成立";
+"preset_iphone_release" = "iPhone 发布";
+"preset_year_title_format" = "%d 年";
 "animation_effects" = "动画效果";
 "tab_slide_animation" = "标签切换移动动画";
 "animation_effects_subtitle" = "界面动画";

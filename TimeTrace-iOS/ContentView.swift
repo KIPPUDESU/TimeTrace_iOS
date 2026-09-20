@@ -230,11 +230,11 @@ extension View {
 
 #Preview {
     ContentView()
-        .modelContainer(MockData.previewContainer())
+        .modelContainer(PresetData.previewContainer())
 }
 
 #Preview("深色模式") {
     ContentView()
-        .modelContainer(MockData.previewContainer())
+        .modelContainer(PresetData.previewContainer())
         .preferredColorScheme(.dark)
 }

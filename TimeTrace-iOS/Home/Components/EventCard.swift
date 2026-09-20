@@ -379,19 +379,19 @@ private struct NormalStandardLayout: View {
 }
 
 #Preview("普通卡横排") {
-    NormalEventCard(event: MockData.sampleEvents[3])
+    NormalEventCard(event: PresetData.sampleEvents[3])
         .padding()
         .background(TimeTracePalette.background)
 }
 
 #Preview("普通卡堆叠") {
-    NormalEventCard(event: MockData.sampleEvents[4])
+    NormalEventCard(event: PresetData.sampleEvents[4])
         .padding()
         .background(TimeTracePalette.background)
 }
 
 #Preview("置顶卡") {
-    PinnedEventCard(event: MockData.sampleEvents[0])
+    PinnedEventCard(event: PresetData.sampleEvents[0])
         .padding()
         .background(TimeTracePalette.background)
 }
