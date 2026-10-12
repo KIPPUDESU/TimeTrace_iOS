@@ -281,7 +281,8 @@ struct NormalEventCard: View {
     private var isCollision: Bool {
         let width = TimeTextUtils.visualWidth(of: event.title)
         let days = TimeUtils.daysBetween(targetDate: event.targetDate)
-        return event.title.count > 8 || width > 15 || (width >= 10 && days >= 1000)
+        // 按视觉宽度
+        return width > 8 || (width >= 6 && days >= 1000)
     }
 
     var body: some View {

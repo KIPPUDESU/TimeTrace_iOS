@@ -179,8 +179,6 @@ struct DetailScreen: View {
         .onTapGesture { showControls.toggle() }
         .animation(.easeInOut(duration: 0.25), value: showControls)
         .animation(.snappy(duration: 0.3), value: showActionSheet)
-        // 详情页在深色背景上，弹窗按钮用更醒目的白
-        .tint(.white)
         .preferredColorScheme(.dark)
         .ignoresSafeArea()
         // 动作面板弹出时把底部胶囊藏起来，面板关了再露出来
@@ -207,6 +205,9 @@ struct DetailScreen: View {
             Button(L("confirm")) { saveTitle() }
             Button(L("cancel"), role: .cancel) {}
         }
+
+        // tint 套在 alert 外面
+        .tint(.white)
         .photosPicker(isPresented: $showPhotoPicker, selection: $pickerItem, matching: .images)
         .onChange(of: pickerItem) { _, newItem in
             Task {
