@@ -102,3 +102,4 @@
 "animation_effects" = "アニメーション効果";
 "tab_slide_animation" = "タブ切り替えスライドアニメ";
 "animation_effects_subtitle" = "UIアニメーション";
+"detail_day_animation" = "詳細の日数カウントアニメーション";

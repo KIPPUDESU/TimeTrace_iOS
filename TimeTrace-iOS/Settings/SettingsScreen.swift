@@ -14,6 +14,8 @@ struct SettingsScreen: View {
     @State private var showLanguagePicker = false
     @State private var showAnimations = false
     @AppStorage(AppPreferenceKeys.tabAnimations) private var tabAnimationsOn = true
+    // 详情页天数跳动动画开关
+    @AppStorage(AppPreferenceKeys.dayCountAnimation) private var dayCountAnimOn = true
     @State private var showDevelopingAlert = false
     @State private var showBackupFlow = false
     // 感谢糖方喵
@@ -124,12 +126,14 @@ struct SettingsScreen: View {
         }
         // 数据备份与恢复
         .backupFlow(isPresented: $showBackupFlow)
+        // 官方这个弹窗是不认内部控件的 tint 的....所以我写外面来了..@ @
+        .tint(TimeTracePalette.primary)
     }
 
     // 浮层
     private var animationPanel: some View {
         ZStack {
-            // 半透明
+            // 半透明遮罩，点它就把弹窗收起来，和日夜模式、语言那两个弹窗一个路子
             Color.black.opacity(0.4)
                 .ignoresSafeArea()
                 .onTapGesture { showAnimations = false }
@@ -139,31 +143,40 @@ struct SettingsScreen: View {
                     .font(.headline)
                     .foregroundStyle(TimeTracePalette.onSurface)
 
-                HStack {
-                    Text(L("tab_slide_animation"))
-                        .font(.body)
-                        .foregroundStyle(TimeTracePalette.onSurface)
-                    Spacer()
-                    Toggle("", isOn: $tabAnimationsOn)
-                        .labelsHidden()
-                        .tint(TimeTracePalette.primary)
-                }
-                .padding(.horizontal, 4)
-
-                Button {
-                    showAnimations = false
-                } label: {
-                    Text(L("complete"))
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(TimeTracePalette.primary)
+                VStack(spacing: 0) {
+                    animToggleRow(L("tab_slide_animation"), isOn: $tabAnimationsOn)
+                    hairline
+                    animToggleRow(L("detail_day_animation"), isOn: $dayCountAnimOn)
                 }
             }
-            .padding(22)
-            .frame(maxWidth: 320)
-            .background(TimeTracePalette.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .shadow(color: .black.opacity(0.15), radius: 20, y: 8)
-            .padding(.horizontal, 40)
+            .padding(20)
+            .frame(width: 320)
+            // 玻璃卡片
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
         }
+    }
+
+    // 一行
+    private func animToggleRow(_ label: String, isOn: Binding<Bool>) -> some View {
+        HStack {
+            Text(label)
+                .font(.body)
+                .foregroundStyle(TimeTracePalette.onSurface)
+            Spacer()
+            Toggle("", isOn: isOn)
+                .labelsHidden()
+                .tint(TimeTracePalette.primary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+
+    // 细线
+    private var hairline: some View {
+        Rectangle()
+            .fill(TimeTracePalette.outline.opacity(0.3))
+            .frame(height: 0.5)
+            .padding(.horizontal, 16)
     }
 
     // 通用设置

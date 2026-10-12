@@ -26,6 +26,8 @@ struct DetailScreen: View {
     @State private var currentPage: Int = 0
     // 滚动几何实时算出的页码，等停稳后再提交
     @State private var computedPage: Int = 0
+    // 判断是否停稳
+    @State private var scrollPhase: ScrollPhase = .idle
     // 每次页面重新出现加一
     @State private var replayToken = 0
     // 首次进详情
@@ -63,12 +65,16 @@ struct DetailScreen: View {
         let idx = events.firstIndex(where: { $0.id == initialEventId }) ?? 0
         let half = Self.virtualCount / 2
         let n = events.count
-        var computed = n > 1 ? half - (half % n) + idx : 0
-        // 作为标签页用（有返回动作）时重建后靠这里回到上次停的位置，天数照常播动画
-        if onBack != nil, n > 1,
+        // 落在虚拟页段靠中间的位置
+        // 只有一条记录时也落在中间
+        let mid = n > 0 ? half - (half % n) : 0
+        var computed = mid + idx
+        // 回退到详情页靠这里回到上次看的那张卡片
+
+        if onBack != nil, n > 0,
            let saved = UserDefaults.standard.object(forKey: Self.resumeKey) as? Int,
            saved >= 0, saved < Self.virtualCount {
-            computed = saved
+            computed = mid + (saved % n)
         }
         self.startPage = computed
         // computedPage 初值也对齐，不要让首次 idle 提交把当前页错位成 0
@@ -173,6 +179,8 @@ struct DetailScreen: View {
         .onTapGesture { showControls.toggle() }
         .animation(.easeInOut(duration: 0.25), value: showControls)
         .animation(.snappy(duration: 0.3), value: showActionSheet)
+        // 详情页在深色背景上，弹窗按钮用更醒目的白
+        .tint(.white)
         .preferredColorScheme(.dark)
         .ignoresSafeArea()
         // 动作面板弹出时把底部胶囊藏起来，面板关了再露出来
@@ -242,6 +250,12 @@ struct DetailScreen: View {
         withAnimation(.easeOut(duration: 1.0)) { posterReveal = 1 }
     }
 
+    // 认下某一页是当前页
+    private func commitCurrentPage(_ page: Int) {
+        currentPage = page
+        UserDefaults.standard.set(page, forKey: Self.resumeKey)
+    }
+
     // 垂直无限分页器
     private var pager: some View {
         ScrollViewReader { proxy in
@@ -271,19 +285,25 @@ struct DetailScreen: View {
                 Int((geometry.contentOffset.y / geometry.containerSize.height).rounded())
             } action: { _, page in
                 computedPage = page
+                // 页面重建纠正
+                if scrollPhase == .idle {
+                    commitCurrentPage(page)
+                }
             }
             // 等滚动停稳了才提交当前页
             .onScrollPhaseChange { _, newPhase in
+                scrollPhase = newPhase
                 if newPhase == .idle {
-                    currentPage = computedPage
-                    // 记
-                    UserDefaults.standard.set(computedPage, forKey: Self.resumeKey)
+                    commitCurrentPage(computedPage)
                 }
             }
             // 用 scrollTo 这种更可靠的方法跳到起始页
             // 这样上下让两边都有巨大缓冲，才能形成无限循环www
             .onAppear {
                 proxy.scrollTo(startPage, anchor: .top)
+                // 按要恢复的那页对齐
+                currentPage = startPage
+                computedPage = startPage
             }
             .background(ScrollToTopDisabled())
             .onChange(of: reselectTick) { _, _ in

@@ -121,31 +121,31 @@ struct EventPosterView: View {
     // 详情页每次重新出现清零
     var replayToken: Int = 0
     var firstSlideX: CGFloat = 0
+    // 天数跳动动画开
+    @AppStorage(AppPreferenceKeys.dayCountAnimation) private var dayCountAnimOn = true
 
     @State private var animatedDays = 0
 
+    // 天数直接跳到已有的
     var body: some View {
         PosterContent(event: event, days: animatedDays, firstSlideX: firstSlideX)
-            // 首次就是当前页时直接播动画
-            .onAppear { if isCurrentPage { animateToFinal() } }
-            // 每次滑入变成当前页都重播一遍，离页归零
+            .onAppear { if isCurrentPage { showDays() } }
             .onChange(of: isCurrentPage) { _, current in
-                if current { animateToFinal() } else { animatedDays = 0 }
+                if current { showDays() } else { animatedDays = 0 }
             }
-            // 清零
             .onChange(of: replayToken) { _, _ in
-                if isCurrentPage { replayFromZero() }
+                if isCurrentPage { showDays() }
             }
     }
-
-    private func replayFromZero() {
-        animatedDays = 0
-        animateToFinal()
-    }
-
-    private func animateToFinal() {
+    
+    private func showDays() {
         let target = TimeUtils.daysBetween(targetDate: event.targetDate)
-        withAnimation(.easeOut(duration: 0.8)) { animatedDays = target }
+        if dayCountAnimOn {
+            animatedDays = 0
+            withAnimation(.easeOut(duration: 0.8)) { animatedDays = target }
+        } else {
+            animatedDays = target
+        }
     }
 }
 

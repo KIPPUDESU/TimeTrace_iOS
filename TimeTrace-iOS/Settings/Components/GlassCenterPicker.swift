@@ -45,7 +45,8 @@ struct GlassCenterPicker: View {
                         }
                     }
                 }
-                .padding(.vertical, 12)
+                .padding(.vertical, 18)
+                .padding(.horizontal, 16)
             }
             .frame(width: 320)
             .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 28, style: .continuous))

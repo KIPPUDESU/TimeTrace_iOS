@@ -112,4 +112,6 @@ enum AppPreferenceKeys {
     static let languageMode = "languageMode"
     // 标签切换动画总开关
     static let tabAnimations = "tabAnimations"
+    // 详情页天数从 0 数到真实值的动画开关
+    static let dayCountAnimation = "dayCountAnimation"
 }
