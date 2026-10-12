@@ -32,7 +32,7 @@ enum PresetData {
                 targetDate: date(2007, 6, 29),
                 isFuture: false,
                 mode: .accumulate,
-                backgroundImageName: nil,
+                backgroundImageName: "iphone_release",
                 isPinned: false,
                 maskOpacity: 0.4,
                 position: 1
@@ -43,7 +43,7 @@ enum PresetData {
                 targetDate: date(nextYear, 1, 1),
                 isFuture: true,
                 mode: .countDown,
-                backgroundImageName: nil,
+                backgroundImageName: "newyear",
                 isPinned: false,
                 maskOpacity: 0.4,
                 position: 2
