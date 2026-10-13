@@ -28,11 +28,11 @@ enum PresetData {
             ),
             DateEvent(
                 id: 2,
-                title: L("preset_iphone_release"),
-                targetDate: date(2007, 6, 29),
+                title: L("preset_apple_founded"),
+                targetDate: date(1976, 4, 1),
                 isFuture: false,
                 mode: .accumulate,
-                backgroundImageName: nil,
+                backgroundImageName: "apple_founded",
                 isPinned: false,
                 maskOpacity: 0.4,
                 position: 1
@@ -43,7 +43,7 @@ enum PresetData {
                 targetDate: date(nextYear, 1, 1),
                 isFuture: true,
                 mode: .countDown,
-                backgroundImageName: nil,
+                backgroundImageName: "newyear",
                 isPinned: false,
                 maskOpacity: 0.4,
                 position: 2
