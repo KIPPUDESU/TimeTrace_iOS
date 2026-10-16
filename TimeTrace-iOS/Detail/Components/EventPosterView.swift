@@ -51,20 +51,19 @@ struct PosterContent: View {
         .background(Color.black)
     }
 
-    // 这个标题每 9 字换行，还有/已经 的前缀必须尾随其后
+    // 这个标题限宽换行，还有/已经 的前缀必须尾随其后
+    // 不再按字数硬切：一个字一行几个的切法只适合汉字，
+    // 英文那样切会变成一行几个字母。限定成「一行放得下 9 个汉字」的宽度，
+    // 汉字还是 9 个字一行，英文自己按单词换行，最多四行，多的部分系统补省略号
     private var titleText: some View {
         let prefix = L(event.isFuture ? "label_until" : "label_since")
-        let displayTitle = event.title.count > 35 ? String(event.title.prefix(32)) + "..." : event.title
-        let chars = Array(displayTitle)
-        let chunks = stride(from: 0, to: chars.count, by: 9)
-            .map { String(chars[$0..<min($0 + 9, chars.count)]) }
 
         // 用富文本拼：标题白色、前缀半透明白，避开已弃用的 Text 加法
         var base = AttributeContainer()
         base.font = .system(size: 30 * scale, weight: .light)
         base.kern = 4.0 * scale
 
-        var titleAttr = AttributedString(chunks.joined(separator: "\n"))
+        var titleAttr = AttributedString(event.title)
         titleAttr.mergeAttributes(base)
         titleAttr.foregroundColor = .white
 
@@ -74,7 +73,12 @@ struct PosterContent: View {
 
         return Text(titleAttr + prefixAttr)
             .multilineTextAlignment(.center)
+            .lineLimit(4)
+            .frame(maxWidth: titleLineWidth)
     }
+
+    // 一行 9 个汉字要的宽度（字号 30 加字距 4）
+    private var titleLineWidth: CGFloat { 9 * 34 * scale }
 
     // 天数按位数自适应字号，多就小点
     private var daysText: some View {
