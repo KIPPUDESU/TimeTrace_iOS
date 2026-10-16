@@ -295,7 +295,8 @@ struct NormalEventCard: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(height: isCollision ? 130 : 100)
+            // 108高
+            .frame(height: isCollision ? 108 : 100)
             .background(TimeTracePalette.surface)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         }

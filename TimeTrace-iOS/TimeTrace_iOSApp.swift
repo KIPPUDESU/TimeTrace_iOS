@@ -23,6 +23,8 @@ struct TimeTrace_iOSApp: App {
         applyLanguage()
         // 每次启动检查空库，正式包写入预设，开发包额外写入调试数据
         PresetData.seedIfEmpty(in: container.mainContext)
+        // 启动对齐
+        PresetData.syncLocalizedTitles(in: container.mainContext)
     }
 
     var body: some Scene {
@@ -32,6 +34,8 @@ struct TimeTrace_iOSApp: App {
                 .id(refreshID)
                 .onChange(of: languageModeRaw) { _, _ in
                     applyLanguage()
+                   
+                    PresetData.syncLocalizedTitles(in: container.mainContext)
                     refreshID = UUID()
                 }
         }

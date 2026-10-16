@@ -15,17 +15,7 @@ enum PresetData {
         let nextYear = gregorianCalendar.component(.year, from: now) + 1
 
         return [
-            DateEvent(
-                id: 1,
-                title: L("preset_candy_founded"),
-                targetDate: date(2024, 8, 5),
-                isFuture: false,
-                mode: .accumulate,
-                backgroundImageName: "candyrect",
-                isPinned: true,
-                maskOpacity: 0.4,
-                position: 0
-            ),
+            // 苹果成立
             DateEvent(
                 id: 2,
                 title: L("preset_apple_founded"),
@@ -33,10 +23,23 @@ enum PresetData {
                 isFuture: false,
                 mode: .accumulate,
                 backgroundImageName: "apple_founded",
+                isPinned: true,
+                maskOpacity: 0.4,
+                position: 0
+            ),
+            // 糖方科技
+            DateEvent(
+                id: 1,
+                title: L("preset_candy_founded"),
+                targetDate: date(2024, 8, 5),
+                isFuture: false,
+                mode: .accumulate,
+                backgroundImageName: "candyrect",
                 isPinned: false,
                 maskOpacity: 0.4,
                 position: 1
             ),
+            // 新年
             DateEvent(
                 id: 3,
                 title: String(format: L("preset_year_title_format"), nextYear),
@@ -128,6 +131,54 @@ enum PresetData {
         events.forEach { context.insert($0) }
         try? context.save()
         EventIDGenerator.ensureAtLeast(Int64(events.count + 1))
+    }
+
+    // 文案键
+    private static let presetKeys = ["preset_candy_founded", "preset_apple_founded"]
+    private static let presetYearKey = "preset_year_title_format"
+
+    // 语言切换也可切换这几个预设的标题哦w
+
+    static func syncLocalizedTitles(in context: ModelContext) {
+        let events = (try? context.fetch(FetchDescriptor<DateEvent>())) ?? []
+        guard !events.isEmpty else { return }
+
+        let bundles = languageBundles()
+        var changed = false
+        for event in events {
+            let year = gregorianCalendar.component(.year, from: event.targetDate)
+            guard let key = presetKey(ofTitle: event.title, year: year, in: bundles) else { continue }
+            let title = withYear(L(key), key: key, year: year)
+            if title != event.title {
+                event.title = title
+                changed = true
+            }
+        }
+        if changed { try? context.save() }
+    }
+
+    // 是否等于预设原文
+    private static func presetKey(ofTitle title: String, year: Int, in bundles: [Bundle]) -> String? {
+        for key in presetKeys + [presetYearKey] {
+            for bundle in bundles {
+                let text = bundle.localizedString(forKey: key, value: nil, table: nil)
+                // 跳过
+                guard text != key else { continue }
+                if withYear(text, key: key, year: year) == title { return key }
+            }
+        }
+        return nil
+    }
+
+    private static func withYear(_ text: String, key: String, year: Int) -> String {
+        key == presetYearKey ? String(format: text, year) : text
+    }
+
+    // 语言文件
+    private static func languageBundles() -> [Bundle] {
+        Bundle.main.localizations.compactMap { identifier in
+            Bundle.main.path(forResource: identifier, ofType: "lproj").flatMap { Bundle(path: $0) }
+        }
     }
 
     @MainActor
