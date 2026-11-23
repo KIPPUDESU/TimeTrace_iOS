@@ -5,3 +5,9 @@
 "day_unit" = "天";
 "watch_sync_hint" = "请在 iPhone 打开 TimeTrace";
 "watch_incomplete_hint" = "当前事件数据不完整，请在 iPhone 打开 TimeTrace 完成同步";
+"label_frozen" = "已定格";
+"label_frozen_since" = "定格自";
+"stopped_empty" = "暂无已定格的事件";
+"swipe_to_stopped_hint" = "继续右滑进入已定格列表";
+"release_to_stopped_hint" = "松手进入已定格列表";
+"close" = "关闭";

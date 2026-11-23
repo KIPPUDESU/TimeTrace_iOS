@@ -5,3 +5,9 @@
 "day_unit" = "days";
 "watch_sync_hint" = "Open TimeTrace on iPhone";
 "watch_incomplete_hint" = "This event is incomplete. Open TimeTrace on iPhone to finish syncing";
+"label_frozen" = "Frozen";
+"label_frozen_since" = "Frozen since";
+"stopped_empty" = "No frozen events";
+"swipe_to_stopped_hint" = "Keep swiping right to open frozen list";
+"release_to_stopped_hint" = "Release to open frozen list";
+"close" = "Close";

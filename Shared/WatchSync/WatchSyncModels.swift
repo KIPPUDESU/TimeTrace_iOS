@@ -7,7 +7,7 @@ enum WatchSyncKey {
     static let backgroundFileName = "backgroundFileName"
 }
 
-/// iPhone → Watch 的只读快照（不含已停止项目）
+/// iPhone → Watch 的只读快照（含活跃与定格）
 struct WatchSyncEvent: Codable, Identifiable, Hashable, Sendable {
     var id: Int64
     var title: String
@@ -18,13 +18,22 @@ struct WatchSyncEvent: Codable, Identifiable, Hashable, Sendable {
     var isPinned: Bool
     var maskOpacity: Double
     var position: Int
+    var stoppedAt: TimeInterval?
 
     var targetDateValue: Date {
         Date(timeIntervalSince1970: targetDate)
     }
 
+    var stoppedAtValue: Date? {
+        stoppedAt.map { Date(timeIntervalSince1970: $0) }
+    }
+
+    var isStopped: Bool { stoppedAt != nil }
+
+    var referenceNow: Date { stoppedAtValue ?? Date() }
+
     var liveIsFuture: Bool {
-        targetDateValue > Date()
+        targetDateValue > referenceNow
     }
 }
 
@@ -45,5 +54,13 @@ enum WatchSyncCodec {
             return a.id > b.id
         }
         return pinned.sorted(by: sort) + normal.sorted(by: sort)
+    }
+
+    static func orderedActive(_ events: [WatchSyncEvent]) -> [WatchSyncEvent] {
+        ordered(events.filter { !$0.isStopped })
+    }
+
+    static func orderedStopped(_ events: [WatchSyncEvent]) -> [WatchSyncEvent] {
+        ordered(events.filter(\.isStopped))
     }
 }

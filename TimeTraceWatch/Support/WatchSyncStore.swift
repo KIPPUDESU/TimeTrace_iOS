@@ -11,6 +11,9 @@ final class WatchSyncStore: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var events: [WatchSyncEvent] = []
     @Published private(set) var backgroundRevision: Int = 0
 
+    var activeEvents: [WatchSyncEvent] { WatchSyncCodec.orderedActive(events) }
+    var stoppedEvents: [WatchSyncEvent] { WatchSyncCodec.orderedStopped(events) }
+
     private let storageKey = "WatchSyncStore.eventsJSON"
 
     private override init() {

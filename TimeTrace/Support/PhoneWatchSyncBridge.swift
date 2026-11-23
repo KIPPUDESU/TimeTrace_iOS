@@ -2,7 +2,7 @@ import Foundation
 import WatchConnectivity
 import UIKit
 
-/// iPhone → Watch：活跃事件整份下发覆写；失败静默忽略
+/// iPhone → Watch：活跃 + 定格事件整份下发覆写；失败静默忽略
 @MainActor
 final class PhoneWatchSyncBridge: NSObject, WCSessionDelegate {
     static let shared = PhoneWatchSyncBridge()
@@ -31,9 +31,12 @@ final class PhoneWatchSyncBridge: NSObject, WCSessionDelegate {
         pushIfPossible()
     }
 
-    private func activeEvents(from events: [DateEvent]) -> [DateEvent] {
+    private func eventsForSync(from events: [DateEvent]) -> [DateEvent] {
         let active = events.filter { !$0.isStopped }
-        return active.filter(\.isPinned) + active.filter { !$0.isPinned }
+        let stopped = events.filter(\.isStopped)
+        let orderedActive = active.filter(\.isPinned) + active.filter { !$0.isPinned }
+        let orderedStopped = stopped.filter(\.isPinned) + stopped.filter { !$0.isPinned }
+        return orderedActive + orderedStopped
     }
 
     private func pushIfPossible() {
@@ -42,8 +45,8 @@ final class PhoneWatchSyncBridge: NSObject, WCSessionDelegate {
         guard session.activationState == .activated else { return }
         guard session.isPaired, session.isWatchAppInstalled else { return }
 
-        let active = activeEvents(from: pendingEvents)
-        let payload = buildPayload(from: active)
+        let source = eventsForSync(from: pendingEvents)
+        let payload = buildPayload(from: source)
         let signature = payloadSignature(payload.events, files: payload.fileNames)
         guard signature != lastPayloadSignature else { return }
 
@@ -60,7 +63,7 @@ final class PhoneWatchSyncBridge: NSObject, WCSessionDelegate {
         lastPayloadSignature = nil
         pushIfPossible()
 
-        let payload = buildPayload(from: activeEvents(from: pendingEvents))
+        let payload = buildPayload(from: eventsForSync(from: pendingEvents))
         if let json = WatchSyncCodec.encode(payload.events),
            WCSession.default.isReachable {
             WCSession.default.sendMessage(
@@ -96,17 +99,19 @@ final class PhoneWatchSyncBridge: NSObject, WCSessionDelegate {
                 files.append((name, jpeg))
             }
 
+            let reference = event.referenceNow
             synced.append(
                 WatchSyncEvent(
                     id: event.id,
                     title: event.title,
                     targetDate: event.targetDate.timeIntervalSince1970,
-                    isFuture: event.targetDate > Date(),
+                    isFuture: event.targetDate > reference,
                     mode: event.mode == .accumulate ? "accumulate" : "countDown",
                     backgroundFileName: backgroundName,
                     isPinned: event.isPinned,
                     maskOpacity: event.maskOpacity,
-                    position: event.position
+                    position: event.position,
+                    stoppedAt: event.stoppedAt?.timeIntervalSince1970
                 )
             )
         }
@@ -131,7 +136,7 @@ final class PhoneWatchSyncBridge: NSObject, WCSessionDelegate {
 
     private func payloadSignature(_ events: [WatchSyncEvent], files: [String]) -> String {
         let eventPart = events.map {
-            "\($0.id):\($0.title):\($0.targetDate):\($0.isPinned):\($0.maskOpacity):\($0.backgroundFileName ?? "")"
+            "\($0.id):\($0.title):\($0.targetDate):\($0.isPinned):\($0.maskOpacity):\($0.backgroundFileName ?? ""):\($0.stoppedAt ?? -1)"
         }.joined(separator: "|")
         return eventPart + "#" + files.sorted().joined(separator: ",")
     }
@@ -170,7 +175,7 @@ final class PhoneWatchSyncBridge: NSObject, WCSessionDelegate {
     ) {
         Task { @MainActor in
             if message[WatchSyncKey.requestSync] != nil {
-                let payload = buildPayload(from: activeEvents(from: pendingEvents))
+                let payload = buildPayload(from: eventsForSync(from: pendingEvents))
                 let json = WatchSyncCodec.encode(payload.events) ?? Data()
                 replyHandler([
                     WatchSyncKey.eventsJSON: json,

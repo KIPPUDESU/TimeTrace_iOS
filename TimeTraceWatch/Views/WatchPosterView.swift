@@ -6,7 +6,9 @@ struct WatchPosterView: View {
 
     private var targetDate: Date { event.targetDateValue }
     private var isFuture: Bool { event.liveIsFuture }
-    private var days: Int { WatchTimeUtils.daysBetween(targetDate: targetDate) }
+    private var days: Int {
+        WatchTimeUtils.daysBetween(targetDate: targetDate, now: event.referenceNow)
+    }
 
     var body: some View {
         GeometryReader { geo in
@@ -43,7 +45,9 @@ struct WatchPosterView: View {
     }
 
     private func titleText(scale: CGFloat) -> some View {
-        let prefix = WL(isFuture ? "label_until" : "label_since")
+        let prefix = event.isStopped
+            ? WL("label_frozen")
+            : WL(isFuture ? "label_until" : "label_since")
 
         var base = AttributeContainer()
         base.font = .system(size: 14 * scale, weight: .semibold)
@@ -90,12 +94,20 @@ struct WatchPosterView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.65)
 
-            TimelineView(.periodic(from: .now, by: 1)) { context in
-                let t = WatchTimeUtils.detailedTime(targetDate: targetDate, now: context.date)
-                Text(String(format: "%02d:%02d:%02d", t.hours, t.minutes, t.seconds))
+            if event.isStopped {
+                Text("\(WL("label_frozen_since")) \(WatchTimeUtils.shortDate(event.stoppedAtValue ?? targetDate))")
                     .font(.system(size: 12 * scale, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            } else {
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    let t = WatchTimeUtils.detailedTime(targetDate: targetDate, now: context.date)
+                    Text(String(format: "%02d:%02d:%02d", t.hours, t.minutes, t.seconds))
+                        .font(.system(size: 12 * scale, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white.opacity(0.9))
+                }
             }
         }
         .frame(maxWidth: .infinity)
@@ -159,23 +171,25 @@ struct WatchPosterView: View {
             backgroundFileName: nil,
             isPinned: true,
             maskOpacity: 0.35,
-            position: 0
+            position: 0,
+            stoppedAt: nil
         )
     )
 }
 
-#Preview("倒数") {
+#Preview("定格") {
     WatchPosterView(
         event: WatchSyncEvent(
             id: 2,
-            title: "下一趟旅行",
-            targetDate: Date().addingTimeInterval(86400 * 42).timeIntervalSince1970,
-            isFuture: true,
-            mode: "countDown",
+            title: "毕业那天",
+            targetDate: Date().addingTimeInterval(-86400 * 100).timeIntervalSince1970,
+            isFuture: false,
+            mode: "accumulate",
             backgroundFileName: nil,
             isPinned: false,
-            maskOpacity: 0.3,
-            position: 1
+            maskOpacity: 0.35,
+            position: 1,
+            stoppedAt: Date().addingTimeInterval(-86400 * 10).timeIntervalSince1970
         )
     )
 }

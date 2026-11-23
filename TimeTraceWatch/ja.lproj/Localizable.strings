@@ -5,3 +5,9 @@
 "day_unit" = "日";
 "watch_sync_hint" = "iPhone で TimeTrace を開いてください";
 "watch_incomplete_hint" = "このイベントは未完成です。iPhone で TimeTrace を開いて同期を完了してください";
+"label_frozen" = "定格中";
+"label_frozen_since" = "定格日";
+"stopped_empty" = "定格中のイベントはありません";
+"swipe_to_stopped_hint" = "右にスワイプして定格リストへ";
+"release_to_stopped_hint" = "離して定格リストを開く";
+"close" = "閉じる";
