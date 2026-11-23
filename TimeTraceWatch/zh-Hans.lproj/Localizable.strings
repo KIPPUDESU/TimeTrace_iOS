@@ -4,3 +4,4 @@
 "label_since_date" = "自从";
 "day_unit" = "天";
 "watch_sync_hint" = "请在 iPhone 打开 TimeTrace";
+"watch_incomplete_hint" = "当前事件数据不完整，请在 iPhone 打开 TimeTrace 完成同步";

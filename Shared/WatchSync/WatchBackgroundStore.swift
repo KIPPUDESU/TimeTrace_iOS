@@ -38,10 +38,7 @@ enum WatchBackgroundStore {
 #if canImport(UIKit)
     static func loadImage(named name: String?) -> UIImage? {
         guard let name, !name.isEmpty else { return nil }
-        if let image = UIImage(contentsOfFile: fileURL(named: name).path) {
-            return image
-        }
-        return UIImage(named: name)
+        return UIImage(contentsOfFile: fileURL(named: name).path)
     }
 #endif
 

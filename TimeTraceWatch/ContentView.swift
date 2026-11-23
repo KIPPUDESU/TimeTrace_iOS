@@ -11,10 +11,16 @@ struct ContentView: View {
             } else {
                 TabView {
                     ForEach(store.events) { event in
-                        WatchPosterView(
-                            event: event,
-                            backgroundRevision: store.backgroundRevision
-                        )
+                        Group {
+                            if store.isBackgroundReady(for: event) {
+                                WatchPosterView(
+                                    event: event,
+                                    backgroundRevision: store.backgroundRevision
+                                )
+                            } else {
+                                WatchIncompleteEventView()
+                            }
+                        }
                     }
                 }
                 .tabViewStyle(.verticalPage)

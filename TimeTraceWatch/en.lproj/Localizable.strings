@@ -4,3 +4,4 @@
 "label_since_date" = "Since";
 "day_unit" = "days";
 "watch_sync_hint" = "Open TimeTrace on iPhone";
+"watch_incomplete_hint" = "This event is incomplete. Open TimeTrace on iPhone to finish syncing";

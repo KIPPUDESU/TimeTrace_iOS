@@ -3,7 +3,7 @@ import Foundation
 import WatchConnectivity
 import SwiftUI
 
-/// Watch 侧：向 iPhone 请求同步；事件 + 所需背景图都到位后才整份覆写
+/// Watch 侧：事件快照立刻覆写；背景图稍后单独落盘，互不打断
 @MainActor
 final class WatchSyncStore: NSObject, ObservableObject, WCSessionDelegate {
     static let shared = WatchSyncStore()
@@ -11,8 +11,6 @@ final class WatchSyncStore: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var events: [WatchSyncEvent] = []
     @Published private(set) var backgroundRevision: Int = 0
 
-    /// 尚未提交的快照（缺图时先挂起）
-    private var pendingEvents: [WatchSyncEvent]?
     private let storageKey = "WatchSyncStore.eventsJSON"
 
     private override init() {
@@ -38,18 +36,24 @@ final class WatchSyncStore: NSObject, ObservableObject, WCSessionDelegate {
         let session = WCSession.default
         guard session.activationState == .activated else { return }
 
-        receivePayload(session.receivedApplicationContext)
+        applyPayload(session.receivedApplicationContext)
 
         guard session.isReachable else { return }
         session.sendMessage(
             [WatchSyncKey.requestSync: true],
             replyHandler: { [weak self] reply in
                 Task { @MainActor in
-                    self?.receivePayload(reply)
+                    self?.applyPayload(reply)
                 }
             },
             errorHandler: { _ in }
         )
+    }
+
+    func isBackgroundReady(for event: WatchSyncEvent) -> Bool {
+        let _ = backgroundRevision
+        guard let name = event.backgroundFileName, !name.isEmpty else { return true }
+        return WatchBackgroundStore.exists(named: name)
     }
 
     private func loadCached() {
@@ -57,39 +61,16 @@ final class WatchSyncStore: NSObject, ObservableObject, WCSessionDelegate {
         events = WatchSyncCodec.ordered(WatchSyncCodec.decode(data))
     }
 
-    private func persistCommitted() {
-        if let data = WatchSyncCodec.encode(events) {
-            UserDefaults.standard.set(data, forKey: storageKey)
-        }
-        var keeping = Set(events.compactMap(\.backgroundFileName))
-        if let pendingEvents {
-            keeping.formUnion(pendingEvents.compactMap(\.backgroundFileName))
-        }
-        WatchBackgroundStore.removeAll(except: keeping)
-    }
-
-    /// 收到 iPhone 快照：所需图片都在本地才算完成本次同步并覆写
-    private func receivePayload(_ message: [String: Any]) {
+    /// 事件数据立刻保存；仅清理新快照不再引用的背景文件
+    private func applyPayload(_ message: [String: Any]) {
         guard let data = message[WatchSyncKey.eventsJSON] as? Data else { return }
-        pendingEvents = WatchSyncCodec.ordered(WatchSyncCodec.decode(data))
-        tryCommitPending()
-    }
-
-    private func requiredBackgroundNames(in events: [WatchSyncEvent]) -> [String] {
-        events.compactMap(\.backgroundFileName).filter { !$0.isEmpty }
-    }
-
-    private func isPayloadComplete(_ events: [WatchSyncEvent]) -> Bool {
-        requiredBackgroundNames(in: events).allSatisfy { WatchBackgroundStore.exists(named: $0) }
-    }
-
-    private func tryCommitPending() {
-        guard let pending = pendingEvents else { return }
-        guard isPayloadComplete(pending) else { return }
-        events = pending
-        pendingEvents = nil
-        persistCommitted()
-        backgroundRevision += 1
+        let decoded = WatchSyncCodec.ordered(WatchSyncCodec.decode(data))
+        events = decoded
+        if let encoded = WatchSyncCodec.encode(decoded) {
+            UserDefaults.standard.set(encoded, forKey: storageKey)
+        }
+        let keeping = Set(decoded.compactMap(\.backgroundFileName).filter { !$0.isEmpty })
+        WatchBackgroundStore.removeAll(except: keeping)
     }
 
     private func ingestTransferredFile(at url: URL, metadata: [String: Any]?) {
@@ -98,7 +79,6 @@ final class WatchSyncStore: NSObject, ObservableObject, WCSessionDelegate {
         WatchBackgroundStore.save(data, named: name)
         backgroundRevision += 1
         try? FileManager.default.removeItem(at: url)
-        tryCommitPending()
     }
 
     // MARK: - WCSessionDelegate
@@ -110,7 +90,7 @@ final class WatchSyncStore: NSObject, ObservableObject, WCSessionDelegate {
     ) {
         Task { @MainActor in
             guard error == nil, activationState == .activated else { return }
-            receivePayload(session.receivedApplicationContext)
+            applyPayload(session.receivedApplicationContext)
             requestSync()
         }
     }
@@ -120,13 +100,13 @@ final class WatchSyncStore: NSObject, ObservableObject, WCSessionDelegate {
         didReceiveApplicationContext applicationContext: [String: Any]
     ) {
         Task { @MainActor in
-            receivePayload(applicationContext)
+            applyPayload(applicationContext)
         }
     }
 
     nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
         Task { @MainActor in
-            receivePayload(message)
+            applyPayload(message)
         }
     }
 
@@ -136,7 +116,7 @@ final class WatchSyncStore: NSObject, ObservableObject, WCSessionDelegate {
         replyHandler: @escaping ([String: Any]) -> Void
     ) {
         Task { @MainActor in
-            receivePayload(message)
+            applyPayload(message)
             replyHandler([:])
         }
     }

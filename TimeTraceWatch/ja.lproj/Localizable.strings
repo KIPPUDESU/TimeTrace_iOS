@@ -4,3 +4,4 @@
 "label_since_date" = "以来";
 "day_unit" = "日";
 "watch_sync_hint" = "iPhone で TimeTrace を開いてください";
+"watch_incomplete_hint" = "このイベントは未完成です。iPhone で TimeTrace を開いて同期を完了してください";
