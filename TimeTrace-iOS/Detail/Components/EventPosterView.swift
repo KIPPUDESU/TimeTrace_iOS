@@ -108,13 +108,23 @@ struct PosterContent: View {
 
     // 时分秒desu
     private var timeText: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { context in
-            let t = TimeUtils.detailedTime(targetDate: event.targetDate, now: context.date)
-            Text(String(format: "%02d:%02d:%02d", t.hours, t.minutes, t.seconds))
-                .font(.system(size: 17 * scale))
-                .tracking(4 * scale)
-                .foregroundStyle(.white.opacity(0.8))
+        Group {
+            if let frozen = event.stoppedAt {
+                frozenTimeLabel(now: frozen)
+            } else {
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    frozenTimeLabel(now: context.date)
+                }
+            }
         }
+    }
+
+    private func frozenTimeLabel(now: Date) -> some View {
+        let t = TimeUtils.detailedTime(targetDate: event.targetDate, now: now)
+        return Text(String(format: "%02d:%02d:%02d", t.hours, t.minutes, t.seconds))
+            .font(.system(size: 17 * scale))
+            .tracking(4 * scale)
+            .foregroundStyle(.white.opacity(0.8))
     }
 }
 
@@ -143,7 +153,7 @@ struct EventPosterView: View {
     }
     
     private func showDays() {
-        let target = TimeUtils.daysBetween(targetDate: event.targetDate)
+        let target = TimeUtils.daysBetween(targetDate: event.targetDate, now: event.referenceNow)
         if dayCountAnimOn {
             animatedDays = 0
             withAnimation(.easeOut(duration: 0.8)) { animatedDays = target }

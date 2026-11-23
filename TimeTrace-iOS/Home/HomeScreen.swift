@@ -19,6 +19,9 @@ struct HomeScreen: View {
     @State private var detailEvent: DateEvent?
     // 添加按钮弹跳计数
     @State private var addButtonBounce = 0
+    @State private var showStoppedDrawer = false
+    @State private var livePullDistance: CGFloat = 0
+    @State private var emptyPullDistance: CGFloat = 0
 
     @Environment(\.horizontalSizeClass) private var sizeClass
     // 判断留不留毛玻璃
@@ -30,14 +33,29 @@ struct HomeScreen: View {
     // 内容淡入用，背景不跟着淡
     @Environment(\.tabReveal) private var reveal
 
+    private var activeEvents: [DateEvent] { events.filter { !$0.isStopped } }
     // 置顶单独一组
-    private var pinnedEvents: [DateEvent] { events.filter(\.isPinned) }
+    private var pinnedEvents: [DateEvent] { activeEvents.filter(\.isPinned) }
     // 没置顶另一组
-    private var normalEvents: [DateEvent] { events.filter { !$0.isPinned } }
+    private var normalEvents: [DateEvent] { activeEvents.filter { !$0.isPinned } }
     // 屏幕上从上到下的真实顺序
     private var orderedEvents: [DateEvent] { pinnedEvents + normalEvents }
     // 顶部遮罩高度
     private let headerTotal: CGFloat = 118
+    private let stoppedDrawerPullThreshold: CGFloat = 220
+    private let pullHintRevealStart: CGFloat = 72
+
+    private var effectivePullDistance: CGFloat {
+        max(livePullDistance, emptyPullDistance)
+    }
+
+    private var pullHintProgress: CGFloat {
+        let span = stoppedDrawerPullThreshold - pullHintRevealStart
+        guard span > 0, effectivePullDistance > pullHintRevealStart else { return 0 }
+        return min(1, (effectivePullDistance - pullHintRevealStart) / span)
+    }
+
+    private var isPullReadyToOpen: Bool { pullHintProgress >= 0.98 }
 
     var body: some View {
         NavigationStack {
@@ -48,8 +66,9 @@ struct HomeScreen: View {
                 // 卡片内容层
                 Group {
                     // 没有记录时显示提示，平板双列网格，手机单列列表
-                    if events.isEmpty {
+                    if activeEvents.isEmpty {
                         emptyState
+                            .gesture(emptyPullGesture)
                     } else if sizeClass == .regular {
                         gridLayout
                     } else {
@@ -71,6 +90,12 @@ struct HomeScreen: View {
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                     .offset(x: slideOffset)
                     .opacity(reveal)
+
+                if pullHintProgress > 0 {
+                    pullToDrawerHint
+                        .offset(x: slideOffset)
+                        .allowsHitTesting(false)
+                }
             }
             .alert(L("confirm_delete_title"), isPresented: deleteAlertBinding, presenting: pendingDelete) { event in
                 Button(L("delete_button"), role: .destructive) { delete(event) }
@@ -99,8 +124,82 @@ struct HomeScreen: View {
             .fullScreenCover(item: $detailEvent) { event in
                 DetailScreen(events: orderedEvents, initialEventId: event.id)
             }
+            .fullScreenCover(isPresented: $showStoppedDrawer) {
+                StoppedDrawerScreen()
+            }
         }
         .sensoryFeedback(.impact(weight: .heavy), trigger: pendingDelete?.id)
+        .sensoryFeedback(.impact(flexibility: .soft), trigger: isPullReadyToOpen)
+    }
+
+    private var pullToDrawerHint: some View {
+        let progress = pullHintProgress
+        let ready = isPullReadyToOpen
+        return VStack(spacing: 7) {
+            ZStack {
+                Circle()
+                    .stroke(TimeTracePalette.secondary.opacity(0.22), lineWidth: 2)
+                Circle()
+                    .trim(from: 0, to: max(0.04, progress))
+                    .stroke(
+                        TimeTracePalette.secondary.opacity(0.9),
+                        style: StrokeStyle(lineWidth: 2, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                Image(systemName: "arrow.down")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(TimeTracePalette.secondary)
+                    .rotationEffect(.degrees(ready ? 180 : 0))
+            }
+            .frame(width: 26, height: 26)
+            .animation(.easeInOut(duration: 0.18), value: ready)
+
+            Text(L("pull_to_stopped_hint"))
+                .font(.caption2)
+                .foregroundStyle(TimeTracePalette.secondary)
+                .opacity(0.55 + 0.45 * Double(progress))
+        }
+        .opacity(Double(min(1, progress * 1.15)))
+        .offset(y: headerTotal - 6 + min(effectivePullDistance * 0.35, 64))
+        .frame(maxWidth: .infinity, alignment: .top)
+    }
+
+    private var emptyPullGesture: some Gesture {
+        DragGesture(minimumDistance: 20)
+            .onChanged { value in
+                let dy = value.translation.height
+                guard dy > 0, abs(dy) > abs(value.translation.width) else {
+                    emptyPullDistance = 0
+                    return
+                }
+                emptyPullDistance = dy
+            }
+            .onEnded { _ in
+                if emptyPullDistance >= stoppedDrawerPullThreshold {
+                    showStoppedDrawer = true
+                }
+                emptyPullDistance = 0
+            }
+    }
+
+    private func trackPullDistance(_ distance: CGFloat) {
+        livePullDistance = distance
+    }
+
+    // 抬起瞬间判定；idle 时橡皮筋已回弹，距离不可用
+    private func handlePullScrollPhase(from oldPhase: ScrollPhase, to newPhase: ScrollPhase) {
+        if oldPhase == .interacting && newPhase != .interacting {
+            if livePullDistance >= stoppedDrawerPullThreshold {
+                showStoppedDrawer = true
+            }
+        }
+        if newPhase == .idle {
+            livePullDistance = 0
+        }
+    }
+
+    private func overscrollPullDistance(from geometry: ScrollGeometry) -> CGFloat {
+        max(0, -(geometry.contentOffset.y + geometry.contentInsets.top))
     }
 
     // 缝柔化
@@ -200,6 +299,14 @@ struct HomeScreen: View {
         .contentMargins(.bottom, 120, for: .scrollContent)
         // 整条列表往内缩，让滑出的按钮离屏幕左右边框留白
         .padding(.horizontal, 8)
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            overscrollPullDistance(from: geometry)
+        } action: { _, distance in
+            trackPullDistance(distance)
+        }
+        .onScrollPhaseChange { oldPhase, newPhase in
+            handlePullScrollPhase(from: oldPhase, to: newPhase)
+        }
     }
 
     // 透明横滑带 因为苹果你 list 真紧吧 我只能这么妥协了 还不知道手指滑动是什么样呢
@@ -280,6 +387,14 @@ struct HomeScreen: View {
             }
         }
         .scrollIndicators(.hidden)
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            overscrollPullDistance(from: geometry)
+        } action: { _, distance in
+            trackPullDistance(distance)
+        }
+        .onScrollPhaseChange { oldPhase, newPhase in
+            handlePullScrollPhase(from: oldPhase, to: newPhase)
+        }
     }
 
     // 没有记录的提示
