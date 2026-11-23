@@ -24,6 +24,10 @@ final class DateEvent {
     var maskOpacity: Double = 0.3
     // 手动排序用（现在还没有哦 ^ ^）
     var position: Int = 0
+    var stoppedAt: Date? = nil
+
+    var isStopped: Bool { stoppedAt != nil }
+    var referenceNow: Date { stoppedAt ?? Date() }
 
     init(
         id: Int64 = 0,
@@ -35,7 +39,8 @@ final class DateEvent {
         backgroundImageName: String? = nil,
         isPinned: Bool = false,
         maskOpacity: Double = 0.3,
-        position: Int = 0
+        position: Int = 0,
+        stoppedAt: Date? = nil
     ) {
         self.id = id
         self.title = title
@@ -47,6 +52,7 @@ final class DateEvent {
         self.isPinned = isPinned
         self.maskOpacity = maskOpacity
         self.position = position
+        self.stoppedAt = stoppedAt
     }
 }
 

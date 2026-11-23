@@ -14,7 +14,8 @@ struct ContentView: View {
 
     // 置顶的排在前面
     private var orderedEvents: [DateEvent] {
-        events.filter(\.isPinned) + events.filter { !$0.isPinned }
+        let active = events.filter { !$0.isStopped }
+        return active.filter(\.isPinned) + active.filter { !$0.isPinned }
     }
 
     // 当前选中哪个标签
