@@ -52,6 +52,12 @@ struct DetailScreen: View {
     @State private var showPhotoPicker = false
     @State private var pickerItem: PhotosPickerItem?
 
+    @State private var showStopConfirm = false
+    @State private var showRestoreConfirm = false
+    @State private var showDrawerTip = false
+    @State private var dontShowDrawerTipAgain = false
+    @AppStorage(AppPreferenceKeys.hideStoppedDrawerTip) private var hideStoppedDrawerTip = false
+
     // 依旧和安卓一样，直接给几百万页，起始页对齐到初始事件
     private static let virtualCount = 1_000_000
     // 我们 现在 就 靠这个 键 找回 了 ！
@@ -121,6 +127,21 @@ struct DetailScreen: View {
                     }
                     .accessibilityLabel("返回")
                     Spacer()
+                    if currentEvent != nil {
+                        Button {
+                            if currentEvent?.isStopped == true {
+                                showRestoreConfirm = true
+                            } else {
+                                showStopConfirm = true
+                            }
+                        } label: {
+                            Image(systemName: currentEvent?.isStopped == true ? "play.fill" : "pause.fill")
+                                .font(.system(size: 26, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 56, height: 56)
+                        }
+                        .accessibilityLabel(currentEvent?.isStopped == true ? L("restore_button") : L("stop_button"))
+                    }
                     Button { showActionSheet = true } label: {
                         Image(systemName: "ellipsis")
                             .font(.system(size: 26, weight: .semibold))
@@ -138,6 +159,15 @@ struct DetailScreen: View {
             .allowsHitTesting(showControls)
             // 切换标签时只有这两个按钮跟着滑，背景和遮罩都待着不动
             .offset(x: slideOffset)
+
+            if showDrawerTip {
+                StoppedDrawerTipOverlay(
+                    dontShowAgain: $dontShowDrawerTipAgain,
+                    onDismiss: { dismissDrawerTip() }
+                )
+                .zIndex(10)
+                .transition(.opacity.animation(.easeOut(duration: 0.18)))
+            }
 
             // 保存成功横幅
             if showSavedBanner {
@@ -176,7 +206,10 @@ struct DetailScreen: View {
             }
         }
         .contentShape(Rectangle())
-        .onTapGesture { showControls.toggle() }
+        .onTapGesture {
+            guard !showDrawerTip, !showActionSheet else { return }
+            showControls.toggle()
+        }
         .animation(.easeInOut(duration: 0.25), value: showControls)
         .animation(.snappy(duration: 0.3), value: showActionSheet)
         .preferredColorScheme(.dark)
@@ -204,6 +237,18 @@ struct DetailScreen: View {
             TextField(L("name_this_moment"), text: $draftTitle)
             Button(L("confirm")) { saveTitle() }
             Button(L("cancel"), role: .cancel) {}
+        }
+        .alert(L("confirm_stop_title"), isPresented: $showStopConfirm) {
+            Button(L("stop_button"), role: .destructive) { performStop() }
+            Button(L("cancel"), role: .cancel) {}
+        } message: {
+            Text(String(format: L("stop_confirm_message"), currentEvent?.title ?? ""))
+        }
+        .alert(L("confirm_restore_title"), isPresented: $showRestoreConfirm) {
+            Button(L("restore_button")) { performRestore() }
+            Button(L("cancel"), role: .cancel) {}
+        } message: {
+            Text(String(format: L("restore_confirm_message"), currentEvent?.title ?? ""))
         }
 
         // tint 套在 alert 外面
@@ -351,12 +396,63 @@ struct DetailScreen: View {
         showTitleEdit = false
     }
 
+    private func performStop() {
+        guard let event = currentEvent else { return }
+        event.stoppedAt = Date()
+        var t = Transaction()
+        t.disablesAnimations = true
+        withTransaction(t) { showControls = false }
+
+        if hideStoppedDrawerTip {
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 280_000_000)
+                leaveAfterStop()
+            }
+        } else {
+            dontShowDrawerTipAgain = false
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 320_000_000)
+                showDrawerTip = true
+            }
+        }
+    }
+
+    private func dismissDrawerTip() {
+        if dontShowDrawerTipAgain {
+            hideStoppedDrawerTip = true
+        }
+        showDrawerTip = false
+        leaveAfterStop()
+    }
+
+    private func leaveAfterStop() {
+        if onBack != nil {
+            onBack?()
+        } else {
+            dismiss()
+        }
+    }
+
+    private func performRestore() {
+        guard let event = currentEvent else { return }
+        event.stoppedAt = nil
+        showControls = false
+        if onBack != nil {
+            onBack?()
+        } else {
+            dismiss()
+        }
+    }
+
     // 把当前页的没 UI 版本保存成干净图片
     private func saveCurrentImage() {
         guard let currentEvent, screenSize.width > 0, screenSize.height > 0 else { return }
         let renderer = ImageRenderer(
-            content: PosterContent(event: currentEvent, days: TimeUtils.daysBetween(targetDate: currentEvent.targetDate))
-                .frame(width: screenSize.width, height: screenSize.height)
+            content: PosterContent(
+                event: currentEvent,
+                days: TimeUtils.daysBetween(targetDate: currentEvent.targetDate, now: currentEvent.referenceNow)
+            )
+            .frame(width: screenSize.width, height: screenSize.height)
         )
         renderer.scale = displayScale
         guard let image = renderer.uiImage else { return }
@@ -375,6 +471,80 @@ struct DetailScreen: View {
 #Preview("详情页") {
     DetailScreen(events: PresetData.sampleEvents, initialEventId: PresetData.sampleEvents[0].id)
 }
+
+private struct StoppedDrawerTipOverlay: View {
+    @Binding var dontShowAgain: Bool
+    var onDismiss: () -> Void
+
+    @State private var appeared = false
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(appeared ? 0.4 : 0)
+                .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                Text(L("stopped_drawer_tip_title"))
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 22)
+                    .padding(.horizontal, 20)
+
+                Text(L("stopped_drawer_tip"))
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.72))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+
+                Button {
+                    dontShowAgain.toggle()
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: dontShowAgain ? "checkmark.circle.fill" : "circle")
+                            .font(.system(size: 20, weight: .regular))
+                            .foregroundStyle(dontShowAgain ? Color.white : Color.white.opacity(0.55))
+                        Text(L("dont_show_again"))
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.9))
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 16)
+                .padding(.top, 14)
+
+                Button(action: onDismiss) {
+                    Text(L("got_it"))
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                }
+                .buttonStyle(.plain)
+                .glassEffect(.regular, in: Capsule())
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 18)
+            }
+            .frame(width: 300)
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .scaleEffect(appeared ? 1 : 0.88)
+            .opacity(appeared ? 1 : 0)
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                appeared = true
+            }
+        }
+    }
+}
+
 
 // 把底层逻辑回顶部关掉
 private struct ScrollToTopDisabled: UIViewRepresentable {

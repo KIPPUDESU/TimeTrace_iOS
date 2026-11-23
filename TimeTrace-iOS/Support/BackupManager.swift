@@ -33,6 +33,9 @@ enum BackupManager {
                 "isPinned": event.isPinned,
                 "maskOpacity": event.maskOpacity,
             ]
+            if let stoppedAt = event.stoppedAt {
+                item["stoppedAt"] = Int64(stoppedAt.timeIntervalSince1970 * 1000)
+            }
             // 背景图原件打包 查素材名 磁盘上没有文件就跳过
             if let name = event.backgroundImageName {
                 let fileName = (name as NSString).lastPathComponent
@@ -87,6 +90,10 @@ enum BackupManager {
     private static func makeEvent(from item: [String: Any]) -> DateEvent? {
         guard let title = item["title"] as? String,
               let millis = item["targetDate"] as? NSNumber else { return nil }
+        let stoppedAt: Date? = {
+            guard let millis = item["stoppedAt"] as? NSNumber else { return nil }
+            return Date(timeIntervalSince1970: millis.doubleValue / 1000)
+        }()
         return DateEvent(
             id: (item["id"] as? NSNumber)?.int64Value ?? 0,
             title: title,
@@ -96,7 +103,8 @@ enum BackupManager {
             mode: DisplayMode(backupValue: item["mode"] as? String ?? ""),
             backgroundImageName: item["backgroundFile"] as? String,
             isPinned: item["isPinned"] as? Bool ?? false,
-            maskOpacity: (item["maskOpacity"] as? NSNumber)?.doubleValue ?? 0.3
+            maskOpacity: (item["maskOpacity"] as? NSNumber)?.doubleValue ?? 0.3,
+            stoppedAt: stoppedAt
         )
     }
 }

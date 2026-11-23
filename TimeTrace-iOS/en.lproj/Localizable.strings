@@ -103,3 +103,17 @@
 "tab_slide_animation" = "Tab switching slide animation";
 "animation_effects_subtitle" = "UI animations";
 "detail_day_animation" = "Detail days count-up animation";
+"confirm_stop_title" = "Confirm Stop";
+"stop_confirm_message" = "Stop \"%@\"? It will be hidden and the count will freeze — it will no longer update.";
+"stop_button" = "Stop";
+"confirm_restore_title" = "Confirm Restore";
+"restore_confirm_message" = "Restore \"%@\"? Counting resumes immediately from the original set time; the stopped period is not kept separately. If you want to start from when it was stopped, create a new event.";
+"restore_button" = "Restore";
+"stopped_drawer_title" = "Stopped";
+"stopped_drawer_tip_title" = "Moved to Hidden List";
+"stopped_drawer_tip" = "Stopped events are hidden from all screens. On the home screen, keep pulling down from the top to open the stopped list.";
+"dont_show_again" = "Don't show again";
+"stopped_empty" = "No stopped events";
+"got_it" = "Got it";
+"pull_to_stopped_hint" = "Keep pulling to open stopped list";
+"release_to_stopped_hint" = "Release to open stopped list";

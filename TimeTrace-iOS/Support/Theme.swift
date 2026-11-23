@@ -114,4 +114,5 @@ enum AppPreferenceKeys {
     static let tabAnimations = "tabAnimations"
     // 详情页天数从 0 数到真实值的动画开关
     static let dayCountAnimation = "dayCountAnimation"
+    static let hideStoppedDrawerTip = "hideStoppedDrawerTip"
 }

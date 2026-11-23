@@ -55,7 +55,7 @@ private struct PinnedCardContent: View {
 
     var body: some View {
         let width = TimeTextUtils.visualWidth(of: event.title)
-        let days = TimeUtils.daysBetween(targetDate: event.targetDate)
+        let days = TimeUtils.daysBetween(targetDate: event.targetDate, now: event.referenceNow)
         Group {
             if width > 15 {
                 PinnedWideLayout(event: event)
@@ -162,7 +162,7 @@ private struct PinnedShortLayout: View {
     }
 
     private var daysBetween: Int {
-        TimeUtils.daysBetween(targetDate: event.targetDate)
+        TimeUtils.daysBetween(targetDate: event.targetDate, now: event.referenceNow)
     }
 
     // 天数五位、或标题约 3 宽配上四位天数时缩小一号
@@ -191,7 +191,7 @@ private struct PinnedDaysBlock: View {
     var body: some View {
         VStack(alignment: alignment, spacing: -2) {
             HStack(alignment: .bottom, spacing: 4) {
-                Text("\(TimeUtils.daysBetween(targetDate: event.targetDate))")
+                Text("\(TimeUtils.daysBetween(targetDate: event.targetDate, now: event.referenceNow))")
                     .font(.system(size: daysSize, weight: .bold))
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.5), radius: 12)
@@ -280,7 +280,7 @@ struct NormalEventCard: View {
 
     private var isCollision: Bool {
         let width = TimeTextUtils.visualWidth(of: event.title)
-        let days = TimeUtils.daysBetween(targetDate: event.targetDate)
+        let days = TimeUtils.daysBetween(targetDate: event.targetDate, now: event.referenceNow)
         // 按视觉宽度
         return width > 8 || (width >= 6 && days >= 1000)
     }
@@ -318,7 +318,7 @@ private struct NormalCollapsedLayout: View {
             )
             .foregroundStyle(TimeTracePalette.onSurface)
 
-            Text("\(prefix) \(TimeUtils.relativeDescription(targetDate: event.targetDate))")
+            Text("\(prefix) \(TimeUtils.relativeDescription(targetDate: event.targetDate, now: event.referenceNow))")
                 .font(.body)
                 .foregroundStyle(TimeTracePalette.secondary)
                 .lineLimit(1)
@@ -326,7 +326,7 @@ private struct NormalCollapsedLayout: View {
                 .padding(.bottom, 6)
 
             HStack(alignment: .bottom, spacing: 2) {
-                Text("\(TimeUtils.daysBetween(targetDate: event.targetDate))")
+                Text("\(TimeUtils.daysBetween(targetDate: event.targetDate, now: event.referenceNow))")
                     .font(.system(size: 32, weight: .bold))
                     .foregroundStyle(TimeTracePalette.primary)
                 Text(L("day_unit"))
@@ -357,7 +357,7 @@ private struct NormalStandardLayout: View {
                     lineLimit: 1,
                 )
                 .foregroundStyle(TimeTracePalette.onSurface)
-                Text("\(prefix) \(TimeUtils.relativeDescription(targetDate: event.targetDate))")
+                Text("\(prefix) \(TimeUtils.relativeDescription(targetDate: event.targetDate, now: event.referenceNow))")
                     .font(.body)
                     .foregroundStyle(TimeTracePalette.secondary)
                     .lineLimit(1)
@@ -365,7 +365,7 @@ private struct NormalStandardLayout: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(alignment: .bottom, spacing: 4) {
-                Text("\(TimeUtils.daysBetween(targetDate: event.targetDate))")
+                Text("\(TimeUtils.daysBetween(targetDate: event.targetDate, now: event.referenceNow))")
                     .font(.system(size: 36, weight: .bold))
                     .foregroundStyle(TimeTracePalette.primary)
                 Text(L("day_unit"))
