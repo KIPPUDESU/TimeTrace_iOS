@@ -20,6 +20,7 @@ struct HomeScreen: View {
     // 添加按钮弹跳计数
     @State private var addButtonBounce = 0
     @State private var showStoppedDrawer = false
+    @State private var pullReadyHapticTick = 0
     @State private var livePullDistance: CGFloat = 0
     @State private var emptyPullDistance: CGFloat = 0
 
@@ -129,7 +130,7 @@ struct HomeScreen: View {
             }
         }
         .sensoryFeedback(.impact(weight: .heavy), trigger: pendingDelete?.id)
-        .sensoryFeedback(.impact(flexibility: .soft), trigger: isPullReadyToOpen)
+        .sensoryFeedback(.impact(weight: .medium), trigger: pullReadyHapticTick)
     }
 
     private var pullToDrawerHint: some View {
@@ -173,7 +174,11 @@ struct HomeScreen: View {
                     emptyPullDistance = 0
                     return
                 }
+                let wasReady = isPullReadyToOpen
                 emptyPullDistance = dy
+                if !wasReady && isPullReadyToOpen {
+                    pullReadyHapticTick += 1
+                }
             }
             .onEnded { _ in
                 if emptyPullDistance >= stoppedDrawerPullThreshold {
@@ -184,7 +189,11 @@ struct HomeScreen: View {
     }
 
     private func trackPullDistance(_ distance: CGFloat) {
+        let wasReady = isPullReadyToOpen
         livePullDistance = distance
+        if !wasReady && isPullReadyToOpen {
+            pullReadyHapticTick += 1
+        }
     }
 
     // 抬起瞬间判定；idle 时橡皮筋已回弹，距离不可用
