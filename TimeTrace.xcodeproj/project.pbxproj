@@ -7,22 +7,65 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C00FBB530B43DD000E58ABE /* TimeTraceWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 2C00FBAB30B43DCD00E58ABE /* TimeTraceWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F13F6C05304455390008A0B7 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = F13F6C04304455390008A0B7 /* ZIPFoundation */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		2C00FBB330B43DD000E58ABE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F1F73470301E57F7002DCB5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C00FBAA30B43DCD00E58ABE;
+			remoteInfo = "TimeTraceWatch Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2C00FBB930B43DD000E58ABE /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				2C00FBB530B43DD000E58ABE /* TimeTraceWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		F1F73478301E57F7002DCB5A /* TimeTrace-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TimeTrace-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C00FBAB30B43DCD00E58ABE /* TimeTraceWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TimeTraceWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F1F73478301E57F7002DCB5A /* TimeTrace.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TimeTrace.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		F1F7347A301E57F7002DCB5A /* TimeTrace-iOS */ = {
+		2C00FBAC30B43DCD00E58ABE /* TimeTraceWatch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "TimeTrace-iOS";
+			path = TimeTraceWatch;
+			sourceTree = "<group>";
+		};
+		2C00FBBA30B43E0F00E58ABE /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		F1F7347A301E57F7002DCB5A /* TimeTrace */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TimeTrace;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2C00FBA830B43DCD00E58ABE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F1F73475301E57F7002DCB5A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -37,7 +80,9 @@
 		F1F7346F301E57F7002DCB5A = {
 			isa = PBXGroup;
 			children = (
-				F1F7347A301E57F7002DCB5A /* TimeTrace-iOS */,
+				2C00FBBA30B43E0F00E58ABE /* Shared */,
+				F1F7347A301E57F7002DCB5A /* TimeTrace */,
+				2C00FBAC30B43DCD00E58ABE /* TimeTraceWatch */,
 				F1F73479301E57F7002DCB5A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -45,7 +90,8 @@
 		F1F73479301E57F7002DCB5A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F1F73478301E57F7002DCB5A /* TimeTrace-iOS.app */,
+				F1F73478301E57F7002DCB5A /* TimeTrace.app */,
+				2C00FBAB30B43DCD00E58ABE /* TimeTraceWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -53,27 +99,53 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F1F73477301E57F7002DCB5A /* TimeTrace-iOS */ = {
+		2C00FBAA30B43DCD00E58ABE /* TimeTraceWatch */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F1F73483301E57F9002DCB5A /* Build configuration list for PBXNativeTarget "TimeTrace-iOS" */;
+			buildConfigurationList = 2C00FBB630B43DD000E58ABE /* Build configuration list for PBXNativeTarget "TimeTraceWatch" */;
 			buildPhases = (
-				F1F73474301E57F7002DCB5A /* Sources */,
-				F1F73475301E57F7002DCB5A /* Frameworks */,
-				F1F73476301E57F7002DCB5A /* Resources */,
+				2C00FBA730B43DCD00E58ABE /* Sources */,
+				2C00FBA830B43DCD00E58ABE /* Frameworks */,
+				2C00FBA930B43DCD00E58ABE /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				F1F7347A301E57F7002DCB5A /* TimeTrace-iOS */,
+				2C00FBAC30B43DCD00E58ABE /* TimeTraceWatch */,
+				2C00FBBA30B43E0F00E58ABE /* Shared */,
 			);
-			name = "TimeTrace-iOS";
+			name = TimeTraceWatch;
+			packageProductDependencies = (
+			);
+			productName = "TimeTraceWatch Watch App";
+			productReference = 2C00FBAB30B43DCD00E58ABE /* TimeTraceWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F1F73477301E57F7002DCB5A /* TimeTrace */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F1F73483301E57F9002DCB5A /* Build configuration list for PBXNativeTarget "TimeTrace" */;
+			buildPhases = (
+				F1F73474301E57F7002DCB5A /* Sources */,
+				F1F73475301E57F7002DCB5A /* Frameworks */,
+				F1F73476301E57F7002DCB5A /* Resources */,
+				2C00FBB930B43DD000E58ABE /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2C00FBB430B43DD000E58ABE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				2C00FBBA30B43E0F00E58ABE /* Shared */,
+				F1F7347A301E57F7002DCB5A /* TimeTrace */,
+			);
+			name = TimeTrace;
 			packageProductDependencies = (
 				F13F6C04304455390008A0B7 /* ZIPFoundation */,
 			);
 			productName = "TimeTrace-iOS";
-			productReference = F1F73478301E57F7002DCB5A /* TimeTrace-iOS.app */;
+			productReference = F1F73478301E57F7002DCB5A /* TimeTrace.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -83,15 +155,18 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2700;
+				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 2700;
 				TargetAttributes = {
+					2C00FBAA30B43DCD00E58ABE = {
+						CreatedOnToolsVersion = 26.5;
+					};
 					F1F73477301E57F7002DCB5A = {
 						CreatedOnToolsVersion = 27.0;
 					};
 				};
 			};
-			buildConfigurationList = F1F73473301E57F7002DCB5A /* Build configuration list for PBXProject "TimeTrace-iOS" */;
+			buildConfigurationList = F1F73473301E57F7002DCB5A /* Build configuration list for PBXProject "TimeTrace" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -110,12 +185,20 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F1F73477301E57F7002DCB5A /* TimeTrace-iOS */,
+				F1F73477301E57F7002DCB5A /* TimeTrace */,
+				2C00FBAA30B43DCD00E58ABE /* TimeTraceWatch */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2C00FBA930B43DCD00E58ABE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F1F73476301E57F7002DCB5A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -126,6 +209,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2C00FBA730B43DCD00E58ABE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F1F73474301E57F7002DCB5A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -135,7 +225,83 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		2C00FBB430B43DD000E58ABE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C00FBAA30B43DCD00E58ABE /* TimeTraceWatch */;
+			targetProxy = 2C00FBB330B43DD000E58ABE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		2C00FBB730B43DD000E58ABE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CVS7CJXPF7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TimeTrace;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.kippu.timetrace;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kippu.timetrace.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		2C00FBB830B43DD000E58ABE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CVS7CJXPF7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TimeTrace;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.kippu.timetrace;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kippu.timetrace.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 		F1F73481301E57F9002DCB5A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -330,7 +496,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F1F73473301E57F7002DCB5A /* Build configuration list for PBXProject "TimeTrace-iOS" */ = {
+		2C00FBB630B43DD000E58ABE /* Build configuration list for PBXNativeTarget "TimeTraceWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C00FBB730B43DD000E58ABE /* Debug */,
+				2C00FBB830B43DD000E58ABE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F1F73473301E57F7002DCB5A /* Build configuration list for PBXProject "TimeTrace" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F1F73481301E57F9002DCB5A /* Debug */,
@@ -339,7 +514,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F1F73483301E57F9002DCB5A /* Build configuration list for PBXNativeTarget "TimeTrace-iOS" */ = {
+		F1F73483301E57F9002DCB5A /* Build configuration list for PBXNativeTarget "TimeTrace" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F1F73484301E57F9002DCB5A /* Debug */,

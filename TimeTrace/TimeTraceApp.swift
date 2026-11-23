@@ -1,6 +1,6 @@
 //
-//  TimeTrace_iOSApp.swift
-//  TimeTrace-iOS
+//  TimeTraceApp.swift
+//  TimeTrace
 //
 //  Created by 切符 on 2026/8/2.
 //
@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct TimeTrace_iOSApp: App {
+struct TimeTraceApp: App {
     // 共用的数据容器
     let container: ModelContainer
     // 监听语言切换
@@ -25,6 +25,7 @@ struct TimeTrace_iOSApp: App {
         PresetData.seedIfEmpty(in: container.mainContext)
         // 启动对齐
         PresetData.syncLocalizedTitles(in: container.mainContext)
+        PhoneWatchSyncBridge.shared.activate()
     }
 
     var body: some Scene {

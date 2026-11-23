@@ -6,6 +6,7 @@ import SwiftData
 struct ContentView: View {
     // 日夜模式，设置页里切换后这里自动跟着变
     @AppStorage(AppPreferenceKeys.themeMode) private var themeModeRaw = ThemeMode.system.rawValue
+    @Environment(\.scenePhase) private var scenePhase
 
     @Query(sort: [
         SortDescriptor(\DateEvent.position),
@@ -16,6 +17,12 @@ struct ContentView: View {
     private var orderedEvents: [DateEvent] {
         let active = events.filter { !$0.isStopped }
         return active.filter(\.isPinned) + active.filter { !$0.isPinned }
+    }
+
+    private var watchSyncSignature: String {
+        events.map {
+            "\($0.id):\($0.title):\($0.targetDate.timeIntervalSince1970):\($0.isPinned):\($0.maskOpacity):\($0.backgroundImageName ?? ""):\($0.stoppedAt?.timeIntervalSince1970 ?? 0):\($0.position)"
+        }.joined(separator: "|")
     }
 
     // 当前选中哪个标签
@@ -99,6 +106,17 @@ struct ContentView: View {
         // 横向拖动结束，按方向切到相邻标签
         // 非同时手势
         .gesture(swipeSwitch)
+        .onAppear { syncWatch() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { syncWatch() }
+        }
+        .onChange(of: watchSyncSignature) { _, _ in
+            syncWatch()
+        }
+    }
+
+    private func syncWatch() {
+        PhoneWatchSyncBridge.shared.sync(events: Array(events))
     }
 
     // 检测横向滑动
