@@ -154,10 +154,11 @@ struct HomeScreen: View {
             .frame(width: 26, height: 26)
             .animation(.easeInOut(duration: 0.18), value: ready)
 
-            Text(L("pull_to_stopped_hint"))
+            Text(ready ? L("release_to_stopped_hint") : L("pull_to_stopped_hint"))
                 .font(.caption2)
                 .foregroundStyle(TimeTracePalette.secondary)
                 .opacity(0.55 + 0.45 * Double(progress))
+                .animation(.easeOut(duration: 0.12), value: ready)
         }
         .opacity(Double(min(1, progress * 1.15)))
         .offset(y: headerTotal - 6 + min(effectivePullDistance * 0.35, 64))

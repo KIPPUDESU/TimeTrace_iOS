@@ -56,6 +56,7 @@ struct DetailScreen: View {
     @State private var showRestoreConfirm = false
     @State private var showDrawerTip = false
     @State private var dontShowDrawerTipAgain = false
+    @State private var showFrozenEditTip = false
     @AppStorage(AppPreferenceKeys.hideStoppedDrawerTip) private var hideStoppedDrawerTip = false
 
     // 依旧和安卓一样，直接给几百万页，起始页对齐到初始事件
@@ -196,9 +197,30 @@ struct DetailScreen: View {
                     Spacer()
                     DetailActionSheet(
                         onSaveImage: { showActionSheet = false; saveCurrentImage() },
-                        onEditTitle: { showActionSheet = false; beginEditTitle() },
-                        onChangeBackground: { showActionSheet = false; showPhotoPicker = true },
-                        onAdjustDate: { showActionSheet = false; showDatePicker = true }
+                        onEditTitle: {
+                            showActionSheet = false
+                            if currentEvent?.isStopped == true {
+                                showFrozenEditTip = true
+                            } else {
+                                beginEditTitle()
+                            }
+                        },
+                        onChangeBackground: {
+                            showActionSheet = false
+                            if currentEvent?.isStopped == true {
+                                showFrozenEditTip = true
+                            } else {
+                                showPhotoPicker = true
+                            }
+                        },
+                        onAdjustDate: {
+                            showActionSheet = false
+                            if currentEvent?.isStopped == true {
+                                showFrozenEditTip = true
+                            } else {
+                                showDatePicker = true
+                            }
+                        }
                     )
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -249,6 +271,11 @@ struct DetailScreen: View {
             Button(L("cancel"), role: .cancel) {}
         } message: {
             Text(String(format: L("restore_confirm_message"), currentEvent?.title ?? ""))
+        }
+        .alert(L("frozen_edit_title"), isPresented: $showFrozenEditTip) {
+            Button(L("got_it"), role: .cancel) {}
+        } message: {
+            Text(L("frozen_edit_unsupported"))
         }
 
         // tint 套在 alert 外面

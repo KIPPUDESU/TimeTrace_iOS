@@ -38,8 +38,14 @@ struct PosterContent: View {
                     .offset(x: firstSlideX)
                 if showsTime {
                     Spacer().frame(height: 8 * scale)
-                    timeText
-                        .offset(x: firstSlideX)
+                    Group {
+                        if event.isStopped {
+                            frozenSinceLine
+                        } else {
+                            timeText
+                        }
+                    }
+                    .offset(x: firstSlideX)
                 }
                 Spacer()
             }
@@ -56,7 +62,9 @@ struct PosterContent: View {
     // 英文那样切会变成一行几个字母。限定成「一行放得下 9 个汉字」的宽度，
     // 汉字还是 9 个字一行，英文自己按单词换行，最多四行，多的部分系统补省略号
     private var titleText: some View {
-        let prefix = L(event.isFuture ? "label_until" : "label_since")
+        let prefix = event.isStopped
+            ? L("label_frozen")
+            : L(event.isFuture ? "label_until" : "label_since")
 
         // 用富文本拼：标题白色、前缀半透明白，避开已弃用的 Text 加法
         var base = AttributeContainer()
@@ -103,6 +111,13 @@ struct PosterContent: View {
         Text("\(L(event.isFuture ? "label_from" : "label_since_date")) \(TimeUtils.shortDate(event.targetDate))")
             .font(.system(size: 17 * scale))
             .foregroundStyle(.white.opacity(0.6))
+            .tracking(2 * scale)
+    }
+
+    private var frozenSinceLine: some View {
+        Text("\(L("label_frozen_since")) \(TimeUtils.shortDate(event.stoppedAt ?? event.targetDate))")
+            .font(.system(size: 17 * scale))
+            .foregroundStyle(.white.opacity(0.8))
             .tracking(2 * scale)
     }
 

@@ -12,7 +12,7 @@ struct StoppedDrawerScreen: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var pendingDelete: DateEvent?
-    @State private var editingEvent: DateEvent?
+    @State private var pendingRestore: DateEvent?
     @State private var detailEvent: DateEvent?
 
     private var stoppedEvents: [DateEvent] { events.filter(\.isStopped) }
@@ -48,12 +48,11 @@ struct StoppedDrawerScreen: View {
             } message: { event in
                 Text(String(format: L("delete_confirm_message"), event.title))
             }
-            .sheet(item: $editingEvent) { item in
-                EditEventSheet(
-                    event: item,
-                    onSave: { editingEvent = nil },
-                    onCancel: { editingEvent = nil }
-                )
+            .alert(L("confirm_restore_title"), isPresented: restoreAlertBinding, presenting: pendingRestore) { event in
+                Button(L("restore_button")) { restore(event) }
+                Button(L("cancel"), role: .cancel) {}
+            } message: { event in
+                Text(String(format: L("restore_confirm_message"), event.title))
             }
             .fullScreenCover(item: $detailEvent) { event in
                 DetailScreen(events: orderedEvents, initialEventId: event.id)
@@ -176,10 +175,15 @@ struct StoppedDrawerScreen: View {
         .listRowSeparator(.hidden)
         .listRowBackground(Color.clear)
         .swipeActions(edge: .leading, allowsFullSwipe: false) {
-            Button { editingEvent = event } label: {
-                Image(systemName: "pencil")
+            Button {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 300_000_000)
+                    pendingRestore = event
+                }
+            } label: {
+                Image(systemName: "play.fill")
                     .font(.system(size: 2, weight: .medium))
-                    .accessibilityLabel(L("edit_title"))
+                    .accessibilityLabel(L("restore_button"))
             }
             .tint(TimeTracePalette.primary)
         }
@@ -210,15 +214,30 @@ struct StoppedDrawerScreen: View {
         pendingDelete = nil
     }
 
+    private func restore(_ event: DateEvent) {
+        withAnimation {
+            event.stoppedAt = nil
+            try? modelContext.save()
+        }
+        pendingRestore = nil
+    }
+
     private var deleteAlertBinding: Binding<Bool> {
         Binding(
             get: { pendingDelete != nil },
             set: { if !$0 { pendingDelete = nil } }
         )
     }
+
+    private var restoreAlertBinding: Binding<Bool> {
+        Binding(
+            get: { pendingRestore != nil },
+            set: { if !$0 { pendingRestore = nil } }
+        )
+    }
 }
 
-#Preview("已停止抽屉") {
+#Preview("已定格抽屉") {
     StoppedDrawerScreen()
         .modelContainer(PresetData.previewContainer())
 }
