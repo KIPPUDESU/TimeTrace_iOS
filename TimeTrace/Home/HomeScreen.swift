@@ -43,8 +43,8 @@ struct HomeScreen: View {
     private var orderedEvents: [DateEvent] { pinnedEvents + normalEvents }
     // 顶部遮罩高度
     private let headerTotal: CGFloat = 118
-    private let stoppedDrawerPullThreshold: CGFloat = 220
-    private let pullHintRevealStart: CGFloat = 72
+    private let stoppedDrawerPullThreshold: CGFloat = 210
+    private let pullHintRevealStart: CGFloat = 90
 
     private var effectivePullDistance: CGFloat {
         max(livePullDistance, emptyPullDistance)
@@ -136,33 +136,33 @@ struct HomeScreen: View {
     private var pullToDrawerHint: some View {
         let progress = pullHintProgress
         let ready = isPullReadyToOpen
-        return VStack(spacing: 7) {
+        return VStack(spacing: 10) {
             ZStack {
                 Circle()
-                    .stroke(TimeTracePalette.secondary.opacity(0.22), lineWidth: 2)
+                    .stroke(TimeTracePalette.secondary.opacity(0.22), lineWidth: 2.5)
                 Circle()
                     .trim(from: 0, to: max(0.04, progress))
                     .stroke(
                         TimeTracePalette.secondary.opacity(0.9),
-                        style: StrokeStyle(lineWidth: 2, lineCap: .round)
+                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
                     )
                     .rotationEffect(.degrees(-90))
                 Image(systemName: "arrow.down")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(TimeTracePalette.secondary)
                     .rotationEffect(.degrees(ready ? 180 : 0))
             }
-            .frame(width: 26, height: 26)
+            .frame(width: 36, height: 36)
             .animation(.easeInOut(duration: 0.18), value: ready)
 
             Text(ready ? L("release_to_stopped_hint") : L("pull_to_stopped_hint"))
-                .font(.caption2)
+                .font(.subheadline.weight(.medium))
                 .foregroundStyle(TimeTracePalette.secondary)
                 .opacity(0.55 + 0.45 * Double(progress))
                 .animation(.easeOut(duration: 0.12), value: ready)
         }
         .opacity(Double(min(1, progress * 1.15)))
-        .offset(y: headerTotal - 6 + min(effectivePullDistance * 0.35, 64))
+        .offset(y: headerTotal - 18 + min(effectivePullDistance * 0.12, 20))
         .frame(maxWidth: .infinity, alignment: .top)
     }
 
