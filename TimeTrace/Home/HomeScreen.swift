@@ -24,7 +24,6 @@ struct HomeScreen: View {
     @State private var livePullDistance: CGFloat = 0
     @State private var emptyPullDistance: CGFloat = 0
 
-    @Environment(\.horizontalSizeClass) private var sizeClass
     // 判断留不留毛玻璃
     @Environment(\.colorScheme) private var colorScheme
     // 在卡片之间的缝上横滑时穿参
@@ -66,12 +65,10 @@ struct HomeScreen: View {
 
                 // 卡片内容层
                 Group {
-                    // 没有记录时显示提示，平板双列网格，手机单列列表
+                    // 没有记录时显示提示；有数据统一 List + onMove（iPhone / iPad 同一套长按拖）
                     if activeEvents.isEmpty {
                         emptyState
                             .gesture(emptyPullGesture)
-                    } else if sizeClass == .regular {
-                        gridLayout
                     } else {
                         listLayout
                     }
@@ -277,7 +274,7 @@ struct HomeScreen: View {
                             .background(.ultraThinMaterial, in: Circle())
                     }
                 }
-                .symbolEffect(.bounce, value: addButtonBounce)   // 点击弹跳
+                .symbolEffect(.bounce, value: addButtonBounce)
             }
             .accessibilityLabel("add")
         }
@@ -285,7 +282,7 @@ struct HomeScreen: View {
         .frame(maxWidth: .infinity)
     }
 
-    // 手机上用的单列列表
+    // 手机上用的单列列表：系统 onMove，长按直接拖，不进 editMode、无手柄
     private var listLayout: some View {
         List {
             // 也挺好
@@ -297,9 +294,11 @@ struct HomeScreen: View {
             ForEach(pinnedEvents) { event in
                 cardRow(event: event, isPinned: true)
             }
+            .onMove(perform: movePinned)
             ForEach(normalEvents) { event in
                 cardRow(event: event, isPinned: false)
             }
+            .onMove(perform: moveNormal)
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
@@ -374,39 +373,6 @@ struct HomeScreen: View {
         }
     }
 
-    // 平板上用的双列网格
-    private var gridLayout: some View {
-        let all = orderedEvents
-        return ScrollView {
-            VStack(spacing: 0) {
-                // 空白垫出遮罩高度
-                Color.clear.frame(height: headerTotal)
-                LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 300), spacing: 12)],
-                    spacing: 16
-                ) {
-                    ForEach(all) { event in
-                        if event.isPinned {
-                            PinnedEventCard(event: event) { open(event) }
-                        } else {
-                            NormalEventCard(event: event) { open(event) }
-                        }
-                    }
-                }
-                .padding(EdgeInsets(top: 16, leading: 16, bottom: 120, trailing: 16))
-            }
-        }
-        .scrollIndicators(.hidden)
-        .onScrollGeometryChange(for: CGFloat.self) { geometry in
-            overscrollPullDistance(from: geometry)
-        } action: { _, distance in
-            trackPullDistance(distance)
-        }
-        .onScrollPhaseChange { oldPhase, newPhase in
-            handlePullScrollPhase(from: oldPhase, to: newPhase)
-        }
-    }
-
     // 没有记录的提示
     private var emptyState: some View {
         Text(L("empty_timeline_hint"))
@@ -418,6 +384,18 @@ struct HomeScreen: View {
     // 点卡片进全屏详情页捏
     private func open(_ event: DateEvent) {
         detailEvent = event
+    }
+
+    private func movePinned(from source: IndexSet, to destination: Int) {
+        var items = pinnedEvents
+        items.move(fromOffsets: source, toOffset: destination)
+        TimelineReorder.persistOrder(pinned: items, normal: normalEvents, in: modelContext)
+    }
+
+    private func moveNormal(from source: IndexSet, to destination: Int) {
+        var items = normalEvents
+        items.move(fromOffsets: source, toOffset: destination)
+        TimelineReorder.persistOrder(pinned: pinnedEvents, normal: items, in: modelContext)
     }
 
     // 确认删除
@@ -435,6 +413,8 @@ struct HomeScreen: View {
         if event.id == 0 {
             event.id = EventIDGenerator.next()
         }
+        let maxPos = events.map(\.position).max() ?? -1
+        event.position = maxPos + 1
         modelContext.insert(event)
         try? modelContext.save()
     }
