@@ -3,6 +3,7 @@ import SwiftUI
 struct WatchStoppedDrawerView: View {
     @EnvironmentObject private var store: WatchSyncStore
     @Environment(\.dismiss) private var dismiss
+    @State private var revealsFrozenMeta = false
 
     var body: some View {
         Group {
@@ -25,8 +26,15 @@ struct WatchStoppedDrawerView: View {
                             if store.isBackgroundReady(for: event) {
                                 WatchPosterView(
                                     event: event,
-                                    backgroundRevision: store.backgroundRevision
+                                    backgroundRevision: store.backgroundRevision,
+                                    revealsFrozenMeta: revealsFrozenMeta
                                 )
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    withAnimation(.easeInOut(duration: 0.28)) {
+                                        revealsFrozenMeta.toggle()
+                                    }
+                                }
                             } else {
                                 WatchIncompleteEventView()
                             }

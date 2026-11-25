@@ -339,7 +339,8 @@ struct DetailScreen: View {
                             event: events[i % events.count],
                             isCurrentPage: currentPage == i,
                             replayToken: replayToken,
-                            firstSlideX: firstSlideX
+                            firstSlideX: firstSlideX,
+                            revealsFrozenMeta: showControls
                         )
                             .id(i)
                             .containerRelativeFrame(.vertical)

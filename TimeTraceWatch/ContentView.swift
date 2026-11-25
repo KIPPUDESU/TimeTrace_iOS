@@ -6,6 +6,8 @@ struct ContentView: View {
 
     @State private var showStoppedDrawer = false
     @State private var swipeDistance: CGFloat = 0
+    // 定格详情展开状态跟当前事件无关，翻页保持
+    @State private var revealsFrozenMeta = false
 
     private let swipeThreshold: CGFloat = 56
     private let swipeHintStart: CGFloat = 14
@@ -60,8 +62,16 @@ struct ContentView: View {
         if store.isBackgroundReady(for: event) {
             WatchPosterView(
                 event: event,
-                backgroundRevision: store.backgroundRevision
+                backgroundRevision: store.backgroundRevision,
+                revealsFrozenMeta: revealsFrozenMeta
             )
+            .contentShape(Rectangle())
+            .onTapGesture {
+                guard event.isStopped else { return }
+                withAnimation(.easeInOut(duration: 0.28)) {
+                    revealsFrozenMeta.toggle()
+                }
+            }
         } else {
             WatchIncompleteEventView()
         }

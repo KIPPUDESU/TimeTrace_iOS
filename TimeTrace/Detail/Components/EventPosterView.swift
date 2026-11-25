@@ -6,6 +6,8 @@ struct PosterContent: View {
     let days: Int
     // 是否显示实时时分秒；编辑器里的全屏预览不显示，跟安卓一致
     var showsTime: Bool = true
+    // 定格事件：展开控件栏时切换为「定格自 + 定格时刻」；保存图片保持默认 false
+    var revealsFrozenMeta: Bool = false
     // 缩放系数：详情页全屏是 1，编辑器小尺寸预览按比例缩小字号
     var scale: CGFloat = 1.0
     // 首次进入时的一次性文字滑入量
@@ -15,6 +17,8 @@ struct PosterContent: View {
 
     // 横移距离
     @Environment(\.tabSlideOffset) private var slideOffset
+
+    private var showFrozenDetails: Bool { event.isStopped && revealsFrozenMeta }
 
     var body: some View {
         ZStack {
@@ -34,23 +38,18 @@ struct PosterContent: View {
                     .offset(x: firstSlideX)
                 Spacer().frame(height: 16 * scale)
                 daysText
-                dateLine
+                metaPrimaryLine
                     .offset(x: firstSlideX)
                 if showsTime {
                     Spacer().frame(height: 8 * scale)
-                    Group {
-                        if event.isStopped {
-                            frozenSinceLine
-                        } else {
-                            timeText
-                        }
-                    }
-                    .offset(x: firstSlideX)
+                    metaSecondaryLine
+                        .offset(x: firstSlideX)
                 }
                 Spacer()
             }
             .padding(.horizontal, 32)
             .offset(x: slideOffset)
+            .animation(.easeInOut(duration: 0.28), value: showFrozenDetails)
         }
         // 海报铺满父容器，图片不会按自然尺寸撑开布局
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -106,35 +105,54 @@ struct PosterContent: View {
         }
     }
 
-    // 日期
-    private var dateLine: some View {
-        Text("\(L(event.isFuture ? "label_from" : "label_since_date")) \(TimeUtils.shortDate(event.targetDate))")
+    @ViewBuilder
+    private var metaPrimaryLine: some View {
+        Text(showFrozenDetails ? frozenSinceText : targetDateText)
             .font(.system(size: 17 * scale))
-            .foregroundStyle(.white.opacity(0.6))
+            .foregroundStyle(.white.opacity(showFrozenDetails ? 0.8 : 0.6))
             .tracking(2 * scale)
+            .contentTransition(.opacity)
+            .id(showFrozenDetails ? "frozen-date" : "target-date")
     }
 
-    private var frozenSinceLine: some View {
-        Text("\(L("label_frozen_since")) \(TimeUtils.shortDate(event.stoppedAt ?? event.targetDate))")
-            .font(.system(size: 17 * scale))
-            .foregroundStyle(.white.opacity(0.8))
-            .tracking(2 * scale)
+    @ViewBuilder
+    private var metaSecondaryLine: some View {
+        Group {
+            if showFrozenDetails {
+                Text(TimeUtils.clockTime(event.stoppedAt ?? event.targetDate))
+                    .font(.system(size: 17 * scale))
+                    .tracking(4 * scale)
+                    .foregroundStyle(.white.opacity(0.8))
+            } else {
+                timeText
+            }
+        }
+        .contentTransition(.opacity)
+        .id(showFrozenDetails ? "frozen-clock" : "relative-time")
+    }
+
+    private var targetDateText: String {
+        "\(L(event.isFuture ? "label_from" : "label_since_date")) \(TimeUtils.shortDate(event.targetDate))"
+    }
+
+    private var frozenSinceText: String {
+        "\(L("label_frozen_since")) \(TimeUtils.shortDate(event.stoppedAt ?? event.targetDate))"
     }
 
     // 时分秒desu
     private var timeText: some View {
         Group {
             if let frozen = event.stoppedAt {
-                frozenTimeLabel(now: frozen)
+                relativeTimeLabel(now: frozen)
             } else {
                 TimelineView(.periodic(from: .now, by: 1)) { context in
-                    frozenTimeLabel(now: context.date)
+                    relativeTimeLabel(now: context.date)
                 }
             }
         }
     }
 
-    private func frozenTimeLabel(now: Date) -> some View {
+    private func relativeTimeLabel(now: Date) -> some View {
         let t = TimeUtils.detailedTime(targetDate: event.targetDate, now: now)
         return Text(String(format: "%02d:%02d:%02d", t.hours, t.minutes, t.seconds))
             .font(.system(size: 17 * scale))
@@ -150,6 +168,7 @@ struct EventPosterView: View {
     // 详情页每次重新出现清零
     var replayToken: Int = 0
     var firstSlideX: CGFloat = 0
+    var revealsFrozenMeta: Bool = false
     // 天数跳动动画开
     @AppStorage(AppPreferenceKeys.dayCountAnimation) private var dayCountAnimOn = true
 
@@ -157,7 +176,12 @@ struct EventPosterView: View {
 
     // 天数直接跳到已有的
     var body: some View {
-        PosterContent(event: event, days: animatedDays, firstSlideX: firstSlideX)
+        PosterContent(
+            event: event,
+            days: animatedDays,
+            revealsFrozenMeta: revealsFrozenMeta,
+            firstSlideX: firstSlideX
+        )
             .onAppear { if isCurrentPage { showDays() } }
             .onChange(of: isCurrentPage) { _, current in
                 if current { showDays() } else { animatedDays = 0 }

@@ -3,12 +3,15 @@ import SwiftUI
 struct WatchPosterView: View {
     let event: WatchSyncEvent
     var backgroundRevision: Int = 0
+    var revealsFrozenMeta: Bool = false
 
     private var targetDate: Date { event.targetDateValue }
     private var isFuture: Bool { event.liveIsFuture }
     private var days: Int {
         WatchTimeUtils.daysBetween(targetDate: targetDate, now: event.referenceNow)
     }
+
+    private var showFrozenDetails: Bool { event.isStopped && revealsFrozenMeta }
 
     var body: some View {
         GeometryReader { geo in
@@ -37,6 +40,7 @@ struct WatchPosterView: View {
                 .padding(.horizontal, 14 * scale)
                 .padding(.vertical, 8 * scale)
                 .shadow(color: .black.opacity(0.4), radius: 2.5, y: 1)
+                .animation(.easeInOut(duration: 0.28), value: showFrozenDetails)
             }
             .frame(width: size.width, height: size.height)
             .clipped()
@@ -88,29 +92,51 @@ struct WatchPosterView: View {
 
     private func metaBlock(scale: CGFloat) -> some View {
         VStack(spacing: 3 * scale) {
-            Text("\(WL(isFuture ? "label_from" : "label_since_date")) \(WatchTimeUtils.shortDate(targetDate))")
+            Text(showFrozenDetails ? frozenSinceText : targetDateText)
                 .font(.system(size: 10 * scale, weight: .regular))
-                .foregroundStyle(.white.opacity(0.58))
+                .foregroundStyle(.white.opacity(showFrozenDetails ? 0.72 : 0.58))
                 .lineLimit(1)
                 .minimumScaleFactor(0.65)
+                .contentTransition(.opacity)
+                .id(showFrozenDetails ? "frozen-date" : "target-date")
 
-            if event.isStopped {
-                Text("\(WL("label_frozen_since")) \(WatchTimeUtils.shortDate(event.stoppedAtValue ?? targetDate))")
-                    .font(.system(size: 12 * scale, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.9))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            } else {
-                TimelineView(.periodic(from: .now, by: 1)) { context in
-                    let t = WatchTimeUtils.detailedTime(targetDate: targetDate, now: context.date)
+            Group {
+                if showFrozenDetails {
+                    Text(WatchTimeUtils.clockTime(event.stoppedAtValue ?? targetDate))
+                        .font(.system(size: 12 * scale, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white.opacity(0.9))
+                } else if event.isStopped {
+                    let t = WatchTimeUtils.detailedTime(
+                        targetDate: targetDate,
+                        now: event.stoppedAtValue ?? targetDate
+                    )
                     Text(String(format: "%02d:%02d:%02d", t.hours, t.minutes, t.seconds))
                         .font(.system(size: 12 * scale, weight: .semibold, design: .rounded))
                         .monospacedDigit()
                         .foregroundStyle(.white.opacity(0.9))
+                } else {
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        let t = WatchTimeUtils.detailedTime(targetDate: targetDate, now: context.date)
+                        Text(String(format: "%02d:%02d:%02d", t.hours, t.minutes, t.seconds))
+                            .font(.system(size: 12 * scale, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.white.opacity(0.9))
+                    }
                 }
             }
+            .contentTransition(.opacity)
+            .id(showFrozenDetails ? "frozen-clock" : "relative-time")
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private var targetDateText: String {
+        "\(WL(isFuture ? "label_from" : "label_since_date")) \(WatchTimeUtils.shortDate(targetDate))"
+    }
+
+    private var frozenSinceText: String {
+        "\(WL("label_frozen_since")) \(WatchTimeUtils.shortDate(event.stoppedAtValue ?? targetDate))"
     }
 
     private var readabilityScrim: some View {

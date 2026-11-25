@@ -77,4 +77,15 @@ enum TimeUtils {
         let seconds = total % 60
         return (hours, minutes, seconds)
     }
+
+    // 某一时刻的本地时分秒文本
+    static func clockTime(_ date: Date) -> String {
+        let parts = Calendar.current.dateComponents([.hour, .minute, .second], from: date)
+        return String(
+            format: "%02d:%02d:%02d",
+            parts.hour ?? 0,
+            parts.minute ?? 0,
+            parts.second ?? 0
+        )
+    }
 }
