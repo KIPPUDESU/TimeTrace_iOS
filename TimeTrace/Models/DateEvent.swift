@@ -22,7 +22,7 @@ final class DateEvent {
     var backgroundImageName: String?
     var isPinned: Bool = false
     var maskOpacity: Double = 0.3
-    // 手动排序用（现在还没有哦 ^ ^）
+    // 手动排序用（首页长按拖拽）
     var position: Int = 0
     var stoppedAt: Date? = nil
 

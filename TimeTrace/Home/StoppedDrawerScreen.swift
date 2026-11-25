@@ -8,7 +8,6 @@ struct StoppedDrawerScreen: View {
     ]) private var events: [DateEvent]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var pendingDelete: DateEvent?
@@ -29,8 +28,6 @@ struct StoppedDrawerScreen: View {
                 Group {
                     if stoppedEvents.isEmpty {
                         emptyState
-                    } else if sizeClass == .regular {
-                        gridLayout
                     } else {
                         listLayout
                     }
@@ -119,9 +116,11 @@ struct StoppedDrawerScreen: View {
             ForEach(pinnedEvents) { event in
                 cardRow(event: event, isPinned: true)
             }
+            .onMove(perform: movePinned)
             ForEach(normalEvents) { event in
                 cardRow(event: event, isPinned: false)
             }
+            .onMove(perform: moveNormal)
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
@@ -129,29 +128,6 @@ struct StoppedDrawerScreen: View {
         .scrollIndicators(.hidden)
         .contentMargins(.bottom, 120, for: .scrollContent)
         .padding(.horizontal, 8)
-    }
-
-    private var gridLayout: some View {
-        let all = orderedEvents
-        return ScrollView {
-            VStack(spacing: 0) {
-                Color.clear.frame(height: headerTotal)
-                LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 300), spacing: 12)],
-                    spacing: 16
-                ) {
-                    ForEach(all) { event in
-                        if event.isPinned {
-                            PinnedEventCard(event: event) { open(event) }
-                        } else {
-                            NormalEventCard(event: event) { open(event) }
-                        }
-                    }
-                }
-                .padding(EdgeInsets(top: 16, leading: 16, bottom: 120, trailing: 16))
-            }
-        }
-        .scrollIndicators(.hidden)
     }
 
     private var emptyState: some View {
@@ -204,6 +180,18 @@ struct StoppedDrawerScreen: View {
 
     private func open(_ event: DateEvent) {
         detailEvent = event
+    }
+
+    private func movePinned(from source: IndexSet, to destination: Int) {
+        var items = pinnedEvents
+        items.move(fromOffsets: source, toOffset: destination)
+        TimelineReorder.persistOrder(pinned: items, normal: normalEvents, in: modelContext)
+    }
+
+    private func moveNormal(from source: IndexSet, to destination: Int) {
+        var items = normalEvents
+        items.move(fromOffsets: source, toOffset: destination)
+        TimelineReorder.persistOrder(pinned: pinnedEvents, normal: items, in: modelContext)
     }
 
     private func delete(_ event: DateEvent) {
